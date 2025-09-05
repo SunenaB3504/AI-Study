@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Study Guide - Chapter 4: Creating User Interfaces</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        }
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="script.js" defer></script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
+    <header class="hero-gradient text-white py-12 px-6 text-center mb-12 rounded-3xl shadow-xl">
+        <h1 class="text-3xl md:text-4xl font-light mb-6">Android Study Guide</h1>
+        <nav class="flex justify-center items-center space-x-4" aria-label="Chapter navigation">
+            <a href="android2.html" class="text-white hover:text-blue-200 px-4 py-2 rounded-lg transition-colors duration-200">Chapter 2</a>
+            <a href="android3.html" class="text-white hover:text-blue-200 px-4 py-2 rounded-lg transition-colors duration-200">Chapter 3</a>
+            <span class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg">Chapter 4</span>
+            <span class="text-gray-300 px-4 py-2 rounded-lg opacity-50">Chapter 5</span>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <article class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <header class="mb-12 pb-8 border-b border-gray-200">
+                <h2 class="text-primary-600 text-3xl font-light mb-4">Chapter 4: Creating User Interfaces</h2>
+                <p class="text-xl text-gray-600 mb-6">Modern Android UI Development with Jetpack Compose</p>
+                <div class="flex flex-wrap gap-4 text-sm text-gray-500">
+                    <span class="bg-gray-100 px-3 py-1 rounded-full">Last Updated: 2025</span>
+                    <span class="bg-gray-100 px-3 py-1 rounded-full">Android 15 (API 35)</span>
+                </div>
+            </header>
+
+            <section id="introduction">
+                <h3>Introduction</h3>
+                <p>In modern Android development, creating intuitive and beautiful user interfaces is crucial for app success. This chapter covers the fundamental concepts of Android UI development using contemporary approaches including Jetpack Compose, Material Design 3, and modern View systems.</p>
+
+                <div class="learning-objectives">
+                    <h4>Learning Objectives</h4>
+                    <ul>
+                        <li>Understand modern Android UI architecture</li>
+                        <li>Master Jetpack Compose for declarative UI development</li>
+                        <li>Implement Material Design 3 components</li>
+                        <li>Create responsive layouts for multiple screen sizes</li>
+                        <li>Build custom composables and views</li>
+                        <li>Implement modern navigation patterns</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="ui-architecture">
+                <h3>Modern Android UI Architecture</h3>
+                <p>Android 15 provides multiple UI frameworks to choose from based on your needs:</p>
+
+                <div class="framework-comparison">
+                    <div class="framework">
+                        <h4>Jetpack Compose</h4>
+                        <p><strong>Recommended for new apps</strong></p>
+                        <ul>
+                            <li>Declarative UI programming</li>
+                            <li>Kotlin-first approach</li>
+                            <li>Modern reactive patterns</li>
+                            <li>Built-in Material Design 3</li>
+                            <li>Excellent testing support</li>
+                        </ul>
+                    </div>
+
+                    <div class="framework">
+                        <h4>View System</h4>
+                        <p><strong>For existing apps and specific needs</strong></p>
+                        <ul>
+                            <li>Imperative UI programming</li>
+                            <li>XML layouts with data binding</li>
+                            <li>Extensive legacy support</li>
+                            <li>Fine-grained control</li>
+                            <li>Established patterns</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="jetpack-compose">
+                <h3>Jetpack Compose Fundamentals</h3>
+                <p>Jetpack Compose revolutionizes Android UI development with a declarative approach:</p>
+
+                <div class="code-example">
+                    <h4>Basic Composable Function</h4>
+                    <pre><code class="language-kotlin">@Composable
+fun Greeting(name: String) {
+    Text(
+        text = "Hello $name!",
+        style = MaterialTheme.typography.headlineMedium,
+        color = MaterialTheme.colorScheme.primary
+    )
+}
+
+@Composable
+fun GreetingScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Greeting("Android")
+    }
+}</code></pre>
+                </div>
+
+                <div class="key-concepts">
+                    <h4>Key Concepts</h4>
+                    <ul>
+                        <li><strong>@Composable</strong>: Marks functions that describe UI</li>
+                        <li><strong>Modifier</strong>: Configures layout, appearance, and behavior</li>
+                        <li><strong>State</strong>: Manages UI state with observable patterns</li>
+                        <li><strong>MaterialTheme</strong>: Provides consistent theming</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="material-design-3">
+                <h3>Material Design 3 Components</h3>
+                <p>Material Design 3 provides modern, adaptive components that work across all Android devices:</p>
+
+                <div class="component-showcase">
+                    <div class="component">
+                        <h4>Dynamic Color</h4>
+                        <p>Colors that adapt to user's wallpaper and system theme</p>
+                        <pre><code class="language-kotlin">val colorScheme = dynamicDarkColorScheme(context)
+MaterialTheme(
+    colorScheme = colorScheme,
+    typography = Typography,
+    shapes = Shapes
+) {
+    // Your content here
+}</code></pre>
+                    </div>
+
+                    <div class="component">
+                        <h4>Modern Buttons</h4>
+                        <pre><code class="language-kotlin">Button(
+    onClick = { /* Handle click */ },
+    modifier = Modifier.fillMaxWidth()
+) {
+    Text("Click me!")
+}
+
+FilledTonalButton(onClick = { }) {
+    Text("Secondary action")
+}
+
+OutlinedButton(onClick = { }) {
+    Text("Tertiary action")
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <section id="layouts">
+                <h3>Modern Layout Systems</h3>
+                <p>Android provides flexible layout systems for different use cases:</p>
+
+                <div class="layout-types">
+                    <h4>Compose Layouts</h4>
+                    <ul>
+                        <li><strong>Column</strong>: Vertical arrangement</li>
+                        <li><strong>Row</strong>: Horizontal arrangement</li>
+                        <li><strong>Box</strong>: Layered positioning</li>
+                        <li><strong>ConstraintLayout</strong>: Complex relationships</li>
+                    </ul>
+
+                    <div class="code-example">
+                        <h4>Responsive Layout with ConstraintLayout</h4>
+                        <pre><code class="language-kotlin">ConstraintLayout(
+    modifier = Modifier.fillMaxSize()
+) {
+    val (title, content, button) = createRefs()
+
+    Text(
+        "Title",
+        modifier = Modifier.constrainAs(title) {
+            top.linkTo(parent.top, margin = 16.dp)
+            start.linkTo(parent.start, margin = 16.dp)
+        }
+    )
+
+    Text(
+        "Content",
+        modifier = Modifier.constrainAs(content) {
+            top.linkTo(title.bottom, margin = 8.dp)
+            start.linkTo(parent.start, margin = 16.dp)
+            end.linkTo(parent.end, margin = 16.dp)
+        }
+    )
+
+    Button(
+        onClick = {},
+        modifier = Modifier.constrainAs(button) {
+            bottom.linkTo(parent.bottom, margin = 16.dp)
+            start.linkTo(parent.start, margin = 16.dp)
+            end.linkTo(parent.end, margin = 16.dp)
+        }
+    ) {
+        Text("Action")
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <section id="state-management">
+                <h3>State Management in Compose</h3>
+                <p>Modern Android apps use reactive state management:</p>
+
+                <div class="code-example">
+                    <h4>State Management Example</h4>
+                    <pre><code class="language-kotlin">@Composable
+fun CounterScreen() {
+    var count by remember { mutableStateOf(0) }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Count: $count",
+            style = MaterialTheme.typography.headlineMedium
+        )
+
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(onClick = { count-- }) {
+                Text("-")
+            }
+
+            Button(onClick = { count++ }) {
+                Text("+")
+            }
+        }
+    }
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="custom-components">
+                <h3>Creating Custom Components</h3>
+                <p>Build reusable UI components with Compose:</p>
+
+                <div class="code-example">
+                    <h4>Custom Card Component</h4>
+                    <pre><code class="language-kotlin">@Composable
+fun TaskCard(
+    task: Task,
+    onComplete: (Task) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = task.title,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = task.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Checkbox(
+                checked = task.isCompleted,
+                onCheckedChange = { onComplete(task) }
+            )
+        }
+    }
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="accessibility">
+                <h3>Accessibility and Inclusive Design</h3>
+                <p>Modern Android apps must be accessible to all users:</p>
+
+                <div class="accessibility-features">
+                    <h4>Key Accessibility Features</h4>
+                    <ul>
+                        <li><strong>Semantic properties</strong>: contentDescription, heading, role</li>
+                        <li><strong>Touch targets</strong>: Minimum 48dp size</li>
+                        <li><strong>Color contrast</strong>: WCAG compliance</li>
+                        <li><strong>Screen readers</strong>: TalkBack support</li>
+                        <li><strong>Keyboard navigation</strong>: Focus management</li>
+                    </ul>
+
+                    <div class="code-example">
+                        <h4>Accessible Button</h4>
+                        <pre><code class="language-kotlin">Button(
+    onClick = { /* handle click */ },
+    modifier = Modifier
+        .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+        .semantics {
+            contentDescription = "Save changes"
+            role = Role.Button
+        }
+) {
+    Icon(
+        Icons.Default.Save,
+        contentDescription = null // Icon is decorative
+    )
+    Spacer(modifier = Modifier.width(8.dp))
+    Text("Save")
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <section id="responsive-design">
+                <h3>Responsive Design</h3>
+                <p>Create apps that work on all screen sizes:</p>
+
+                <div class="responsive-patterns">
+                    <h4>Window Size Classes</h4>
+                    <pre><code class="language-kotlin">val windowSizeClass = calculateWindowSizeClass(activity)
+
+when (windowSizeClass.widthSizeClass) {
+    WindowWidthSizeClass.Compact -> {
+        // Single column layout
+        ColumnLayout()
+    }
+    WindowWidthSizeClass.Medium -> {
+        // Two column layout
+        TwoColumnLayout()
+    }
+    WindowWidthSizeClass.Expanded -> {
+        // Multi-pane layout
+        MultiPaneLayout()
+    }
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="modern-navigation">
+                <h3>Modern Navigation Patterns</h3>
+                <p>Use Navigation Compose for structured navigation:</p>
+
+                <div class="code-example">
+                    <h4>Navigation Setup</h4>
+                    <pre><code class="language-kotlin">val navController = rememberNavController()
+
+NavHost(navController = navController, startDestination = "home") {
+    composable("home") {
+        HomeScreen(
+            onNavigateToDetail = { taskId ->
+                navController.navigate("detail/$taskId")
+            }
+        )
+    }
+    composable(
+        "detail/{taskId}",
+        arguments = listOf(navArgument("taskId") { type = NavType.StringType })
+    ) { backStackEntry ->
+        val taskId = backStackEntry.arguments?.getString("taskId")
+        DetailScreen(
+            taskId = taskId,
+            onNavigateBack = { navController.popBackStack() }
+        )
+    }
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="best-practices">
+                <h3>Best Practices for Modern UI Development</h3>
+
+                <div class="best-practices">
+                    <h4>Performance</h4>
+                    <ul>
+                        <li>Use remember for expensive computations</li>
+                        <li>Avoid unnecessary recompositions</li>
+                        <li>Use derivedStateOf for computed values</li>
+                        <li>Profile with Layout Inspector</li>
+                    </ul>
+
+                    <h4>Architecture</h4>
+                    <ul>
+                        <li>Separate UI from business logic</li>
+                        <li>Use ViewModels for state management</li>
+                        <li>Implement proper error handling</li>
+                        <li>Follow single responsibility principle</li>
+                    </ul>
+
+                    <h4>Testing</h4>
+                    <ul>
+                        <li>Write composable tests with Compose Test Rule</li>
+                        <li>Test user interactions</li>
+                        <li>Verify accessibility</li>
+                        <li>Use screenshot testing</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="summary">
+                <h3>Summary</h3>
+                <p>This chapter covered modern Android UI development practices for Android 15:</p>
+
+                <div class="key-takeaways">
+                    <h4>Key Takeaways</h4>
+                    <ul>
+                        <li>Jetpack Compose is the recommended approach for new Android UIs</li>
+                        <li>Material Design 3 provides modern, adaptive components</li>
+                        <li>State management is crucial for reactive UIs</li>
+                        <li>Accessibility and responsive design are essential</li>
+                        <li>Navigation Compose simplifies complex navigation patterns</li>
+                        <li>Performance optimization requires careful state management</li>
+                    </ul>
+                </div>
+
+                <div class="next-steps">
+                    <h4>Next Steps</h4>
+                    <p>With a solid understanding of Android UI development, you're ready to:</p>
+                    <ul>
+                        <li>Build complete Android applications</li>
+                        <li>Implement complex navigation patterns</li>
+                        <li>Create custom design systems</li>
+                        <li>Optimize for performance and accessibility</li>
+                    </ul>
+                </div>
+            </section>
+        </article>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Android Study Guide. Modernized for Android 15.</p>
+        <div class="progress-controls">
+            <button id="tts-toggle" aria-label="Toggle text-to-speech">🔊 TTS</button>
+            <button id="progress-toggle" aria-label="Toggle progress tracking">📊 Progress</button>
+        </div>
+    </footer>
+</body>
+</html>

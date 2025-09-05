@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Study Guide - Chapter 12: Firebase Integration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        }
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #22c55e 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
+    <header class="hero-gradient text-white py-16 px-6 text-center mb-12">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-light mb-4">Android Study Guide</h1>
+            <div class="text-xl md:text-2xl opacity-90">Chapter 12: Firebase Integration</div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <h2 class="text-primary-600 text-3xl font-light mb-6">Firebase for Android Development</h2>
+            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                <p class="text-lg text-gray-700">Firebase provides a comprehensive suite of backend services for Android apps including authentication, database, storage, analytics, and more.</p>
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Firebase Setup and Configuration</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// build.gradle (project level)<br>
+buildscript {<br>
+    dependencies {<br>
+        classpath 'com.google.gms:google-services:4.3.15'<br>
+    }<br>
+}<br>
+<br>
+// build.gradle (app level)<br>
+plugins {<br>
+    id 'com.android.application'<br>
+    id 'com.google.gms.google-services'<br>
+}<br>
+<br>
+dependencies {<br>
+    implementation platform('com.google.firebase:firebase-bom:32.0.0')<br>
+    implementation 'com.google.firebase:firebase-analytics'<br>
+    implementation 'com.google.firebase:firebase-auth'<br>
+    implementation 'com.google.firebase:firebase-firestore'<br>
+    implementation 'com.google.firebase:firebase-storage'<br>
+    implementation 'com.google.firebase:firebase-messaging'<br>
+    implementation 'com.google.firebase:firebase-crashlytics'<br>
+}<br>
+<br>
+// google-services.json<br>
+// Place this file in the app/ directory<br>
+// Downloaded from Firebase Console<br>
+<br>
+// AndroidManifest.xml<br>
+&lt;application&gt;<br>
+    &lt;!-- Firebase services don't require additional manifest entries --&gt;<br>
+    &lt;meta-data<br>
+        android:name="firebase_analytics_collection_enabled"<br>
+        android:value="true" /&gt;<br>
+&lt;/application&gt;
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Firebase Authentication</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+public class AuthActivity extends AppCompatActivity {<br>
+    private FirebaseAuth mAuth;<br>
+    private EditText emailField, passwordField;<br>
+<br>
+    @Override<br>
+    protected void onCreate(Bundle savedInstanceState) {<br>
+        super.onCreate(savedInstanceState);<br>
+        setContentView(R.layout.activity_auth);<br>
+<br>
+        mAuth = FirebaseAuth.getInstance();<br>
+        emailField = findViewById(R.id.email_field);<br>
+        passwordField = findViewById(R.id.password_field);<br>
+<br>
+        // Check if user is already signed in<br>
+        FirebaseUser currentUser = mAuth.getCurrentUser();<br>
+        if (currentUser != null) {<br>
+            // User is signed in<br>
+            updateUI(currentUser);<br>
+        }<br>
+    }<br>
+<br>
+    private void signUp(String email, String password) {<br>
+        mAuth.createUserWithEmailAndPassword(email, password)<br>
+                .addOnCompleteListener(this, new OnCompleteListener&lt;AuthResult&gt;() {<br>
+                    @Override<br>
+                    public void onComplete(@NonNull Task&lt;AuthResult&gt; task) {<br>
+                        if (task.isSuccessful()) {<br>
+                            // Sign up success<br>
+                            FirebaseUser user = mAuth.getCurrentUser();<br>
+                            updateUI(user);<br>
+                        } else {<br>
+                            // Sign up failed<br>
+                            Toast.makeText(AuthActivity.this, "Authentication failed.",<br>
+                                    Toast.LENGTH_SHORT).show();<br>
+                            updateUI(null);<br>
+                        }<br>
+                    }<br>
+                });<br>
+    }<br>
+<br>
+    private void signIn(String email, String password) {<br>
+        mAuth.signInWithEmailAndPassword(email, password)<br>
+                .addOnCompleteListener(this, new OnCompleteListener&lt;AuthResult&gt;() {<br>
+                    @Override<br>
+                    public void onComplete(@NonNull Task&lt;AuthResult&gt; task) {<br>
+                        if (task.isSuccessful()) {<br>
+                            // Sign in success<br>
+                            FirebaseUser user = mAuth.getCurrentUser();<br>
+                            updateUI(user);<br>
+                        } else {<br>
+                            // Sign in failed<br>
+                            Toast.makeText(AuthActivity.this, "Authentication failed.",<br>
+                                    Toast.LENGTH_SHORT).show();<br>
+                            updateUI(null);<br>
+                        }<br>
+                    }<br>
+                });<br>
+    }<br>
+<br>
+    private void signOut() {<br>
+        mAuth.signOut();<br>
+        updateUI(null);<br>
+    }<br>
+<br>
+    private void updateUI(FirebaseUser user) {<br>
+        if (user != null) {<br>
+            // User is signed in<br>
+            String welcome = "Welcome, " + user.getEmail();<br>
+            Toast.makeText(this, welcome, Toast.LENGTH_SHORT).show();<br>
+        } else {<br>
+            // User is signed out<br>
+            Toast.makeText(this, "Signed out", Toast.LENGTH_SHORT).show();<br>
+        }<br>
+    }<br>
+}<br>
+<br>
+// Google Sign-In<br>
+private void signInWithGoogle() {<br>
+    GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)<br>
+            .requestIdToken(getString(R.string.default_web_client_id))<br>
+            .requestEmail()<br>
+            .build();<br>
+<br>
+    GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);<br>
+    Intent signInIntent = googleSignInClient.getSignInIntent();<br>
+    startActivityForResult(signInIntent, RC_SIGN_IN);<br>
+}<br>
+<br>
+@Override<br>
+public void onActivityResult(int requestCode, int resultCode, Intent data) {<br>
+    super.onActivityResult(requestCode, resultCode, data);<br>
+<br>
+    if (requestCode == RC_SIGN_IN) {<br>
+        Task&lt;GoogleSignInAccount&gt; task = GoogleSignIn.getSignedInAccountFromIntent(data);<br>
+        try {<br>
+            GoogleSignInAccount account = task.getResult(ApiException.class);<br>
+            firebaseAuthWithGoogle(account.getIdToken());<br>
+        } catch (ApiException e) {<br>
+            Log.w(TAG, "Google sign in failed", e);<br>
+        }<br>
+    }<br>
+}<br>
+<br>
+private void firebaseAuthWithGoogle(String idToken) {<br>
+    AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);<br>
+    mAuth.signInWithCredential(credential)<br>
+            .addOnCompleteListener(this, new OnCompleteListener&lt;AuthResult&gt;() {<br>
+                @Override<br>
+                public void onComplete(@NonNull Task&lt;AuthResult&gt; task) {<br>
+                    if (task.isSuccessful()) {<br>
+                        FirebaseUser user = mAuth.getCurrentUser();<br>
+                        updateUI(user);<br>
+                    } else {<br>
+                        Log.w(TAG, "signInWithCredential:failure", task.getException());<br>
+                        updateUI(null);<br>
+                    }<br>
+                }<br>
+            });<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Cloud Firestore Database</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+public class FirestoreActivity extends AppCompatActivity {<br>
+    private FirebaseFirestore db;<br>
+    private CollectionReference usersRef;<br>
+<br>
+    @Override<br>
+    protected void onCreate(Bundle savedInstanceState) {<br>
+        super.onCreate(savedInstanceState);<br>
+        setContentView(R.layout.activity_firestore);<br>
+<br>
+        db = FirebaseFirestore.getInstance();<br>
+        usersRef = db.collection("users");<br>
+    }<br>
+<br>
+    // Add a new user<br>
+    private void addUser(String name, String email, int age) {<br>
+        Map&lt;String, Object&gt; user = new HashMap&lt;&gt;();<br>
+        user.put("name", name);<br>
+        user.put("email", email);<br>
+        user.put("age", age);<br>
+        user.put("timestamp", FieldValue.serverTimestamp());<br>
+<br>
+        db.collection("users")<br>
+                .add(user)<br>
+                .addOnSuccessListener(new OnSuccessListener&lt;DocumentReference&gt;() {<br>
+                    @Override<br>
+                    public void onSuccess(DocumentReference documentReference) {<br>
+                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());<br>
+                        Toast.makeText(FirestoreActivity.this, "User added successfully",<br>
+                                Toast.LENGTH_SHORT).show();<br>
+                    }<br>
+                })<br>
+                .addOnFailureListener(new OnFailureListener() {<br>
+                    @Override<br>
+                    public void onFailure(@NonNull Exception e) {<br>
+                        Log.w(TAG, "Error adding document", e);<br>
+                        Toast.makeText(FirestoreActivity.this, "Error adding user",<br>
+                                Toast.LENGTH_SHORT).show();<br>
+                    }<br>
+                });<br>
+    }<br>
+<br>
+    // Read users<br>
+    private void readUsers() {<br>
+        db.collection("users")<br>
+                .get()<br>
+                .addOnCompleteListener(new OnCompleteListener&lt;QuerySnapshot&gt;() {<br>
+                    @Override<br>
+                    public void onComplete(@NonNull Task&lt;QuerySnapshot&gt; task) {<br>
+                        if (task.isSuccessful()) {<br>
+                            List&lt;User&gt; users = new ArrayList&lt;&gt;();<br>
+                            for (QueryDocumentSnapshot document : task.getResult()) {<br>
+                                User user = document.toObject(User.class);<br>
+                                users.add(user);<br>
+                            }<br>
+                            // Update UI with users list<br>
+                            updateUsersList(users);<br>
+                        } else {<br>
+                            Log.w(TAG, "Error getting documents.", task.getException());<br>
+                        }<br>
+                    }<br>
+                });<br>
+    }<br>
+<br>
+    // Real-time updates<br>
+    private void listenForUsersUpdates() {<br>
+        usersRef.addSnapshotListener(new EventListener&lt;QuerySnapshot&gt;() {<br>
+            @Override<br>
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException e) {<br>
+                if (e != null) {<br>
+                    Log.w(TAG, "Listen failed.", e);<br>
+                    return;<br>
+                }<br>
+<br>
+                List&lt;User&gt; users = new ArrayList&lt;&gt;();<br>
+                for (QueryDocumentSnapshot doc : value) {<br>
+                    User user = doc.toObject(User.class);<br>
+                    users.add(user);<br>
+                }<br>
+                updateUsersList(users);<br>
+            }<br>
+        });<br>
+    }<br>
+<br>
+    // Query with conditions<br>
+    private void queryUsersByAge(int minAge) {<br>
+        db.collection("users")<br>
+                .whereGreaterThan("age", minAge)<br>
+                .orderBy("age", Query.Direction.DESCENDING)<br>
+                .get()<br>
+                .addOnCompleteListener(new OnCompleteListener&lt;QuerySnapshot&gt;() {<br>
+                    @Override<br>
+                    public void onComplete(@NonNull Task&lt;QuerySnapshot&gt; task) {<br>
+                        if (task.isSuccessful()) {<br>
+                            // Handle query results<br>
+                        }<br>
+                    }<br>
+                });<br>
+    }<br>
+<br>
+    // Update user<br>
+    private void updateUser(String userId, Map&lt;String, Object&gt; updates) {<br>
+        db.collection("users").document(userId)<br>
+                .update(updates)<br>
+                .addOnSuccessListener(new OnSuccessListener&lt;Void&gt;() {<br>
+                    @Override<br>
+                    public void onSuccess(Void aVoid) {<br>
+                        Log.d(TAG, "DocumentSnapshot successfully updated!");<br>
+                    }<br>
+                })<br>
+                .addOnFailureListener(new OnFailureListener() {<br>
+                    @Override<br>
+                    public void onFailure(@NonNull Exception e) {<br>
+                        Log.w(TAG, "Error updating document", e);<br>
+                    }<br>
+                });<br>
+    }<br>
+<br>
+    // Delete user<br>
+    private void deleteUser(String userId) {<br>
+        db.collection("users").document(userId)<br>
+                .delete()<br>
+                .addOnSuccessListener(new OnSuccessListener&lt;Void&gt;() {<br>
+                    @Override<br>
+                    public void onSuccess(Void aVoid) {<br>
+                        Log.d(TAG, "DocumentSnapshot successfully deleted!");<br>
+                    }<br>
+                })<br>
+                .addOnFailureListener(new OnFailureListener() {<br>
+                    @Override<br>
+                    public void onFailure(@NonNull Exception e) {<br>
+                        Log.w(TAG, "Error deleting document", e);<br>
+                    }<br>
+                });<br>
+    }<br>
+}<br>
+<br>
+// User model class<br>
+public class User {<br>
+    private String name;<br>
+    private String email;<br>
+    private int age;<br>
+    private Date timestamp;<br>
+<br>
+    public User() {} // Required for Firestore<br>
+<br>
+    public User(String name, String email, int age) {<br>
+        this.name = name;<br>
+        this.email = email;<br>
+        this.age = age;<br>
+    }<br>
+<br>
+    // Getters and setters<br>
+    public String getName() { return name; }<br>
+    public void setName(String name) { this.name = name; }<br>
+    public String getEmail() { return email; }<br>
+    public void setEmail(String email) { this.email = email; }<br>
+    public int getAge() { return age; }<br>
+    public void setAge(int age) { this.age = age; }<br>
+    public Date getTimestamp() { return timestamp; }<br>
+    public void setTimestamp(Date timestamp) { this.timestamp = timestamp; }<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Firebase Cloud Messaging (FCM)</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// MyFirebaseMessagingService.java<br>
+public class MyFirebaseMessagingService extends FirebaseMessagingService {<br>
+<br>
+    @Override<br>
+    public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {<br>
+        super.onMessageReceived(remoteMessage);<br>
+<br>
+        // Handle data payload<br>
+        if (remoteMessage.getData().size() &gt; 0) {<br>
+            Log.d(TAG, "Message data payload: " + remoteMessage.getData());<br>
+            handleDataMessage(remoteMessage.getData());<br>
+        }<br>
+<br>
+        // Handle notification payload<br>
+        if (remoteMessage.getNotification() != null) {<br>
+            Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());<br>
+            showNotification(remoteMessage.getNotification());<br>
+        }<br>
+    }<br>
+<br>
+    @Override<br>
+    public void onNewToken(@NonNull String token) {<br>
+        super.onNewToken(token);<br>
+        Log.d(TAG, "Refreshed token: " + token);<br>
+<br>
+        // Send token to your server<br>
+        sendRegistrationToServer(token);<br>
+    }<br>
+<br>
+    private void handleDataMessage(Map&lt;String, String&gt; data) {<br>
+        // Handle custom data<br>
+        String type = data.get("type");<br>
+        if ("chat".equals(type)) {<br>
+            // Handle chat message<br>
+        } else if ("update".equals(type)) {<br>
+            // Handle update notification<br>
+        }<br>
+    }<br>
+<br>
+    private void showNotification(RemoteMessage.Notification notification) {<br>
+        Intent intent = new Intent(this, MainActivity.class);<br>
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);<br>
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,<br>
+                PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);<br>
+<br>
+        NotificationCompat.Builder notificationBuilder =<br>
+                new NotificationCompat.Builder(this, "default")<br>
+                        .setSmallIcon(R.drawable.ic_notification)<br>
+                        .setContentTitle(notification.getTitle())<br>
+                        .setContentText(notification.getBody())<br>
+                        .setAutoCancel(true)<br>
+                        .setContentIntent(pendingIntent);<br>
+<br>
+        NotificationManager notificationManager =<br>
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);<br>
+<br>
+        // Create notification channel for Android 8.0+<br>
+        if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.O) {<br>
+            NotificationChannel channel = new NotificationChannel("default",<br>
+                    "Default Channel", NotificationManager.IMPORTANCE_DEFAULT);<br>
+            notificationManager.createNotificationChannel(channel);<br>
+        }<br>
+<br>
+        notificationManager.notify(0, notificationBuilder.build());<br>
+    }<br>
+<br>
+    private void sendRegistrationToServer(String token) {<br>
+        // Send token to your server for targeted messaging<br>
+    }<br>
+}<br>
+<br>
+// Get FCM token<br>
+FirebaseMessaging.getInstance().getToken()<br>
+        .addOnCompleteListener(new OnCompleteListener&lt;String&gt;() {<br>
+            @Override<br>
+            public void onComplete(@NonNull Task&lt;String&gt; task) {<br>
+                if (!task.isSuccessful()) {<br>
+                    Log.w(TAG, "Fetching FCM registration token failed", task.getException());<br>
+                    return;<br>
+                }<br>
+<br>
+                // Get new FCM registration token<br>
+                String token = task.getResult();<br>
+                Log.d(TAG, "FCM Token: " + token);<br>
+            }<br>
+        });<br>
+<br>
+// Subscribe to topics<br>
+FirebaseMessaging.getInstance().subscribeToTopic("weather")<br>
+        .addOnCompleteListener(new OnCompleteListener&lt;Void&gt;() {<br>
+            @Override<br>
+            public void onComplete(@NonNull Task&lt;Void&gt; task) {<br>
+                String msg = "Subscribed to weather topic";<br>
+                if (!task.isSuccessful()) {<br>
+                    msg = "Failed to subscribe to weather topic";<br>
+                }<br>
+                Log.d(TAG, msg);<br>
+                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();<br>
+            }<br>
+        });
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Firebase Storage</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+public class StorageActivity extends AppCompatActivity {<br>
+    private FirebaseStorage storage;<br>
+    private StorageReference storageRef;<br>
+    private Uri fileUri;<br>
+<br>
+    @Override<br>
+    protected void onCreate(Bundle savedInstanceState) {<br>
+        super.onCreate(savedInstanceState);<br>
+        setContentView(R.layout.activity_storage);<br>
+<br>
+        storage = FirebaseStorage.getInstance();<br>
+        storageRef = storage.getReference();<br>
+    }<br>
+<br>
+    // Upload file<br>
+    private void uploadFile(Uri fileUri, String fileName) {<br>
+        StorageReference fileRef = storageRef.child("uploads/" + fileName);<br>
+<br>
+        UploadTask uploadTask = fileRef.putFile(fileUri);<br>
+<br>
+        // Monitor upload progress<br>
+        uploadTask.addOnProgressListener(new OnProgressListener&lt;UploadTask.TaskSnapshot&gt;() {<br>
+            @Override<br>
+            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {<br>
+                double progress = (100.0 * snapshot.getBytesTransferred()) / snapshot.getTotalByteCount();<br>
+                Log.d(TAG, "Upload is " + progress + "% done");<br>
+            }<br>
+        }).addOnSuccessListener(new OnSuccessListener&lt;UploadTask.TaskSnapshot&gt;() {<br>
+            @Override<br>
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {<br>
+                // Get download URL<br>
+                fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener&lt;Uri&gt;() {<br>
+                    @Override<br>
+                    public void onSuccess(Uri uri) {<br>
+                        String downloadUrl = uri.toString();<br>
+                        Log.d(TAG, "File uploaded successfully: " + downloadUrl);<br>
+                        // Save download URL to database<br>
+                        saveFileUrlToDatabase(downloadUrl);<br>
+                    }<br>
+                });<br>
+            }<br>
+        }).addOnFailureListener(new OnFailureListener() {<br>
+            @Override<br>
+            public void onFailure(@NonNull Exception e) {<br>
+                Log.e(TAG, "Upload failed: " + e.getMessage());<br>
+                Toast.makeText(StorageActivity.this, "Upload failed", Toast.LENGTH_SHORT).show();<br>
+            }<br>
+        });<br>
+    }<br>
+<br>
+    // Download file<br>
+    private void downloadFile(String fileName) {<br>
+        StorageReference fileRef = storageRef.child("uploads/" + fileName);<br>
+<br>
+        File localFile = new File(getFilesDir(), fileName);<br>
+<br>
+        fileRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener&lt;FileDownloadTask.TaskSnapshot&gt;() {<br>
+            @Override<br>
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {<br>
+                Log.d(TAG, "File downloaded successfully");<br>
+                // File is now available at localFile<br>
+            }<br>
+        }).addOnFailureListener(new OnFailureListener() {<br>
+            @Override<br>
+            public void onFailure(@NonNull Exception e) {<br>
+                Log.e(TAG, "Download failed: " + e.getMessage());<br>
+            }<br>
+        });<br>
+    }<br>
+<br>
+    // List files<br>
+    private void listFiles() {<br>
+        StorageReference listRef = storageRef.child("uploads");<br>
+<br>
+        listRef.listAll()<br>
+                .addOnSuccessListener(new OnSuccessListener&lt;ListResult&gt;() {<br>
+                    @Override<br>
+                    public void onSuccess(ListResult listResult) {<br>
+                        for (StorageReference item : listResult.getItems()) {<br>
+                            Log.d(TAG, "File: " + item.getName());<br>
+                        }<br>
+                    }<br>
+                })<br>
+                .addOnFailureListener(new OnFailureListener() {<br>
+                    @Override<br>
+                    public void onFailure(@NonNull Exception e) {<br>
+                        Log.e(TAG, "List files failed: " + e.getMessage());<br>
+                    }<br>
+                });<br>
+    }<br>
+<br>
+    // Delete file<br>
+    private void deleteFile(String fileName) {<br>
+        StorageReference fileRef = storageRef.child("uploads/" + fileName);<br>
+<br>
+        fileRef.delete().addOnSuccessListener(new OnSuccessListener&lt;Void&gt;() {<br>
+            @Override<br>
+            public void onSuccess(Void aVoid) {<br>
+                Log.d(TAG, "File deleted successfully");<br>
+            }<br>
+        }).addOnFailureListener(new OnFailureListener() {<br>
+            @Override<br>
+            public void onFailure(@NonNull Exception e) {<br>
+                Log.e(TAG, "Delete failed: " + e.getMessage());<br>
+            }<br>
+        });<br>
+    }<br>
+<br>
+    // Handle file selection<br>
+    @Override<br>
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {<br>
+        super.onActivityResult(requestCode, resultCode, data);<br>
+<br>
+        if (requestCode == PICK_FILE_REQUEST && resultCode == RESULT_OK && data != null) {<br>
+            fileUri = data.getData();<br>
+            // Upload the selected file<br>
+            String fileName = getFileName(fileUri);<br>
+            uploadFile(fileUri, fileName);<br>
+        }<br>
+    }<br>
+<br>
+    private String getFileName(Uri uri) {<br>
+        String result = null;<br>
+        if (uri.getScheme().equals("content")) {<br>
+            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {<br>
+                if (cursor != null && cursor.moveToFirst()) {<br>
+                    int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);<br>
+                    if (index != -1) {<br>
+                        result = cursor.getString(index);<br>
+                    }<br>
+                }<br>
+            }<br>
+        }<br>
+        if (result == null) {<br>
+            result = uri.getPath();<br>
+            int cut = result.lastIndexOf('/');<br>
+            if (cut != -1) {<br>
+                result = result.substring(cut + 1);<br>
+            }<br>
+        }<br>
+        return result;<br>
+    }<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Firebase Analytics</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// Track screen views<br>
+@Override<br>
+protected void onResume() {<br>
+    super.onResume();<br>
+    FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "MainActivity", null);<br>
+}<br>
+<br>
+// Track custom events<br>
+private void trackCustomEvent(String eventName, Bundle params) {<br>
+    FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);<br>
+    mFirebaseAnalytics.logEvent(eventName, params);<br>
+}<br>
+<br>
+// Example: Track button click<br>
+public void onButtonClick(View view) {<br>
+    Bundle bundle = new Bundle();<br>
+    bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "button_id");<br>
+    bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "main_button");<br>
+    bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");<br>
+    trackCustomEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);<br>
+}<br>
+<br>
+// Track user properties<br>
+private void setUserProperties() {<br>
+    FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);<br>
+    mFirebaseAnalytics.setUserProperty("favorite_color", "blue");<br>
+    mFirebaseAnalytics.setUserProperty("user_type", "premium");<br>
+}<br>
+<br>
+// Track e-commerce events<br>
+private void trackPurchase(String itemId, String itemName, double price) {<br>
+    Bundle bundle = new Bundle();<br>
+    bundle.putString(FirebaseAnalytics.Param.ITEM_ID, itemId);<br>
+    bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, itemName);<br>
+    bundle.putDouble(FirebaseAnalytics.Param.PRICE, price);<br>
+    bundle.putString(FirebaseAnalytics.Param.CURRENCY, "USD");<br>
+<br>
+    FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.PURCHASE, bundle);<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Firebase Crashlytics</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// Initialize Crashlytics<br>
+FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);<br>
+<br>
+// Set user information<br>
+FirebaseCrashlytics.getInstance().setUserId("user123");<br>
+FirebaseCrashlytics.getInstance().setCustomKey("user_type", "premium");<br>
+<br>
+// Log custom messages<br>
+FirebaseCrashlytics.getInstance().log("User clicked on button X");<br>
+<br>
+// Record exceptions<br>
+try {<br>
+    // Risky operation<br>
+    int result = 10 / 0;<br>
+} catch (Exception e) {<br>
+    FirebaseCrashlytics.getInstance().recordException(e);<br>
+}<br>
+<br>
+// Force a crash for testing (remove in production)<br>
+Button crashButton = findViewById(R.id.crash_button);<br>
+crashButton.setOnClickListener(new View.OnClickListener() {<br>
+    @Override<br>
+    public void onClick(View view) {<br>
+        throw new RuntimeException("Test Crash");<br>
+    }<br>
+});
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Firebase Remote Config</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+public class RemoteConfigActivity extends AppCompatActivity {<br>
+    private FirebaseRemoteConfig mFirebaseRemoteConfig;<br>
+<br>
+    @Override<br>
+    protected void onCreate(Bundle savedInstanceState) {<br>
+        super.onCreate(savedInstanceState);<br>
+        setContentView(R.layout.activity_remote_config);<br>
+<br>
+        mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();<br>
+<br>
+        // Set default values<br>
+        Map&lt;String, Object&gt; defaults = new HashMap&lt;&gt;();<br>
+        defaults.put("welcome_message", "Welcome to our app!");<br>
+        defaults.put("show_ads", false);<br>
+        defaults.put("max_items", 10);<br>
+        mFirebaseRemoteConfig.setDefaultsAsync(defaults);<br>
+<br>
+        // Set fetch interval<br>
+        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()<br>
+                .setMinimumFetchIntervalInSeconds(3600) // 1 hour<br>
+                .build();<br>
+        mFirebaseRemoteConfig.setConfigSettingsAsync(configSettings);<br>
+<br>
+        // Fetch and activate<br>
+        fetchRemoteConfig();<br>
+    }<br>
+<br>
+    private void fetchRemoteConfig() {<br>
+        mFirebaseRemoteConfig.fetchAndActivate()<br>
+                .addOnCompleteListener(this, new OnCompleteListener&lt;Boolean&gt;() {<br>
+                    @Override<br>
+                    public void onComplete(@NonNull Task&lt;Boolean&gt; task) {<br>
+                        if (task.isSuccessful()) {<br>
+                            boolean updated = task.getResult();<br>
+                            Log.d(TAG, "Config params updated: " + updated);<br>
+                            applyRemoteConfig();<br>
+                        } else {<br>
+                            Log.e(TAG, "Fetch failed");<br>
+                        }<br>
+                    }<br>
+                });<br>
+    }<br>
+<br>
+    private void applyRemoteConfig() {<br>
+        // Get string value<br>
+        String welcomeMessage = mFirebaseRemoteConfig.getString("welcome_message");<br>
+        TextView welcomeText = findViewById(R.id.welcome_text);<br>
+        welcomeText.setText(welcomeMessage);<br>
+<br>
+        // Get boolean value<br>
+        boolean showAds = mFirebaseRemoteConfig.getBoolean("show_ads");<br>
+        if (showAds) {<br>
+            // Show ads<br>
+            showAdBanner();<br>
+        }<br>
+<br>
+        // Get number value<br>
+        long maxItems = mFirebaseRemoteConfig.getLong("max_items");<br>
+        // Use maxItems to limit list size<br>
+    }<br>
+<br>
+    private void showAdBanner() {<br>
+        // Implement ad showing logic<br>
+    }<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Firebase Security Rules</h3>
+            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                <p class="text-lg text-gray-700">Always implement proper security rules for Firestore and Storage to protect your data.</p>
+            </div>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// Firestore Security Rules<br>
+rules_version = '2';<br>
+service cloud.firestore {<br>
+  match /databases/{database}/documents {<br>
+    // Users can read and write their own data<br>
+    match /users/{userId} {<br>
+      allow read, write: if request.auth != null && request.auth.uid == userId;<br>
+    }<br>
+<br>
+    // Public posts are readable by everyone<br>
+    match /posts/{postId} {<br>
+      allow read: if true;<br>
+      allow write: if request.auth != null;<br>
+    }<br>
+  }<br>
+}<br>
+<br>
+// Storage Security Rules<br>
+rules_version = '2';<br>
+service firebase.storage {<br>
+  match /b/{bucket}/o {<br>
+    // Users can upload their own profile pictures<br>
+    match /profile_pictures/{userId}/{allPaths=**} {<br>
+      allow read, write: if request.auth != null && request.auth.uid == userId;<br>
+    }<br>
+<br>
+    // Public images are readable by everyone<br>
+    match /public_images/{allPaths=**} {<br>
+      allow read: if true;<br>
+      allow write: if request.auth != null;<br>
+    }<br>
+  }<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Best Practices</h3>
+            <ul class="list-disc list-inside text-gray-700 space-y-2 mb-8">
+                <li>Always enable offline persistence for better user experience</li>
+                <li>Use Firebase security rules to protect your data</li>
+                <li>Implement proper error handling for all Firebase operations</li>
+                <li>Test your Firebase integration thoroughly</li>
+                <li>Monitor usage and costs in Firebase Console</li>
+                <li>Use Firebase Analytics to understand user behavior</li>
+                <li>Implement Crashlytics for better app stability</li>
+            </ul>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-6 mt-12">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <a href="android11.html" class="text-primary-600 hover:text-primary-700 font-medium px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200">← Previous Chapter</a>
+                <a href="study-guide-progress.html" class="text-primary-600 hover:text-primary-700 font-medium px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200">🏠 Study Guide Home</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

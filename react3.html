@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React Chapter 3: State Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#61dafb',
+                        secondary: '#21a3c4',
+                        accent: '#4caf50'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .code-block {
+            position: relative;
+        }
+        .code-block::before {
+            content: "JavaScript/JSX";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #61dafb;
+            color: #2d3748;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .highlight {
+            background: #61dafb;
+            color: #2d3748;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="font-sans m-0 p-5 bg-gradient-to-br from-blue-400 to-purple-600 min-h-screen text-gray-800">
+    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-primary to-secondary text-white p-8 text-center">
+            <h1 class="text-4xl font-light m-0">⚛️ React Chapter 3</h1>
+            <div class="text-xl opacity-90 mt-2.5">State Management - Managing Component Data</div>
+            <button id="chapter-complete" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300">✅ Mark Complete</button>
+        </div>
+
+        <div class="p-10">
+            <div class="bg-gray-50 p-5 rounded-lg mb-8 flex justify-between items-center flex-wrap gap-4">
+                <a href="react2.html" class="bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-lg no-underline font-medium transition-colors duration-300">⬅️ Chapter 2: Components & Props</a>
+                <a href="study-guide-progress.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg no-underline font-medium transition-colors duration-300">📊 Progress Dashboard</a>
+                <a href="react4.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg no-underline font-medium transition-colors duration-300">Chapter 4: Hooks & Lifecycle ➡️</a>
+            </div>
+
+            <div class="section">
+                <h2>🎯 Chapter Overview</h2>
+                <p>In this chapter, we'll explore state management in React - the mechanism that allows components to manage and update their data. You'll learn how to use React hooks to create dynamic, interactive user interfaces.</p>
+
+                <div class="important">
+                    <h4>📚 What You'll Learn</h4>
+                    <ul>
+                        <li>Understanding state vs props</li>
+                        <li>useState hook for local state</li>
+                        <li>useEffect hook for side effects</li>
+                        <li>State management patterns and best practices</li>
+                        <li>Lifting state up for component communication</li>
+                        <li>Common state management anti-patterns</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔄 State vs Props</h2>
+                <p>Before diving into state management, it's crucial to understand the difference between state and props, and when to use each.</p>
+
+                <h3>Props vs State Comparison</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 my-5">
+                    <div class="bg-blue-50 p-5 rounded-lg">
+                        <h4 class="text-blue-800 m-0">📥 Props</h4>
+                        <ul>
+                            <li>Data passed from parent to child</li>
+                            <li>Read-only (immutable)</li>
+                            <li>Used for component configuration</li>
+                            <li>Changes trigger re-renders</li>
+                            <li>Can have default values</li>
+                        </ul>
+                    </div>
+                    <div class="bg-purple-50 p-5 rounded-lg">
+                        <h4 class="text-purple-800 m-0">🔄 State</h4>
+                        <ul>
+                            <li>Data managed within component</li>
+                            <li>Mutable (can be changed)</li>
+                            <li>Used for component behavior</li>
+                            <li>Changes trigger re-renders</li>
+                            <li>Should be private to component</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="important">
+                    <h4>💡 When to Use State</h4>
+                    <p>Use state when:</p>
+                    <ul>
+                        <li>Data changes over time</li>
+                        <li>Data is private to the component</li>
+                        <li>Data affects the component's output/behavior</li>
+                        <li>Data needs to be shared with child components</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🪝 useState Hook</h2>
+                <p>The <span class="highlight">useState</span> hook is the most fundamental hook for managing state in functional components.</p>
+
+                <h3>Basic useState Usage</h3>
+                <div class="code-block">import React, { useState } from 'react';
+
+function Counter() {
+  // Declare state variable with initial value
+  const [count, setCount] = useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;You clicked {count} times&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Click me
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3>useState with Different Data Types</h3>
+                <div class="code-block">// String state
+const [name, setName] = useState('John');
+
+// Number state
+const [age, setAge] = useState(25);
+
+// Boolean state
+const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+// Array state
+const [items, setItems] = useState([]);
+
+// Object state
+const [user, setUser] = useState({
+  name: 'John',
+  email: 'john@example.com'
+});
+
+// Null state
+const [selectedItem, setSelectedItem] = useState(null);</div>
+
+                <h3>Updating State Correctly</h3>
+                <div class="code-block">// ✅ Correct: Using functional updates for current state
+const [count, setCount] = useState(0);
+
+// Good for simple updates
+setCount(count + 1);
+
+// Better for complex updates (avoids stale state)
+setCount(prevCount =&gt; prevCount + 1);
+
+// ✅ Correct: Updating objects
+const [user, setUser] = useState({ name: '', email: '' });
+
+// Wrong - mutates state directly
+// setUser({ name: 'John' }); // Loses email
+
+// Correct - spreads previous state
+setUser(prevUser =&gt; ({
+  ...prevUser,
+  name: 'John'
+}));
+
+// ✅ Correct: Updating arrays
+const [items, setItems] = useState(['apple', 'banana']);
+
+// Adding items
+setItems(prevItems =&gt; [...prevItems, 'orange']);
+
+// Removing items
+setItems(prevItems =&gt; prevItems.filter(item =&gt; item !== 'banana'));
+
+// Updating items
+setItems(prevItems =&gt;
+  prevItems.map(item =&gt; item === 'apple' ? 'grape' : item)
+);</div>
+            </div>
+
+            <div class="section">
+                <h2>⚡ useEffect Hook</h2>
+                <p>The <span class="highlight">useEffect</span> hook allows you to perform side effects in functional components, such as data fetching, subscriptions, or DOM manipulation.</p>
+
+                <h3>Basic useEffect Usage</h3>
+                <div class="code-block">import React, { useState, useEffect } from 'react';
+
+function Example() {
+  const [count, setCount] = useState(0);
+
+  // Runs after every render
+  useEffect(() =&gt; {
+    document.title = `You clicked ${count} times`;
+  });
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;You clicked {count} times&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Click me
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3>useEffect with Cleanup</h3>
+                <div class="code-block">function Timer() {
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() =&gt; {
+    // Set up the interval
+    const interval = setInterval(() =&gt; {
+      setSeconds(prevSeconds =&gt; prevSeconds + 1);
+    }, 1000);
+
+    // Cleanup function - runs when component unmounts
+    return () =&gt; {
+      clearInterval(interval);
+    };
+  }, []); // Empty dependency array means run once on mount
+
+  return &lt;div&gt;Seconds: {seconds}&lt;/div&gt;;
+}</div>
+
+                <h3>useEffect Dependency Array</h3>
+                <div class="code-block">// No dependency array - runs after every render
+useEffect(() =&gt; {
+  console.log('Runs after every render');
+});
+
+// Empty dependency array - runs only once on mount
+useEffect(() =&gt; {
+  console.log('Runs only once on mount');
+}, []);
+
+// With dependencies - runs when dependencies change
+useEffect(() =&gt; {
+  console.log('Runs when count changes');
+}, [count]);
+
+// Multiple dependencies
+useEffect(() =&gt; {
+  console.log('Runs when count or name changes');
+}, [count, name]);</div>
+
+                <h3>Common useEffect Patterns</h3>
+                <div class="code-block">// Data fetching
+useEffect(() =&gt; {
+  const fetchData = async () =&gt; {
+    try {
+      const response = await fetch('/api/users');
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  fetchData();
+}, []);
+
+// Event listeners
+useEffect(() =&gt; {
+  const handleResize = () =&gt; {
+    setWindowWidth(window.innerWidth);
+  };
+
+  window.addEventListener('resize', handleResize);
+
+  return () =&gt; {
+    window.removeEventListener('resize', handleResize);
+  };
+}, []);
+
+// Form validation
+useEffect(() =&gt; {
+  if (email &amp;&amp; !isValidEmail(email)) {
+    setEmailError('Please enter a valid email');
+  } else {
+    setEmailError('');
+  }
+}, [email]);</div>
+            </div>
+
+            <div class="section">
+                <h2>⬆️ Lifting State Up</h2>
+                <p>When multiple components need to share and update the same state, you should lift the state up to their common parent component.</p>
+
+                <h3>Before: State in Individual Components</h3>
+                <div class="code-block">// Problem: State is scattered across components
+function TemperatureInput({ scale }) {
+  const [temperature, setTemperature] = useState('');
+
+  return (
+    &lt;fieldset&gt;
+      &lt;legend&gt;Enter temperature in {scale}:</legend&gt;
+      &lt;input
+        value={temperature}
+        onChange={e =&gt; setTemperature(e.target.value)}
+      /&gt;
+    &lt;/fieldset&gt;
+  );
+}
+
+function Calculator() {
+  return (
+    &lt;div&gt;
+      &lt;TemperatureInput scale="Celsius" /&gt;
+      &lt;TemperatureInput scale="Fahrenheit" /&gt;
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3>After: State Lifted to Parent</h3>
+                <div class="code-block">// Solution: Lift state to common parent
+function TemperatureInput({ scale, temperature, onTemperatureChange }) {
+  return (
+    &lt;fieldset&gt;
+      &lt;legend&gt;Enter temperature in {scale}:</legend&gt;
+      &lt;input
+        value={temperature}
+        onChange={e =&gt; onTemperatureChange(e.target.value)}
+      /&gt;
+    &lt;/fieldset&gt;
+  );
+}
+
+function Calculator() {
+  const [temperature, setTemperature] = useState('');
+  const [scale, setScale] = useState('c');
+
+  const handleCelsiusChange = (temperature) =&gt; {
+    setTemperature(temperature);
+    setScale('c');
+  };
+
+  const handleFahrenheitChange = (temperature) =&gt; {
+    setTemperature(temperature);
+    setScale('f');
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;TemperatureInput
+        scale="c"
+        temperature={temperature}
+        onTemperatureChange={handleCelsiusChange}
+      /&gt;
+      &lt;TemperatureInput
+        scale="f"
+        temperature={temperature}
+        onTemperatureChange={handleFahrenheitChange}
+      /&gt;
+    &lt;/div&gt;
+  );
+}</div>
+            </div>
+
+            <div class="section">
+                <h2>🎨 State Management Patterns</h2>
+                <p>Here are some common patterns for managing state effectively in React applications.</p>
+
+                <h3>Multiple State Variables vs Single Object</h3>
+                <div class="code-block">// Option 1: Multiple state variables (recommended for unrelated data)
+function UserForm() {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+
+  // Each state update is independent
+  const handleFirstNameChange = (e) =&gt; setFirstName(e.target.value);
+  const handleLastNameChange = (e) =&gt; setLastName(e.target.value);
+  const handleEmailChange = (e) =&gt; setEmail(e.target.value);
+
+  return (
+    &lt;form&gt;
+      &lt;input value={firstName} onChange={handleFirstNameChange} /&gt;
+      &lt;input value={lastName} onChange={handleLastNameChange} /&gt;
+      &lt;input value={email} onChange={handleEmailChange} /&gt;
+    &lt;/form&gt;
+  );
+}
+
+// Option 2: Single object state (good for related data)
+function UserForm() {
+  const [user, setUser] = useState({
+    firstName: '',
+    lastName: '',
+    email: ''
+  });
+
+  const handleChange = (e) =&gt; {
+    const { name, value } = e.target;
+    setUser(prevUser =&gt; ({
+      ...prevUser,
+      [name]: value
+    }));
+  };
+
+  return (
+    &lt;form&gt;
+      &lt;input
+        name="firstName"
+        value={user.firstName}
+        onChange={handleChange}
+      /&gt;
+      &lt;input
+        name="lastName"
+        value={user.lastName}
+        onChange={handleChange}
+      /&gt;
+      &lt;input
+        name="email"
+        value={user.email}
+        onChange={handleChange}
+      /&gt;
+    &lt;/form&gt;
+  );
+}</div>
+
+                <h3>Computed State Pattern</h3>
+                <div class="code-block">function ShoppingCart() {
+  const [items, setItems] = useState([]);
+
+  // Computed state - derived from items
+  const totalPrice = items.reduce((sum, item) =&gt; sum + item.price * item.quantity, 0);
+  const totalItems = items.reduce((sum, item) =&gt; sum + item.quantity, 0);
+  const hasItems = items.length &gt; 0;
+
+  // Don't store computed values in state - calculate them
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Total items: {totalItems}&lt;/p&gt;
+      &lt;p&gt;Total price: ${totalPrice.toFixed(2)}&lt;/p&gt;
+      {hasItems &amp;&amp; &lt;button&gt;Checkout&lt;/button&gt;}
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3>State Reducer Pattern</h3>
+                <div class="code-block">function counterReducer(state, action) {
+  switch (action.type) {
+    case 'INCREMENT':
+      return { count: state.count + 1 };
+    case 'DECREMENT':
+      return { count: state.count - 1 };
+    case 'RESET':
+      return { count: 0 };
+    case 'SET':
+      return { count: action.payload };
+    default:
+      return state;
+  }
+}
+
+function Counter() {
+  const [state, dispatch] = useReducer(counterReducer, { count: 0 });
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count: {state.count}&lt;/p&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: 'INCREMENT' })}&gt;+&lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: 'DECREMENT' })}&gt;-&lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: 'RESET' })}&gt;Reset&lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: 'SET', payload: 10 })}&gt;Set to 10&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</div>
+            </div>
+
+            <div class="section">
+                <h2>🚫 Common Anti-Patterns</h2>
+                <p>Avoid these common mistakes when managing state in React applications.</p>
+
+                <h3>Anti-Pattern 1: Mutating State Directly</h3>
+                <div class="code-block">// ❌ Wrong: Direct mutation
+const [user, setUser] = useState({ name: 'John' });
+
+// This won't trigger a re-render!
+user.name = 'Jane';
+
+// ❌ Wrong: Array mutation
+const [items, setItems] = useState(['apple']);
+items.push('banana'); // Won't trigger re-render
+
+// ✅ Correct: Immutable updates
+setUser(prevUser =&gt; ({ ...prevUser, name: 'Jane' }));
+setItems(prevItems =&gt; [...prevItems, 'banana']);</div>
+
+                <h3>Anti-Pattern 2: Stale State in Closures</h3>
+                <div class="code-block">// ❌ Wrong: Stale closure
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  const incrementLater = () =&gt; {
+    setTimeout(() =&gt; {
+      // This uses the stale value of count
+      setCount(count + 1);
+    }, 1000);
+  };
+
+  return &lt;button onClick={incrementLater}&gt;Increment later&lt;/button&gt;;
+}
+
+// ✅ Correct: Use functional updates
+const incrementLater = () =&gt; {
+  setTimeout(() =&gt; {
+    setCount(prevCount =&gt; prevCount + 1);
+  }, 1000);
+};</div>
+
+                <h3>Anti-Pattern 3: Unnecessary State</h3>
+                <div class="code-block">// ❌ Wrong: Storing computed values in state
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+  const [fullName, setFullName] = useState(''); // Unnecessary!
+
+  useEffect(() =&gt; {
+    fetchUser(userId).then(user =&gt; {
+      setUser(user);
+      setFullName(`${user.firstName} ${user.lastName}`); // Unnecessary!
+    });
+  }, [userId]);
+
+  // ✅ Better: Compute fullName when needed
+  const fullName = user ? `${user.firstName} ${user.lastName}` : '';
+
+  return &lt;div&gt;{fullName}&lt;/div&gt;;
+}</div>
+            </div>
+
+            <div class="practice-exercise">
+                <h3>💪 Practice Exercise: Build a Todo Application</h3>
+                <p>Create a complete todo application that demonstrates state management concepts learned in this chapter.</p>
+
+                <h4>Requirements:</h4>
+                <ul>
+                    <li>Create a <strong>TodoList</strong> component with state for todos</li>
+                    <li>Implement <strong>add todo</strong> functionality with useState</li>
+                    <li>Add <strong>toggle completion</strong> and <strong>delete todo</strong> features</li>
+                    <li>Use <strong>useEffect</strong> to persist todos to localStorage</li>
+                    <li>Implement <strong>filtering</strong> (all, active, completed)</li>
+                    <li>Add <strong>edit todo</strong> functionality with inline editing</li>
+                    <li>Use proper state management patterns (avoid mutations)</li>
+                </ul>
+
+                <h4>Bonus Challenges:</h4>
+                <ul>
+                    <li>Add <strong>drag and drop</strong> reordering with state management</li>
+                    <li>Implement <strong>undo/redo</strong> functionality using useReducer</li>
+                    <li>Add <strong>categories/tags</strong> with filtering</li>
+                    <li>Create a <strong>statistics component</strong> showing completion rates</li>
+                    <li>Add <strong>search functionality</strong> to filter todos by text</li>
+                </ul>
+            </div>
+
+            <div class="quiz-section">
+                <h3>🧠 Knowledge Check</h3>
+                <p>Test your understanding of state management in React.</p>
+
+                <div class="quiz-question">
+                    <h4>Question 1: useState Hook</h4>
+                    <p>What does the useState hook return?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option">A) A single value</div>
+                        <div class="quiz-option">B) An array with current state and setter function</div>
+                        <div class="quiz-option">C) An object with state and actions</div>
+                        <div class="quiz-option">D) A promise that resolves to the state</div>
+                    </div>
+                    <button class="show-answer-btn" onclick="showAnswer(1)">Show Answer</button>
+                    <div class="quiz-answer" id="answer1">
+                        <strong>Answer: B)</strong> An array with current state and setter function. useState returns a pair: the current state value and a function to update it.
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 2: useEffect Dependencies</h4>
+                    <p>When does useEffect run with an empty dependency array?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option">A) After every render</div>
+                        <div class="quiz-option">B) Only once when the component mounts</div>
+                        <div class="quiz-option">C) Only when the component unmounts</div>
+                        <div class="quiz-option">D) When any prop changes</div>
+                    </div>
+                    <button class="show-answer-btn" onclick="showAnswer(2)">Show Answer</button>
+                    <div class="quiz-answer" id="answer2">
+                        <strong>Answer: B)</strong> Only once when the component mounts. An empty dependency array [] means the effect runs only on mount and cleanup runs on unmount.
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 3: State Updates</h4>
+                    <p>Why should you use functional state updates for complex state changes?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option">A) They're faster</div>
+                        <div class="quiz-option">B) They prevent stale closure bugs</div>
+                        <div class="quiz-option">C) They're required by React</div>
+                        <div class="quiz-option">D) They work with class components only</div>
+                    </div>
+                    <button class="show-answer-btn" onclick="showAnswer(3)">Show Answer</button>
+                    <div class="quiz-answer" id="answer3">
+                        <strong>Answer: B)</strong> They prevent stale closure bugs. Functional updates ensure you're always working with the most current state value, avoiding issues with asynchronous updates.
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-section">
+                <h3>📚 Chapter Summary</h3>
+                <p>You've learned the fundamentals of state management in React. Here's what we covered:</p>
+
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <h4>🔄 State vs Props</h4>
+                        <p>Understanding when to use state (internal, mutable data) vs props (external, immutable data) for optimal component design.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>🪝 useState Hook</h4>
+                        <p>Managing local component state with proper update patterns for primitives, objects, and arrays.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>⚡ useEffect Hook</h4>
+                        <p>Handling side effects like data fetching, subscriptions, and cleanup with proper dependency management.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>⬆️ Lifting State Up</h4>
+                        <p>Sharing state between sibling components by moving it to their common parent component.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>🎨 State Patterns</h4>
+                        <p>Best practices for organizing state, computed values, and complex state management with useReducer.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>🚫 Anti-Patterns</h4>
+                        <p>Common mistakes to avoid: direct mutations, stale closures, and unnecessary state variables.</p>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-5 my-5">
+                    <h4 class="text-yellow-800 m-0">🚀 Next Steps</h4>
+                    <p>Now that you understand state management, you're ready to explore:</p>
+                    <ul>
+                        <li><strong>Chapter 4:</strong> Hooks & Lifecycle - Advanced hooks and lifecycle methods</li>
+                        <li><strong>Chapter 5:</strong> React Router - Client-side routing and navigation</li>
+                        <li><strong>Chapter 6:</strong> Advanced Patterns - Performance optimization and complex patterns</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-5 rounded-lg mt-10 flex justify-between items-center flex-wrap gap-4">
+                <a href="react2.html" class="bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-lg no-underline font-medium transition-colors duration-300">⬅️ Chapter 2: Components & Props</a>
+                <a href="study-guide-progress.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg no-underline font-medium transition-colors duration-300">📊 Progress Dashboard</a>
+                <a href="react4.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg no-underline font-medium transition-colors duration-300">Chapter 4: Hooks & Lifecycle ➡️</a>
+            </div>
+        </div>
+
+        <div class="bg-gray-800 text-white text-center p-5 mt-10">
+            <p class="m-0 opacity-80">© 2025 React Study Guide - Chapter 3: State Management | Created with ❤️ for learning</p>
+        </div>
+    </div>
+
+    <script src="study-guide/js/tts.js"></script>
+    <script>
+        // Chapter completion tracking
+        document.getElementById('chapter-complete').addEventListener('click', function() {
+            const button = this;
+            const isCompleted = button.textContent.includes('Mark Complete');
+
+            if (isCompleted) {
+                button.textContent = '✅ Completed';
+                button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                button.classList.add('bg-green-500', 'hover:bg-green-600');
+
+                // Store completion status
+                localStorage.setItem('react3-completed', 'true');
+
+                // Show success message
+                showNotification('Chapter marked as completed!', 'success');
+            } else {
+                button.textContent = '✅ Mark Complete';
+                button.classList.remove('bg-green-500', 'hover:bg-green-600');
+                button.classList.add('bg-blue-500', 'hover:bg-blue-600');
+
+                localStorage.removeItem('react3-completed');
+                showNotification('Chapter unmarked', 'info');
+            }
+        });
+
+        // Load completion status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const isCompleted = localStorage.getItem('react3-completed') === 'true';
+            const button = document.getElementById('chapter-complete');
+
+            if (isCompleted) {
+                button.textContent = '✅ Completed';
+                button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                button.classList.add('bg-green-500', 'hover:bg-green-600');
+            }
+        });
+
+        function showAnswer(questionNumber) {
+            const answer = document.getElementById(`answer${questionNumber}`);
+            if (answer.style.display === 'block') {
+                answer.style.display = 'none';
+            } else {
+                answer.style.display = 'block';
+            }
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-medium z-50 ${
+                type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+            }`;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Add some interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click tracking for navigation
+            const navButtons = document.querySelectorAll('a');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    console.log(`Navigating to: ${this.textContent}`);
+                });
+            });
+
+            // Add hover effects for code blocks
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                block.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.01)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                block.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\Admin\Sunil\Study\react3.html

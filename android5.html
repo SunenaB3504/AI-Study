@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Study Guide - Chapter 5: Intents & Broadcast Receivers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        }
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+        @media (max-width: 768px) { .container { padding: 10px; } .nav-links { flex-direction: column; gap: 10px; } }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
+    <header class="hero-gradient text-white py-16 px-6 text-center mb-12">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-light mb-4">Android Study Guide</h1>
+            <div class="text-xl md:text-2xl opacity-90">Chapter 5: Intents & Broadcast Receivers</div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <h2 class="text-primary-600 text-3xl font-light mb-6">Intents</h2>
+            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                <p class="text-lg text-gray-700">Intents are messaging objects used to request an action from another app component. They enable communication between activities, services, and broadcast receivers.</p>
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Explicit Intent Example</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+Intent intent = new Intent(this, TargetActivity.class);<br>
+startActivity(intent);
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Implicit Intent Example</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.example.com"));<br>
+startActivity(intent);
+            </div>
+
+            <h2 class="text-primary-600 text-3xl font-light mb-6 mt-12">Broadcast Receivers</h2>
+            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                <p class="text-lg text-gray-700">Broadcast Receivers respond to broadcast messages from other apps or the system. They are used for system events (like battery low) or custom app events.</p>
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Static Registration (Manifest)</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+&lt;receiver android:name=".MyReceiver"&gt;<br>
+    &lt;intent-filter&gt;<br>
+        &lt;action android:name="android.intent.action.BOOT_COMPLETED" /&gt;<br>
+    &lt;/intent-filter&gt;<br>
+&lt;/receiver&gt;
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Dynamic Registration (Code)</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+BroadcastReceiver receiver = new MyReceiver();<br>
+IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_LOW);<br>
+registerReceiver(receiver, filter);
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-6 mt-12">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <a href="android4.html" class="text-primary-600 hover:text-primary-700 font-medium px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200">← Previous Chapter</a>
+                <a href="android6.html" class="text-primary-600 hover:text-primary-700 font-medium px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200">Next Chapter →</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

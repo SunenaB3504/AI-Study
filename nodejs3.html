@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node.js Backend Development - Chapter 3: Database Integration</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .chapter-nav {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #4285f4;
+        }
+        .chapter-nav h3 {
+            margin: 0 0 15px 0;
+            color: #4285f4;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+        .nav-btn:hover {
+            background: #3367d6;
+        }
+        .nav-btn.secondary {
+            background: #34a853;
+        }
+        .nav-btn.secondary:hover {
+            background: #2e7d32;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            color: #4285f4;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+        .code-header {
+            background: #e9ecef;
+            padding: 10px 15px;
+            margin: -20px -20px 15px -20px;
+            border-radius: 8px 8px 0 0;
+            font-weight: bold;
+            color: #495057;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .important {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .important h4 {
+            color: #721c24;
+            margin: 0 0 10px 0;
+        }
+        .practice-exercise {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .practice-exercise h4 {
+            color: #0c5460;
+            margin: 0 0 15px 0;
+        }
+        .practice-exercise ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .quiz {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .quiz h4 {
+            color: #856404;
+            margin: 0 0 15px 0;
+        }
+        .quiz ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .quiz li {
+            margin-bottom: 10px;
+        }
+        .summary {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        .summary h3 {
+            color: #333;
+            margin: 0 0 15px 0;
+        }
+        .key-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .key-point {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4285f4;
+        }
+        .key-point h5 {
+            color: #4285f4;
+            margin: 0 0 10px 0;
+        }
+        .next-chapter {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffcc02 100%);
+            border: 2px solid #ff9800;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .next-chapter h3 {
+            color: #e65100;
+            margin: 0 0 15px 0;
+        }
+        .next-btn {
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+        .next-btn:hover {
+            background: #e65100;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ Node.js Backend Development</h1>
+            <div class="subtitle">Chapter 3: Database Integration</div>
+        </div>
+
+        <div class="content">
+            <div class="chapter-nav">
+                <h3>📚 Chapter Navigation</h3>
+                <div class="nav-links">
+                    <a href="study-guide-progress.html" class="nav-btn">📊 Progress Dashboard</a>
+                    <a href="nodejs1.html" class="nav-btn">📖 Chapter 1: Fundamentals</a>
+                    <a href="nodejs2.html" class="nav-btn">📖 Chapter 2: Express.js</a>
+                    <a href="nodejs3.html" class="nav-btn secondary">📖 Current: Chapter 3</a>
+                    <a href="nodejs4.html" class="nav-btn">📖 Chapter 4: Auth & Security</a>
+                    <a href="nodejs5.html" class="nav-btn">📖 Chapter 5: API Development</a>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🗄️ Database Integration Overview</h2>
+                <p>Databases are essential for storing and retrieving data in web applications. Node.js supports both SQL and NoSQL databases, each with its own strengths and use cases.</p>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>SQL Databases</th>
+                            <th>NoSQL Databases</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Structure</strong></td>
+                            <td>Tables with fixed schema</td>
+                            <td>Flexible schema (documents, key-value, etc.)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Query Language</strong></td>
+                            <td>SQL (Structured Query Language)</td>
+                            <td>Various query methods (JSON, etc.)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalability</strong></td>
+                            <td>Vertical scaling</td>
+                            <td>Horizontal scaling</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Cases</strong></td>
+                            <td>Complex queries, transactions, structured data</td>
+                            <td>Big data, real-time apps, flexible schemas</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Examples</strong></td>
+                            <td>MySQL, PostgreSQL, SQLite</td>
+                            <td>MongoDB, Redis, Cassandra</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>🐘 PostgreSQL with Node.js</h2>
+                <p>PostgreSQL is a powerful, open-source relational database known for its robustness and advanced features.</p>
+
+                <h3>Installation and Setup</h3>
+                <div class="code-block">
+                    <div class="code-header">Installing PostgreSQL and Node.js Driver</div>
+# Install PostgreSQL (Ubuntu/Debian)
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+
+# Install PostgreSQL (macOS with Homebrew)
+brew install postgresql
+brew services start postgresql
+
+# Install Node.js PostgreSQL driver
+npm install pg
+
+# Optional: Install connection pool
+npm install pg-pool
+                </div>
+
+                <h3>Basic Connection</h3>
+                <div class="code-block">
+                    <div class="code-header">Basic PostgreSQL Connection</div>
+const { Client } = require('pg');
+
+// Database configuration
+const client = new Client({
+    host: 'localhost',
+    port: 5432,
+    database: 'mydb',
+    user: 'myuser',
+    password: 'mypassword'
+});
+
+// Connect to database
+async function connectDB() {
+    try {
+        await client.connect();
+        console.log('Connected to PostgreSQL database');
+    } catch (error) {
+        console.error('Connection error:', error);
+    }
+}
+
+connectDB();
+                </div>
+
+                <h3>CRUD Operations</h3>
+                <div class="code-block">
+                    <div class="code-header">PostgreSQL CRUD Operations</div>
+const { Client } = require('pg');
+
+const client = new Client({
+    connectionString: process.env.DATABASE_URL
+});
+
+async function runOperations() {
+    try {
+        await client.connect();
+
+        // Create table
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                email VARCHAR(100) UNIQUE NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // INSERT - Create
+        const insertQuery = 'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *';
+        const insertResult = await client.query(insertQuery, ['John Doe', 'john@example.com']);
+        console.log('Inserted user:', insertResult.rows[0]);
+
+        // SELECT - Read
+        const selectQuery = 'SELECT * FROM users WHERE id = $1';
+        const selectResult = await client.query(selectQuery, [1]);
+        console.log('Selected user:', selectResult.rows[0]);
+
+        // UPDATE - Update
+        const updateQuery = 'UPDATE users SET name = $1 WHERE id = $2 RETURNING *';
+        const updateResult = await client.query(updateQuery, ['Jane Doe', 1]);
+        console.log('Updated user:', updateResult.rows[0]);
+
+        // DELETE - Delete
+        const deleteQuery = 'DELETE FROM users WHERE id = $1 RETURNING *';
+        const deleteResult = await client.query(deleteQuery, [1]);
+        console.log('Deleted user:', deleteResult.rows[0]);
+
+    } catch (error) {
+        console.error('Database operation error:', error);
+    } finally {
+        await client.end();
+    }
+}
+
+runOperations();
+                </div>
+
+                <h3>Connection Pooling</h3>
+                <div class="code-block">
+                    <div class="code-header">PostgreSQL Connection Pooling</div>
+const { Pool } = require('pg');
+
+const pool = new Pool({
+    host: 'localhost',
+    port: 5432,
+    database: 'mydb',
+    user: 'myuser',
+    password: 'mypassword',
+    max: 20, // Maximum number of clients in the pool
+    idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
+    connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
+});
+
+// Use pool for queries
+async function getUsers() {
+    const client = await pool.connect();
+    try {
+        const result = await client.query('SELECT * FROM users');
+        return result.rows;
+    } finally {
+        client.release(); // Release the client back to the pool
+    }
+}
+
+// Clean up pool on application shutdown
+process.on('SIGINT', () => {
+    pool.end();
+    console.log('Database pool closed');
+    process.exit(0);
+});
+
+module.exports = pool;
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🍃 MongoDB with Node.js</h2>
+                <p>MongoDB is a popular NoSQL document database that stores data in flexible, JSON-like documents.</p>
+
+                <h3>Installation and Setup</h3>
+                <div class="code-block">
+                    <div class="code-header">Installing MongoDB and Node.js Driver</div>
+# Install MongoDB Community Edition (Ubuntu/Debian)
+wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+sudo apt update
+sudo apt install mongodb-org
+sudo systemctl start mongod
+
+# Install MongoDB (macOS with Homebrew)
+brew tap mongodb/brew
+brew install mongodb-community
+brew services start mongodb/brew/mongodb-community
+
+# Install Node.js MongoDB driver
+npm install mongodb
+
+# Optional: Install Mongoose ODM
+npm install mongoose
+                </div>
+
+                <h3>Basic Connection with Native Driver</h3>
+                <div class="code-block">
+                    <div class="code-header">MongoDB Native Driver Connection</div>
+const { MongoClient } = require('mongodb');
+
+// Connection URL
+const url = 'mongodb://localhost:27017';
+const client = new MongoClient(url);
+
+// Database Name
+const dbName = 'myapp';
+
+async function connectDB() {
+    try {
+        await client.connect();
+        console.log('Connected to MongoDB');
+
+        const db = client.db(dbName);
+
+        // Ping the database
+        await db.admin().ping();
+        console.log('Database connection verified');
+
+        return db;
+    } catch (error) {
+        console.error('MongoDB connection error:', error);
+        throw error;
+    }
+}
+
+module.exports = { connectDB, client };
+                </div>
+
+                <h3>CRUD Operations with Native Driver</h3>
+                <div class="code-block">
+                    <div class="code-header">MongoDB CRUD Operations</div>
+const { MongoClient } = require('mongodb');
+
+async function runOperations() {
+    const client = new MongoClient('mongodb://localhost:27017');
+    const dbName = 'myapp';
+
+    try {
+        await client.connect();
+        const db = client.db(dbName);
+        const collection = db.collection('users');
+
+        // INSERT - Create
+        const insertResult = await collection.insertOne({
+            name: 'John Doe',
+            email: 'john@example.com',
+            age: 30,
+            createdAt: new Date()
+        });
+        console.log('Inserted document:', insertResult.insertedId);
+
+        // INSERT MANY
+        const insertManyResult = await collection.insertMany([
+            { name: 'Jane Smith', email: 'jane@example.com', age: 25 },
+            { name: 'Bob Johnson', email: 'bob@example.com', age: 35 }
+        ]);
+        console.log('Inserted documents count:', insertManyResult.insertedCount);
+
+        // FIND - Read
+        const findResult = await collection.find({ age: { $gte: 25 } }).toArray();
+        console.log('Found documents:', findResult);
+
+        // FIND ONE
+        const findOneResult = await collection.findOne({ email: 'john@example.com' });
+        console.log('Found one document:', findOneResult);
+
+        // UPDATE - Update
+        const updateResult = await collection.updateOne(
+            { email: 'john@example.com' },
+            { $set: { age: 31 }, $currentDate: { lastModified: true } }
+        );
+        console.log('Updated documents count:', updateResult.modifiedCount);
+
+        // UPDATE MANY
+        const updateManyResult = await collection.updateMany(
+            { age: { $lt: 30 } },
+            { $set: { category: 'young' } }
+        );
+        console.log('Updated many documents count:', updateManyResult.modifiedCount);
+
+        // DELETE - Delete
+        const deleteResult = await collection.deleteOne({ email: 'john@example.com' });
+        console.log('Deleted documents count:', deleteResult.deletedCount);
+
+        // DELETE MANY
+        const deleteManyResult = await collection.deleteMany({ category: 'young' });
+        console.log('Deleted many documents count:', deleteManyResult.deletedCount);
+
+    } catch (error) {
+        console.error('Database operation error:', error);
+    } finally {
+        await client.close();
+    }
+}
+
+runOperations();
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📚 Mongoose ODM</h2>
+                <p>Mongoose is an Object Data Modeling (ODM) library for MongoDB and Node.js, providing a higher-level abstraction.</p>
+
+                <h3>Mongoose Setup and Schema</h3>
+                <div class="code-block">
+                    <div class="code-header">Mongoose Setup and Schema Definition</div>
+const mongoose = require('mongoose');
+
+// Connect to MongoDB
+async function connectDB() {
+    try {
+        await mongoose.connect('mongodb://localhost:27017/myapp', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        console.log('Connected to MongoDB with Mongoose');
+    } catch (error) {
+        console.error('Mongoose connection error:', error);
+        process.exit(1);
+    }
+}
+
+// User Schema
+const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: [true, 'Name is required'],
+        trim: true,
+        maxlength: [50, 'Name cannot exceed 50 characters']
+    },
+    email: {
+        type: String,
+        required: [true, 'Email is required'],
+        unique: true,
+        lowercase: true,
+        validate: {
+            validator: function(email) {
+                return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
+            },
+            message: 'Please enter a valid email'
+        }
+    },
+    age: {
+        type: Number,
+        min: [0, 'Age cannot be negative'],
+        max: [120, 'Age cannot exceed 120']
+    },
+    role: {
+        type: String,
+        enum: ['user', 'admin', 'moderator'],
+        default: 'user'
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
+// Pre-save middleware to update updatedAt
+userSchema.pre('save', function(next) {
+    this.updatedAt = Date.now();
+    next();
+});
+
+// Instance method
+userSchema.methods.getFullInfo = function() {
+    return `${this.name} (${this.email}) - ${this.role}`;
+};
+
+// Static method
+userSchema.statics.findByRole = function(role) {
+    return this.find({ role: role });
+};
+
+// Virtual property
+userSchema.virtual('ageInMonths').get(function() {
+    return this.age * 12;
+});
+
+// Create User model
+const User = mongoose.model('User', userSchema);
+
+module.exports = { connectDB, User };
+                </div>
+
+                <h3>Mongoose CRUD Operations</h3>
+                <div class="code-block">
+                    <div class="code-header">Mongoose CRUD Operations</div>
+const mongoose = require('mongoose');
+const { User } = require('./models/User');
+
+async function runOperations() {
+    try {
+        // CREATE - Create new user
+        const newUser = new User({
+            name: 'John Doe',
+            email: 'john@example.com',
+            age: 30,
+            role: 'user'
+        });
+
+        const savedUser = await newUser.save();
+        console.log('Created user:', savedUser);
+
+        // CREATE MANY
+        const users = await User.insertMany([
+            { name: 'Jane Smith', email: 'jane@example.com', age: 25 },
+            { name: 'Bob Johnson', email: 'bob@example.com', age: 35, role: 'admin' }
+        ]);
+        console.log('Created users:', users.length);
+
+        // READ - Find all users
+        const allUsers = await User.find();
+        console.log('All users:', allUsers.length);
+
+        // READ - Find with conditions
+        const activeUsers = await User.find({ isActive: true });
+        console.log('Active users:', activeUsers.length);
+
+        // READ - Find one user
+        const user = await User.findOne({ email: 'john@example.com' });
+        console.log('Found user:', user ? user.getFullInfo() : 'Not found');
+
+        // READ - Find by ID
+        const userById = await User.findById(savedUser._id);
+        console.log('User by ID:', userById.name);
+
+        // READ - Find by role (static method)
+        const admins = await User.findByRole('admin');
+        console.log('Admin users:', admins.length);
+
+        // UPDATE - Update one user
+        const updatedUser = await User.findByIdAndUpdate(
+            savedUser._id,
+            { age: 31, updatedAt: Date.now() },
+            { new: true, runValidators: true }
+        );
+        console.log('Updated user:', updatedUser.age);
+
+        // UPDATE - Update many users
+        const updateManyResult = await User.updateMany(
+            { age: { $lt: 30 } },
+            { role: 'junior' }
+        );
+        console.log('Updated users count:', updateManyResult.modifiedCount);
+
+        // DELETE - Delete one user
+        const deletedUser = await User.findByIdAndDelete(savedUser._id);
+        console.log('Deleted user:', deletedUser.name);
+
+        // DELETE - Delete many users
+        const deleteManyResult = await User.deleteMany({ role: 'junior' });
+        console.log('Deleted users count:', deleteManyResult.deletedCount);
+
+    } catch (error) {
+        console.error('Mongoose operation error:', error);
+    }
+}
+
+runOperations();
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔗 Database Integration with Express.js</h2>
+                <p>Integrating databases with Express.js applications for building complete web applications.</p>
+
+                <h3>Express.js API with PostgreSQL</h3>
+                <div class="code-block">
+                    <div class="code-header">Express.js API with PostgreSQL</div>
+const express = require('express');
+const { Pool } = require('pg');
+require('dotenv').config();
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+// Middleware
+app.use(express.json());
+
+// Database connection
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
+});
+
+// Routes
+app.get('/api/users', async (req, res) => {
+    try {
+        const { rows } = await pool.query('SELECT * FROM users ORDER BY created_at DESC');
+        res.json({
+            success: true,
+            data: rows,
+            count: rows.length
+        });
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch users'
+        });
+    }
+});
+
+app.get('/api/users/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { rows } = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: rows[0]
+        });
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch user'
+        });
+    }
+});
+
+app.post('/api/users', async (req, res) => {
+    try {
+        const { name, email, age } = req.body;
+
+        if (!name || !email) {
+            return res.status(400).json({
+                success: false,
+                error: 'Name and email are required'
+            });
+        }
+
+        const { rows } = await pool.query(
+            'INSERT INTO users (name, email, age) VALUES ($1, $2, $3) RETURNING *',
+            [name, email, age]
+        );
+
+        res.status(201).json({
+            success: true,
+            data: rows[0]
+        });
+    } catch (error) {
+        console.error('Error creating user:', error);
+
+        if (error.code === '23505') { // Unique violation
+            return res.status(409).json({
+                success: false,
+                error: 'Email already exists'
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            error: 'Failed to create user'
+        });
+    }
+});
+
+app.put('/api/users/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, email, age } = req.body;
+
+        const { rows } = await pool.query(
+            'UPDATE users SET name = $1, email = $2, age = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4 RETURNING *',
+            [name, email, age, id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: rows[0]
+        });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to update user'
+        });
+    }
+});
+
+app.delete('/api/users/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { rows } = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: rows[0]
+        });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to delete user'
+        });
+    }
+});
+
+// Health check
+app.get('/health', async (req, res) => {
+    try {
+        await pool.query('SELECT NOW()');
+        res.json({
+            status: 'OK',
+            database: 'connected',
+            timestamp: new Date()
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 'ERROR',
+            database: 'disconnected',
+            error: error.message
+        });
+    }
+});
+
+// Error handling middleware
+app.use((error, req, res, next) => {
+    console.error('Unhandled error:', error);
+    res.status(500).json({
+        success: false,
+        error: 'Internal server error'
+    });
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+    console.log('Shutting down gracefully...');
+    await pool.end();
+    process.exit(0);
+});
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
+                </div>
+
+                <h3>Express.js API with MongoDB/Mongoose</h3>
+                <div class="code-block">
+                    <div class="code-header">Express.js API with MongoDB/Mongoose</div>
+const express = require('express');
+const mongoose = require('mongoose');
+require('dotenv').config();
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+// Middleware
+app.use(express.json());
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/myapp', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('Connected to MongoDB'))
+.catch(error => {
+    console.error('MongoDB connection error:', error);
+    process.exit(1);
+});
+
+// User Schema
+const userSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    age: { type: Number, min: 0 },
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
+const User = mongoose.model('User', userSchema);
+
+// Routes
+app.get('/api/users', async (req, res) => {
+    try {
+        const { page = 1, limit = 10, role, isActive } = req.query;
+
+        const filter = {};
+        if (role) filter.role = role;
+        if (isActive !== undefined) filter.isActive = isActive === 'true';
+
+        const users = await User.find(filter)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .sort({ createdAt: -1 });
+
+        const total = await User.countDocuments(filter);
+
+        res.json({
+            success: true,
+            data: users,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(total / limit),
+                totalUsers: total,
+                hasNext: page * limit < total,
+                hasPrev: page > 1
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch users'
+        });
+    }
+});
+
+app.get('/api/users/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: user
+        });
+    } catch (error) {
+        console.error('Error fetching user:', error);
+
+        if (error.name === 'CastError') {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid user ID'
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch user'
+        });
+    }
+});
+
+app.post('/api/users', async (req, res) => {
+    try {
+        const { name, email, age, role } = req.body;
+
+        const user = new User({
+            name,
+            email,
+            age,
+            role
+        });
+
+        const savedUser = await user.save();
+
+        res.status(201).json({
+            success: true,
+            data: savedUser
+        });
+    } catch (error) {
+        console.error('Error creating user:', error);
+
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }
+
+        if (error.code === 11000) { // Duplicate key error
+            return res.status(409).json({
+                success: false,
+                error: 'Email already exists'
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            error: 'Failed to create user'
+        });
+    }
+});
+
+app.put('/api/users/:id', async (req, res) => {
+    try {
+        const { name, email, age, role, isActive } = req.body;
+
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            { name, email, age, role, isActive },
+            { new: true, runValidators: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: user
+        });
+    } catch (error) {
+        console.error('Error updating user:', error);
+
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            error: 'Failed to update user'
+        });
+    }
+});
+
+app.delete('/api/users/:id', async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: user
+        });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to delete user'
+        });
+    }
+});
+
+// Health check
+app.get('/health', async (req, res) => {
+    try {
+        await mongoose.connection.db.admin().ping();
+        res.json({
+            status: 'OK',
+            database: 'connected',
+            timestamp: new Date()
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 'ERROR',
+            database: 'disconnected',
+            error: error.message
+        });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
+                </div>
+            </div>
+
+            <div class="practice-exercise">
+                <h4>🛠️ Practice Exercise: Build a Blog API</h4>
+                <p>Create a complete blog API with the following features:</p>
+                <ul>
+                    <li><strong>Posts Management:</strong> CRUD operations for blog posts</li>
+                    <li><strong>Categories:</strong> Organize posts by categories</li>
+                    <li><strong>Comments:</strong> Add comments to posts</li>
+                    <li><strong>Authors:</strong> User management for blog authors</li>
+                    <li><strong>Search & Filter:</strong> Search posts by title, category, or author</li>
+                    <li><strong>Pagination:</strong> Implement pagination for large datasets</li>
+                </ul>
+                <p><strong>Requirements:</strong></p>
+                <ul>
+                    <li>Choose either PostgreSQL or MongoDB/Mongoose</li>
+                    <li>Implement proper error handling and validation</li>
+                    <li>Add authentication middleware (for future chapters)</li>
+                    <li>Include comprehensive API documentation</li>
+                    <li>Implement database relationships/associations</li>
+                    <li>Add data seeding for testing</li>
+                </ul>
+            </div>
+
+            <div class="quiz">
+                <h4>📝 Knowledge Check</h4>
+                <ol>
+                    <li>What are the main differences between SQL and NoSQL databases?</li>
+                    <li>Explain the concept of connection pooling and why it's important.</li>
+                    <li>What is an ODM (Object Data Modeling) library and how does Mongoose fit this role?</li>
+                    <li>How do you handle database connection errors in a Node.js application?</li>
+                    <li>What are database transactions and when should you use them?</li>
+                    <li>Explain the difference between parameterized queries and string concatenation for SQL queries.</li>
+                    <li>How do you implement pagination in database queries?</li>
+                    <li>What are database indexes and when should you create them?</li>
+                </ol>
+            </div>
+
+            <div class="summary">
+                <h3>📚 Chapter Summary</h3>
+                <div class="key-points">
+                    <div class="key-point">
+                        <h5>🐘 PostgreSQL Integration</h5>
+                        <p>Powerful relational database with connection pooling, parameterized queries, and transaction support for structured data management.</p>
+                    </div>
+                    <div class="key-point">
+                        <h5>🍃 MongoDB & Mongoose</h5>
+                        <p>Flexible NoSQL document database with ODM library providing schema validation, middleware, and query building capabilities.</p>
+                    </div>
+                    <div class="key-point">
+                        <h5>🔗 Express.js Integration</h5>
+                        <p>Complete API development with proper error handling, validation, pagination, and database connection management.</p>
+                    </div>
+                    <div class="key-point">
+                        <h5>🛡️ Data Validation</h5>
+                        <p>Input validation, error handling, and data sanitization to ensure data integrity and application security.</p>
+                    </div>
+                    <div class="key-point">
+                        <h5>⚡ Performance Optimization</h5>
+                        <p>Connection pooling, indexing strategies, and query optimization for scalable database operations.</p>
+                    </div>
+                    <div class="key-point">
+                        <h5>🏗️ Database Design</h5>
+                        <p>Proper schema design, relationships, and data modeling for efficient and maintainable database structures.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="next-chapter">
+                <h3>🎯 Ready for Chapter 4?</h3>
+                <p>In the next chapter, we'll explore authentication and security, covering JWT tokens, password hashing, session management, and security best practices.</p>
+                <a href="nodejs4.html" class="next-btn">Continue to Chapter 4: Authentication & Security →</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

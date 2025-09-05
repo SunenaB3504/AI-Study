@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Study Guide - Chapter 8: Services & Background Tasks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        }
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
+    <header class="hero-gradient text-white py-16 px-6 text-center mb-12">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-light mb-4">Android Study Guide</h1>
+            <div class="text-xl md:text-2xl opacity-90">Chapter 8: Services & Background Tasks</div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <h2 class="text-primary-600 text-3xl font-light mb-6">Understanding Android Services</h2>
+            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                <p class="text-lg text-gray-700">Services are Android components that run in the background to perform long-running operations without a user interface.</p>
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Types of Services</h3>
+            <ul class="list-disc list-inside text-gray-700 space-y-2 mb-8">
+                <li><strong class="text-secondary-700">Foreground Service:</strong> Performs operations that are noticeable to the user</li>
+                <li><strong class="text-secondary-700">Background Service:</strong> Performs operations that are not directly noticed by the user</li>
+                <li><strong class="text-secondary-700">Bound Service:</strong> Allows other components to bind to it and interact with it</li>
+            </ul>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Creating a Service</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+public class MyService extends Service {<br>
+    private static final String TAG = "MyService";<br>
+<br>
+    @Override<br>
+    public void onCreate() {<br>
+        super.onCreate();<br>
+        Log.d(TAG, "Service created");<br>
+    }<br>
+<br>
+    @Override<br>
+    public int onStartCommand(Intent intent, int flags, int startId) {<br>
+        Log.d(TAG, "Service started");<br>
+<br>
+        // Perform background work here<br>
+        performBackgroundTask();<br>
+<br>
+        // Return START_STICKY to restart service if killed<br>
+        return START_STICKY;<br>
+    }<br>
+<br>
+    @Override<br>
+    public void onDestroy() {<br>
+        super.onDestroy();<br>
+        Log.d(TAG, "Service destroyed");<br>
+    }<br>
+<br>
+    @Nullable<br>
+    @Override<br>
+    public IBinder onBind(Intent intent) {<br>
+        return null; // Return null for started service<br>
+    }<br>
+<br>
+    private void performBackgroundTask() {<br>
+        // Use a separate thread for long-running operations<br>
+        new Thread(() -&gt; {<br>
+            // Your background work here<br>
+            try {<br>
+                Thread.sleep(5000); // Simulate work<br>
+            } catch (InterruptedException e) {<br>
+                e.printStackTrace();<br>
+            }<br>
+        }).start();<br>
+    }<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Foreground Service (Android 8.0+)</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+public class ForegroundService extends Service {<br>
+    private static final int NOTIFICATION_ID = 1;<br>
+    private static final String CHANNEL_ID = "ForegroundServiceChannel";<br>
+<br>
+    @Override<br>
+    public void onCreate() {<br>
+        super.onCreate();<br>
+        createNotificationChannel();<br>
+    }<br>
+<br>
+    @Override<br>
+    public int onStartCommand(Intent intent, int flags, int startId) {<br>
+        // Create notification for foreground service<br>
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)<br>
+                .setContentTitle("Foreground Service")<br>
+                .setContentText("Service is running in foreground")<br>
+                .setSmallIcon(R.drawable.ic_service)<br>
+                .build();<br>
+<br>
+        // Start foreground service<br>
+        startForeground(NOTIFICATION_ID, notification);<br>
+<br>
+        // Perform work<br>
+        performForegroundWork();<br>
+<br>
+        return START_NOT_STICKY;<br>
+    }<br>
+<br>
+    private void createNotificationChannel() {<br>
+        if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.O) {<br>
+            NotificationChannel channel = new NotificationChannel(<br>
+                    CHANNEL_ID,<br>
+                    "Foreground Service Channel",<br>
+                    NotificationManager.IMPORTANCE_DEFAULT<br>
+            );<br>
+            NotificationManager manager = getSystemService(NotificationManager.class);<br>
+            manager.createNotificationChannel(channel);<br>
+        }<br>
+    }<br>
+<br>
+    private void performForegroundWork() {<br>
+        // Your foreground work here<br>
+    }<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Bound Service</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+public class BoundService extends Service {<br>
+    private final IBinder binder = new LocalBinder();<br>
+    private int counter = 0;<br>
+<br>
+    public class LocalBinder extends Binder {<br>
+        BoundService getService() {<br>
+            return BoundService.this;<br>
+        }<br>
+    }<br>
+<br>
+    @Override<br>
+    public IBinder onBind(Intent intent) {<br>
+        return binder;<br>
+    }<br>
+<br>
+    public int getCounter() {<br>
+        return counter++;<br>
+    }<br>
+}<br>
+<br>
+// In Activity<br>
+private BoundService boundService;<br>
+private boolean isBound = false;<br>
+<br>
+private ServiceConnection connection = new ServiceConnection() {<br>
+    @Override<br>
+    public void onServiceConnected(ComponentName name, IBinder service) {<br>
+        BoundService.LocalBinder binder = (BoundService.LocalBinder) service;<br>
+        boundService = binder.getService();<br>
+        isBound = true;<br>
+    }<br>
+<br>
+    @Override<br>
+    public void onServiceDisconnected(ComponentName name) {<br>
+        isBound = false;<br>
+    }<br>
+};<br>
+<br>
+// Bind to service<br>
+Intent intent = new Intent(this, BoundService.class);<br>
+bindService(intent, connection, Context.BIND_AUTO_CREATE);<br>
+<br>
+// Use bound service<br>
+if (isBound) {<br>
+    int counter = boundService.getCounter();<br>
+}<br>
+<br>
+// Unbind from service<br>
+if (isBound) {<br>
+    unbindService(connection);<br>
+    isBound = false;<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">IntentService (Deprecated but still useful)</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+public class MyIntentService extends IntentService {<br>
+    public MyIntentService() {<br>
+        super("MyIntentService");<br>
+    }<br>
+<br>
+    @Override<br>
+    protected void onHandleIntent(@Nullable Intent intent) {<br>
+        // Handle the intent on a background thread<br>
+        String action = intent.getAction();<br>
+        if ("ACTION_PROCESS".equals(action)) {<br>
+            processData();<br>
+        }<br>
+    }<br>
+<br>
+    private void processData() {<br>
+        // Your background processing here<br>
+        // IntentService automatically stops when work is done<br>
+    }<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">WorkManager (Recommended for Background Tasks)</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// Define work<br>
+public class MyWorker extends Worker {<br>
+    public MyWorker(@NonNull Context context, @NonNull WorkerParameters params) {<br>
+        super(context, params);<br>
+    }<br>
+<br>
+    @NonNull<br>
+    @Override<br>
+    public Result doWork() {<br>
+        // Perform background work here<br>
+        try {<br>
+            // Your work logic<br>
+            return Result.success();<br>
+        } catch (Exception e) {<br>
+            return Result.failure();<br>
+        }<br>
+    }<br>
+}<br>
+<br>
+// Schedule work<br>
+WorkRequest workRequest = new OneTimeWorkRequest.Builder(MyWorker.class)<br>
+        .setConstraints(new Constraints.Builder()<br>
+                .setRequiredNetworkType(NetworkType.CONNECTED)<br>
+                .build())<br>
+        .build();<br>
+<br>
+WorkManager.getInstance(context).enqueue(workRequest);<br>
+<br>
+// Periodic work<br>
+PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(<br>
+        MyWorker.class, 15, TimeUnit.MINUTES)<br>
+        .build();<br>
+<br>
+WorkManager.getInstance(context).enqueueUniquePeriodicWork(<br>
+        "unique_work_name",<br>
+        ExistingPeriodicWorkPolicy.KEEP,<br>
+        periodicWork);
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Service Lifecycle</h3>
+            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                <p class="text-lg text-gray-700">Services have a well-defined lifecycle: onCreate() → onStartCommand()/onBind() → onDestroy()</p>
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Manifest Declaration</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+&lt;!-- AndroidManifest.xml --&gt;<br>
+&lt;manifest&gt;<br>
+    &lt;application&gt;<br>
+        &lt;service<br>
+            android:name=".MyService"<br>
+            android:enabled="true"<br>
+            android:exported="false" /&gt;<br>
+    &lt;/application&gt;<br>
+&lt;/manifest&gt;
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-6 mt-12">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <a href="android7.html" class="text-primary-600 hover:text-primary-700 font-medium px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200">← Previous Chapter</a>
+                <a href="android9.html" class="text-primary-600 hover:text-primary-700 font-medium px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200">Next Chapter →</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Stack Development Study Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <h1 class="text-3xl font-bold text-center">Full Stack & Android Development Study Guide</h1>
+            <p class="text-center mt-2 text-blue-100">Comprehensive learning path for full stack and Android developers</p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-wrap justify-center gap-4">
+                <button id="tts-toggle" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    🔊 Enable TTS
+                </button>
+                <button id="progress-btn" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    📊 View Progress
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Progress Overview -->
+        <div id="progress-overview" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Your Progress</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-blue-600" id="chapters-read">0</div>
+                    <div class="text-gray-600">Chapters Read</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-green-600" id="sections-completed">0</div>
+                    <div class="text-gray-600">Sections Completed</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-purple-600" id="progress-percentage">0%</div>
+                    <div class="text-gray-600">Overall Progress</div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="w-full bg-gray-200 rounded-full h-4">
+                    <div class="bg-blue-600 h-4 rounded-full" id="progress-bar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chapter Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Chapter 1 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 1</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="1"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Introduction to Full Stack Development</h4>
+                <p class="text-gray-600 mb-4">Overview of full stack development, technologies, and development environment setup.</p>
+                <a href="chapters/chapter1.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 2 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 2</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="2"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">HTML Fundamentals</h4>
+                <p class="text-gray-600 mb-4">HTML structure, elements, forms, tables, and semantic markup.</p>
+                <a href="chapters/chapter2.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 3 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 3</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="3"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">CSS Styling</h4>
+                <p class="text-gray-600 mb-4">CSS rules, selectors, layout systems, and responsive design.</p>
+                <a href="chapters/chapter3.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 4 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 4</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="4"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">JavaScript Basics</h4>
+                <p class="text-gray-600 mb-4">JavaScript fundamentals, variables, functions, and control structures.</p>
+                <a href="chapters/chapter4.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 5 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 5</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="5"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">HTTP Protocol</h4>
+                <p class="text-gray-600 mb-4">HTTP methods, headers, status codes, and client-server communication.</p>
+                <a href="chapters/chapter5.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 6 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 6</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="6"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Data Formats & Media</h4>
+                <p class="text-gray-600 mb-4">XML, JSON, images, audio, video formats and processing.</p>
+                <a href="chapters/chapter6.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 7 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 7</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="7"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Web APIs & DOM</h4>
+                <p class="text-gray-600 mb-4">Document Object Model, Web APIs, and browser functionality.</p>
+                <a href="chapters/chapter7.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 8 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 8</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="8"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Accessibility</h4>
+                <p class="text-gray-600 mb-4">WCAG guidelines, ARIA, and making web applications accessible.</p>
+                <a href="chapters/chapter8.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 9 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 9</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="9"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Advanced CSS</h4>
+                <p class="text-gray-600 mb-4">CSS preprocessors, frameworks, and advanced techniques.</p>
+                <a href="chapters/chapter9.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 10 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 10</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="10"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">React & SPAs</h4>
+                <p class="text-gray-600 mb-4">React framework, components, and single-page applications.</p>
+                <a href="chapters/chapter10.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 11 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 11</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="11"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Mobile Development</h4>
+                <p class="text-gray-600 mb-4">Mobile applications, responsive design, and cross-platform development.</p>
+                <a href="chapters/chapter11.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 12 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 12</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="12"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Architecture</h4>
+                <p class="text-gray-600 mb-4">Software architecture patterns, layered architecture, and design patterns.</p>
+                <a href="chapters/chapter12.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 13 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 13</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="13"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Programming Languages</h4>
+                <p class="text-gray-600 mb-4">Programming paradigms, languages overview, and language concepts.</p>
+                <a href="chapters/chapter13.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 14 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 14</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="14"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Node.js</h4>
+                <p class="text-gray-600 mb-4">Server-side JavaScript, Node.js architecture, and backend development.</p>
+                <a href="chapters/chapter14.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 15 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 15</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="15"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">PHP</h4>
+                <p class="text-gray-600 mb-4">PHP fundamentals, web development with PHP, and server-side scripting.</p>
+                <a href="chapters/chapter15.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 16 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 16</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="16"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Web Services</h4>
+                <p class="text-gray-600 mb-4">SOAP, REST, GraphQL, and web service architectures.</p>
+                <a href="chapters/chapter16.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 17 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 17</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="17"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Databases</h4>
+                <p class="text-gray-600 mb-4">Relational databases, NoSQL, ORM, and database design.</p>
+                <a href="chapters/chapter17.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 18 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 18</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="18"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Testing</h4>
+                <p class="text-gray-600 mb-4">Unit testing, integration testing, test-driven development, and testing tools.</p>
+                <a href="chapters/chapter18.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 19 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 19</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="19"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Deployment</h4>
+                <p class="text-gray-600 mb-4">Deployment strategies, hosting, Docker, and production environments.</p>
+                <a href="chapters/chapter19.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 20 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 20</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="20"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Security</h4>
+                <p class="text-gray-600 mb-4">Web security, authentication, encryption, and security best practices.</p>
+                <a href="chapters/chapter20.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 21 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 21</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="21"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Performance</h4>
+                <p class="text-gray-600 mb-4">Web performance optimization, caching, and performance metrics.</p>
+                <a href="chapters/chapter21.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 22 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 22</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="22"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Version Control</h4>
+                <p class="text-gray-600 mb-4">Git, version control systems, and collaborative development.</p>
+                <a href="chapters/chapter22.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+
+            <!-- Chapter 23 -->
+            <div class="chapter-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Chapter 23</h3>
+                    <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="23"></span>
+                </div>
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">Project Management</h4>
+                <p class="text-gray-600 mb-4">Agile methodologies, Scrum, and software project management.</p>
+                <a href="chapters/chapter23.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Start Reading →
+                </a>
+            </div>
+        </div>
+
+        <!-- Android Development Section -->
+        <div class="mt-12 mb-8">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">📱 Android Development</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Android Chapter 1 -->
+                <div class="chapter-card bg-green-50 border-2 border-green-200 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Android 1</h3>
+                        <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="24"></span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-green-600 mb-2">Hello, Android</h4>
+                    <p class="text-gray-600 mb-4">Introduction to Android platform, background, and development philosophy.</p>
+                    <a href="chapters/android1.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        Start Reading →
+                    </a>
+                </div>
+
+                <!-- Android Chapter 2 -->
+                <div class="chapter-card bg-green-50 border-2 border-green-200 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Android 2</h3>
+                        <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="25"></span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-green-600 mb-2">Getting Started</h4>
+                    <p class="text-gray-600 mb-4">Android SDK setup, development environment, and first application.</p>
+                    <a href="chapters/android2.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        Start Reading →
+                    </a>
+                </div>
+
+                <!-- Android Chapter 3 -->
+                <div class="chapter-card bg-green-50 border-2 border-green-200 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Android 3</h3>
+                        <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="26"></span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-green-600 mb-2">Applications & Activities</h4>
+                    <p class="text-gray-600 mb-4">Android application components, manifest, and activity lifecycle.</p>
+                    <a href="chapters/android3.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        Start Reading →
+                    </a>
+                </div>
+
+                <!-- Android Chapter 4 -->
+                <div class="chapter-card bg-green-50 border-2 border-green-200 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Android 4</h3>
+                        <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="27"></span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-green-600 mb-2">User Interfaces</h4>
+                    <p class="text-gray-600 mb-4">Creating Android UIs with Views, layouts, and user interface components.</p>
+                    <a href="chapters/android4.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        Start Reading →
+                    </a>
+                </div>
+
+                <!-- Android Chapter 5 -->
+                <div class="chapter-card bg-green-50 border-2 border-green-200 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Android 5</h3>
+                        <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="28"></span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-green-600 mb-2">Intents & Communication</h4>
+                    <p class="text-gray-600 mb-4">Intents, broadcast receivers, adapters, and internet connectivity.</p>
+                    <a href="chapters/android5.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        Start Reading →
+                    </a>
+                </div>
+
+                <!-- Android Chapter 6 -->
+                <div class="chapter-card bg-green-50 border-2 border-green-200 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Android 6</h3>
+                        <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="29"></span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-green-600 mb-2">Data Storage</h4>
+                    <p class="text-gray-600 mb-4">Saving data, databases, content providers, and data sharing.</p>
+                    <a href="chapters/android6.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        Start Reading →
+                    </a>
+                </div>
+
+                <!-- Android Chapter 7 -->
+                <div class="chapter-card bg-green-50 border-2 border-green-200 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Android 7</h3>
+                        <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="30"></span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-green-600 mb-2">Maps & Location</h4>
+                    <p class="text-gray-600 mb-4">Location-based services, maps, geocoding, and GPS functionality.</p>
+                    <a href="chapters/android7.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        Start Reading →
+                    </a>
+                </div>
+
+                <!-- Android Chapter 8 -->
+                <div class="chapter-card bg-green-50 border-2 border-green-200 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Android 8</h3>
+                        <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="31"></span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-green-600 mb-2">Background Services</h4>
+                    <p class="text-gray-600 mb-4">Services, background threads, notifications, and alarms.</p>
+                    <a href="chapters/android8.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        Start Reading →
+                    </a>
+                </div>
+
+                <!-- Android Chapter 9 -->
+                <div class="chapter-card bg-green-50 border-2 border-green-200 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Android 9</h3>
+                        <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="32"></span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-green-600 mb-2">P2P Communication</h4>
+                    <p class="text-gray-600 mb-4">Instant messaging, SMS, and peer-to-peer communication.</p>
+                    <a href="chapters/android9.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        Start Reading →
+                    </a>
+                </div>
+
+                <!-- Android Chapter 10 -->
+                <div class="chapter-card bg-green-50 border-2 border-green-200 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Android 10</h3>
+                        <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="33"></span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-green-600 mb-2">Hardware Access</h4>
+                    <p class="text-gray-600 mb-4">Camera, sensors, telephony, Bluetooth, and Wi-Fi integration.</p>
+                    <a href="chapters/android10.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        Start Reading →
+                    </a>
+                </div>
+
+                <!-- Android Chapter 11 -->
+                <div class="chapter-card bg-green-50 border-2 border-green-200 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Android 11</h3>
+                        <span class="status-indicator w-4 h-4 rounded-full bg-gray-300" data-chapter="34"></span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-green-600 mb-2">Advanced Development</h4>
+                    <p class="text-gray-600 mb-4">Security, IPC, advanced graphics, and user interface techniques.</p>
+                    <a href="chapters/android11.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        Start Reading →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Full Stack & Android Development Study Guide. Built with HTML, CSS, and JavaScript.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/progress-tracker.js"></script>
+    <script src="js/tts.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

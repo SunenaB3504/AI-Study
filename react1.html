@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React Study Guide - Chapter 1: React Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .code-snippet {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        .highlight {
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Hero Section -->
+        <div class="text-center text-white py-16 px-6 hero-gradient rounded-3xl mb-16 backdrop-blur-sm">
+            <h1 class="text-5xl md:text-6xl font-light mb-6 text-shadow-lg">⚛️ React Study Guide</h1>
+            <p class="text-xl md:text-2xl opacity-90 max-w-4xl mx-auto leading-relaxed">
+                Chapter 1: React Fundamentals - Master the core concepts of React development
+            </p>
+            <div class="mt-8 flex justify-center gap-4">
+                <button id="tts-toggle" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-medium transition-colors">
+                    🔊 Enable TTS
+                </button>
+                <button id="chapter-complete" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-medium transition-colors">
+                    ✅ Mark Complete
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="bg-white rounded-2xl overflow-hidden shadow-xl mb-8">
+            <div class="p-8">
+                <h2 class="text-3xl font-light text-primary-600 mb-6">What is React?</h2>
+                <div class="highlight">
+                    React is a JavaScript library for building user interfaces. It allows you to create reusable UI components and manage the state of your application efficiently.
+                </div>
+
+                <h3 class="text-2xl font-medium text-primary-500 mt-8 mb-4">Why React?</h3>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-start">
+                        <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded text-sm font-medium mr-3">💡</span>
+                        <span><strong>Component-Based:</strong> Build encapsulated components that manage their own state</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded text-sm font-medium mr-3">🎯</span>
+                        <span><strong>Declarative:</strong> Describe what you want to render, React handles the DOM updates</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded text-sm font-medium mr-3">🚀</span>
+                        <span><strong>Learn Once, Write Anywhere:</strong> Use React for web, mobile, and more</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded text-sm font-medium mr-3">⚡</span>
+                        <span><strong>Virtual DOM:</strong> Efficiently updates only what needs to change</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded text-sm font-medium mr-3">🔄</span>
+                        <span><strong>Unidirectional Data Flow:</strong> Predictable data flow with props and state</span>
+                    </li>
+                </ul>
+
+                <h3 class="text-2xl font-medium text-primary-500 mt-8 mb-4">Setting Up a React Project</h3>
+                <div class="code-snippet">// Using Create React App (Recommended for beginners)
+npx create-react-app my-app
+cd my-app
+npm start
+
+// Using Vite (Faster development)
+npm create vite@latest my-app -- --template react
+cd my-app
+npm install
+npm run dev
+
+// Manual setup with webpack
+npm init -y
+npm install react react-dom
+npm install --save-dev webpack webpack-cli webpack-dev-server babel-loader @babel/core @babel/preset-react @babel/preset-env html-webpack-plugin</div>
+
+                <h3 class="text-2xl font-medium text-primary-500 mt-8 mb-4">JSX: JavaScript XML</h3>
+                <div class="code-snippet">// JSX allows you to write HTML-like syntax in JavaScript
+const element = &lt;h1&gt;Hello, world!&lt;/h1&gt;;
+
+// JSX with expressions
+const name = 'John';
+const greeting = &lt;h1&gt;Hello, {name}!&lt;/h1&gt;;
+
+// JSX with attributes
+const image = &lt;img src={user.avatarUrl} alt={user.name} /&gt;;
+
+// JSX with children
+const element = (
+  &lt;div&gt;
+    &lt;h1&gt;Hello!&lt;/h1&gt;
+    &lt;p&gt;Welcome to React&lt;/p&gt;
+  &lt;/div&gt;
+);
+
+// JSX is compiled to React.createElement calls
+const element = React.createElement(
+  'h1',
+  {className: 'greeting'},
+  'Hello, world!'
+);</div>
+
+                <h3 class="text-2xl font-medium text-primary-500 mt-8 mb-4">Components: The Building Blocks</h3>
+                <div class="code-snippet">// Functional Component (Modern approach)
+function Welcome(props) {
+  return &lt;h1&gt;Hello, {props.name}&lt;/h1&gt;;
+}
+
+// Class Component (Legacy approach)
+class Welcome extends React.Component {
+  render() {
+    return &lt;h1&gt;Hello, {this.props.name}&lt;/h1&gt;;
+  }
+}
+
+// Using components
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;Welcome name="Alice" /&gt;
+      &lt;Welcome name="Bob" /&gt;
+      &lt;Welcome name="Charlie" /&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Component composition
+function Comment(props) {
+  return (
+    &lt;div className="Comment"&gt;
+      &lt;div className="UserInfo"&gt;
+        &lt;Avatar user={props.author} /&gt;
+        &lt;div className="UserInfo-name"&gt;
+          {props.author.name}
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div className="Comment-text"&gt;
+        {props.text}
+      &lt;/div&gt;
+      &lt;div className="Comment-date"&gt;
+        {formatDate(props.date)}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3 class="text-2xl font-medium text-primary-500 mt-8 mb-4">Props: Passing Data to Components</h3>
+                <div class="code-snippet">// Props are read-only data passed from parent to child
+function Welcome(props) {
+  return &lt;h1&gt;Hello, {props.name}!&lt;/h1&gt;;
+}
+
+// Using props with destructuring
+function UserCard({ name, age, email }) {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{name}&lt;/h2&gt;
+      &lt;p&gt;Age: {age}&lt;/p&gt;
+      &lt;p&gt;Email: {email}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Default props
+function Button({ text = "Click me", onClick }) {
+  return &lt;button onClick={onClick}&gt;{text}&lt;/button&gt;;
+}
+
+// PropTypes for type checking (optional but recommended)
+import PropTypes from 'prop-types';
+
+function UserCard({ name, age, email }) {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{name}&lt;/h2&gt;
+      &lt;p&gt;Age: {age}&lt;/p&gt;
+      &lt;p&gt;Email: {email}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+UserCard.propTypes = {
+  name: PropTypes.string.isRequired,
+  age: PropTypes.number,
+  email: PropTypes.string
+};
+
+UserCard.defaultProps = {
+  age: 18
+};</div>
+
+                <h3 class="text-2xl font-medium text-primary-500 mt-8 mb-4">Rendering Elements</h3>
+                <div class="code-snippet">// React elements are immutable
+const element = &lt;h1&gt;Hello, world&lt;/h1&gt;;
+
+// To update the UI, create a new element
+function tick() {
+  const element = (
+    &lt;div&gt;
+      &lt;h1&gt;Hello, world!&lt;/h1&gt;
+      &lt;h2&gt;It is {new Date().toLocaleTimeString()}.&lt;/h2&gt;
+    &lt;/div&gt;
+  );
+  ReactDOM.render(element, document.getElementById('root'));
+}
+
+// Components can return multiple elements using fragments
+function List() {
+  return (
+    &lt;&gt;
+      &lt;li&gt;Item 1&lt;/li&gt;
+      &lt;li&gt;Item 2&lt;/li&gt;
+      &lt;li&gt;Item 3&lt;/li&gt;
+    &lt;/&gt;
+  );
+}
+
+// Or using React.Fragment
+function List() {
+  return (
+    &lt;React.Fragment&gt;
+      &lt;li&gt;Item 1&lt;/li&gt;
+      &lt;li&gt;Item 2&lt;/li&gt;
+      &lt;li&gt;Item 3&lt;/li&gt;
+    &lt;/React.Fragment&gt;
+  );
+}</div>
+
+                <h3 class="text-2xl font-medium text-primary-500 mt-8 mb-4">Conditional Rendering</h3>
+                <div class="code-snippet">// Using if statements
+function Greeting(props) {
+  if (props.isLoggedIn) {
+    return &lt;h1&gt;Welcome back!&lt;/h1&gt;;
+  }
+  return &lt;h1&gt;Please sign up.&lt;/h1&gt;;
+}
+
+// Using ternary operator
+function Greeting(props) {
+  return props.isLoggedIn ? (
+    &lt;h1&gt;Welcome back!&lt;/h1&gt;
+  ) : (
+    &lt;h1&gt;Please sign up.&lt;/h1&gt;
+  );
+}
+
+// Using logical &amp;&amp; operator
+function Mailbox(props) {
+  const unreadMessages = props.unreadMessages;
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Hello!&lt;/h1&gt;
+      {unreadMessages.length &gt; 0 &amp;&amp; (
+        &lt;h2&gt;You have {unreadMessages.length} unread messages.&lt;/h2&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+
+// Preventing component from rendering
+function WarningBanner(props) {
+  if (!props.warn) {
+    return null;
+  }
+
+  return (
+    &lt;div className="warning"&gt;
+      Warning!
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3 class="text-2xl font-medium text-primary-500 mt-8 mb-4">Lists and Keys</h3>
+                <div class="code-snippet">// Rendering lists
+function NumberList(props) {
+  const numbers = props.numbers;
+  const listItems = numbers.map((number) =&gt;
+    &lt;li key={number.toString()}&gt;
+      {number}
+    &lt;/li&gt;
+  );
+  return (
+    &lt;ul&gt;{listItems}&lt;/ul&gt;
+  );
+}
+
+// Keys help React identify which items have changed
+function ListItem(props) {
+  return &lt;li&gt;{props.value}&lt;/li&gt;;
+}
+
+function NumberList(props) {
+  const numbers = props.numbers;
+  return (
+    &lt;ul&gt;
+      {numbers.map((number) =&gt;
+        &lt;ListItem key={number.toString()} value={number} /&gt;
+      )}
+    &lt;/ul&gt;
+  );
+}
+
+// Extracting components with keys
+function Blog(props) {
+  const sidebar = (
+    &lt;ul&gt;
+      {props.posts.map((post) =&gt;
+        &lt;li key={post.id}&gt;
+          {post.title}
+        &lt;/li&gt;
+      )}
+    &lt;/ul&gt;
+  );
+
+  const content = props.posts.map((post) =&gt;
+    &lt;div key={post.id}&gt;
+      &lt;h3&gt;{post.title}&lt;/h3&gt;
+      &lt;p&gt;{post.content}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+
+  return (
+    &lt;div&gt;
+      {sidebar}
+      &lt;hr /&gt;
+      {content}
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3 class="text-2xl font-medium text-primary-500 mt-8 mb-4">Handling Events</h3>
+                <div class="code-snippet">// Event handlers in React
+function ActionLink() {
+  function handleClick(e) {
+    e.preventDefault();
+    console.log('The link was clicked.');
+  }
+
+  return (
+    &lt;a href="#" onClick={handleClick}&gt;
+      Click me
+    &lt;/a&gt;
+  );
+}
+
+// Class component event handler
+class Toggle extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {isToggleOn: true};
+
+    // This binding is necessary to make \`this\` work in the callback
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleClick() {
+    this.setState(prevState =&gt; ({
+      isToggleOn: !prevState.isToggleOn
+    }));
+  }
+
+  render() {
+    return (
+      &lt;button onClick={this.handleClick}&gt;
+        {this.state.isToggleOn ? 'ON' : 'OFF'}
+      &lt;/button&gt;
+    );
+  }
+}
+
+// Modern approach with arrow functions (no binding needed)
+class Toggle extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {isToggleOn: true};
+  }
+
+  handleClick = () =&gt; {
+    this.setState(prevState =&gt; ({
+      isToggleOn: !prevState.isToggleOn
+    }));
+  }
+
+  render() {
+    return (
+      &lt;button onClick={this.handleClick}&gt;
+        {this.state.isToggleOn ? 'ON' : 'OFF'}
+      &lt;/button&gt;
+    );
+  }
+}
+
+// Passing arguments to event handlers
+function ActionButton() {
+  function handleClick(id, e) {
+    console.log('Button clicked:', id);
+  }
+
+  return (
+    &lt;button onClick={(e) =&gt; handleClick(1, e)}&gt;
+      Click me
+    &lt;/button&gt;
+  );
+}</div>
+
+                <h3 class="text-2xl font-medium text-primary-500 mt-8 mb-4">React Developer Tools</h3>
+                <div class="highlight">React Developer Tools is a browser extension that helps you inspect and debug React component hierarchies, props, and state.</div>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-start">
+                        <span class="bg-secondary-100 text-secondary-800 px-2 py-1 rounded text-sm font-medium mr-3">🔍</span>
+                        <span><strong>Components Tab:</strong> Inspect component tree and props</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-secondary-100 text-secondary-800 px-2 py-1 rounded text-sm font-medium mr-3">📊</span>
+                        <span><strong>Profiler Tab:</strong> Performance profiling and optimization</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-secondary-100 text-secondary-800 px-2 py-1 rounded text-sm font-medium mr-3">✨</span>
+                        <span><strong>Highlight Updates:</strong> See which components re-render</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-secondary-100 text-secondary-800 px-2 py-1 rounded text-sm font-medium mr-3">🎛️</span>
+                        <span><strong>Inspect State:</strong> View and modify component state</span>
+                    </li>
+                </ul>
+
+                <h3 class="text-2xl font-medium text-primary-500 mt-8 mb-4">Best Practices</h3>
+                <ul class="space-y-3">
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">✅</span>
+                        <span>Use functional components with hooks (modern React)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">✅</span>
+                        <span>Keep components small and focused on a single responsibility</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">✅</span>
+                        <span>Use meaningful names for components and props</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">✅</span>
+                        <span>Always use keys when rendering lists</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">✅</span>
+                        <span>Avoid direct DOM manipulation</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">✅</span>
+                        <span>Use PropTypes for type checking in development</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">✅</span>
+                        <span>Keep JSX readable with proper formatting</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="bg-white rounded-2xl p-6 shadow-lg">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <a href="study-guide-progress.html" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-medium transition-colors">
+                    🏠 Study Guide Home
+                </a>
+                <a href="react2.html" class="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-xl font-medium transition-colors">
+                    Next Chapter →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="study-guide/js/tts.js"></script>
+    <script>
+        // Chapter completion tracking
+        document.getElementById('chapter-complete').addEventListener('click', function() {
+            const button = this;
+            const isCompleted = button.textContent.includes('Mark Complete');
+
+            if (isCompleted) {
+                button.textContent = '✅ Completed';
+                button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                button.classList.add('bg-green-500', 'hover:bg-green-600');
+
+                // Store completion status
+                localStorage.setItem('react1-completed', 'true');
+
+                // Show success message
+                showNotification('Chapter marked as completed!', 'success');
+            } else {
+                button.textContent = '✅ Mark Complete';
+                button.classList.remove('bg-green-500', 'hover:bg-green-600');
+                button.classList.add('bg-blue-500', 'hover:bg-blue-600');
+
+                localStorage.removeItem('react1-completed');
+                showNotification('Chapter unmarked', 'info');
+            }
+        });
+
+        // Load completion status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const isCompleted = localStorage.getItem('react1-completed') === 'true';
+            const button = document.getElementById('chapter-complete');
+
+            if (isCompleted) {
+                button.textContent = '✅ Completed';
+                button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                button.classList.add('bg-green-500', 'hover:bg-green-600');
+            }
+        });
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-medium z-50 ${
+                type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+            }`;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

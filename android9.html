@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Study Guide - Chapter 9: Networking & APIs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        }
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
+    <header class="hero-gradient text-white py-16 px-6 text-center mb-12">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-light mb-4">Android Study Guide</h1>
+            <div class="text-xl md:text-2xl opacity-90">Chapter 9: Networking & APIs</div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <h2 class="text-primary-600 text-3xl font-light mb-6">Android Networking Fundamentals</h2>
+            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                <p class="text-lg text-gray-700">Android provides several ways to handle network operations: HttpURLConnection, Volley, Retrofit, and OkHttp. Always perform network operations on background threads to avoid blocking the UI.</p>
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Network Permissions</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+&lt;!-- AndroidManifest.xml --&gt;<br>
+&lt;manifest&gt;<br>
+    &lt;uses-permission android:name="android.permission.INTERNET" /&gt;<br>
+    &lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt;<br>
+<br>
+    &lt;application&gt;<br>
+        &lt;!-- Add this for cleartext traffic (HTTP) on Android 9+ --&gt;<br>
+        &lt;application android:usesCleartextTraffic="true" /&gt;<br>
+    &lt;/application&gt;<br>
+&lt;/manifest&gt;
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Basic HTTP Request with HttpURLConnection</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+public class NetworkUtils {<br>
+    public static String makeHttpRequest(URL url) throws IOException {<br>
+        HttpURLConnection connection = null;<br>
+        InputStream inputStream = null;<br>
+<br>
+        try {<br>
+            connection = (HttpURLConnection) url.openConnection();<br>
+            connection.setRequestMethod("GET");<br>
+            connection.setReadTimeout(10000);<br>
+            connection.setConnectTimeout(15000);<br>
+            connection.connect();<br>
+<br>
+            int responseCode = connection.getResponseCode();<br>
+            if (responseCode != 200) {<br>
+                throw new IOException("HTTP error code: " + responseCode);<br>
+            }<br>
+<br>
+            inputStream = connection.getInputStream();<br>
+            return readFromStream(inputStream);<br>
+<br>
+        } finally {<br>
+            if (connection != null) {<br>
+                connection.disconnect();<br>
+            }<br>
+            if (inputStream != null) {<br>
+                inputStream.close();<br>
+            }<br>
+        }<br>
+    }<br>
+<br>
+    private static String readFromStream(InputStream inputStream) throws IOException {<br>
+        StringBuilder output = new StringBuilder();<br>
+        if (inputStream != null) {<br>
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));<br>
+            BufferedReader reader = new BufferedReader(inputStreamReader);<br>
+            String line = reader.readLine();<br>
+            while (line != null) {<br>
+                output.append(line);<br>
+                line = reader.readLine();<br>
+            }<br>
+        }<br>
+        return output.toString();<br>
+    }<br>
+}<br>
+<br>
+// Usage in AsyncTask (deprecated, use other methods)<br>
+private class NetworkTask extends AsyncTask&lt;String, Void, String&gt; {<br>
+    @Override<br>
+    protected String doInBackground(String... urls) {<br>
+        try {<br>
+            URL url = new URL(urls[0]);<br>
+            return NetworkUtils.makeHttpRequest(url);<br>
+        } catch (IOException e) {<br>
+            e.printStackTrace();<br>
+            return null;<br>
+        }<br>
+    }<br>
+<br>
+    @Override<br>
+    protected void onPostExecute(String result) {<br>
+        if (result != null) {<br>
+            // Handle the result<br>
+        }<br>
+    }<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Volley Library (Google's Networking Library)</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// Add to build.gradle<br>
+dependencies {<br>
+    implementation 'com.android.volley:volley:1.2.1'<br>
+}<br>
+<br>
+// Initialize Volley<br>
+public class MyApplication extends Application {<br>
+    private static MyApplication instance;<br>
+<br>
+    @Override<br>
+    public void onCreate() {<br>
+        super.onCreate();<br>
+        instance = this;<br>
+    }<br>
+<br>
+    public static synchronized MyApplication getInstance() {<br>
+        return instance;<br>
+    }<br>
+<br>
+    public RequestQueue getRequestQueue() {<br>
+        return Volley.newRequestQueue(getApplicationContext());<br>
+    }<br>
+}<br>
+<br>
+// Simple GET request<br>
+StringRequest stringRequest = new StringRequest(Request.Method.GET, url,<br>
+        new Response.Listener&lt;String&gt;() {<br>
+            @Override<br>
+            public void onResponse(String response) {<br>
+                // Handle response<br>
+                Log.d("Response", response);<br>
+            }<br>
+        },<br>
+        new Response.ErrorListener() {<br>
+            @Override<br>
+            public void onErrorResponse(VolleyError error) {<br>
+                // Handle error<br>
+                Log.e("Error", error.toString());<br>
+            }<br>
+        });<br>
+<br>
+// Add request to queue<br>
+MyApplication.getInstance().getRequestQueue().add(stringRequest);<br>
+<br>
+// JSON Object Request<br>
+JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,<br>
+        new Response.Listener&lt;JSONObject&gt;() {<br>
+            @Override<br>
+            public void onResponse(JSONObject response) {<br>
+                try {<br>
+                    String name = response.getString("name");<br>
+                    // Process JSON response<br>
+                } catch (JSONException e) {<br>
+                    e.printStackTrace();<br>
+                }<br>
+            }<br>
+        },<br>
+        new Response.ErrorListener() {<br>
+            @Override<br>
+            public void onErrorResponse(VolleyError error) {<br>
+                Log.e("Error", error.toString());<br>
+            }<br>
+        });<br>
+<br>
+MyApplication.getInstance().getRequestQueue().add(jsonObjectRequest);
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Retrofit Library (Most Popular)</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// Add to build.gradle<br>
+dependencies {<br>
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'<br>
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'<br>
+}<br>
+<br>
+// Define API interface<br>
+public interface ApiService {<br>
+    @GET("users/{user}")<br>
+    Call&lt;User&gt; getUser(@Path("user") String user);<br>
+<br>
+    @GET("users")<br>
+    Call&lt;List&lt;User&gt;&gt; getUsers();<br>
+<br>
+    @POST("users")<br>
+    Call&lt;User&gt; createUser(@Body User user);<br>
+<br>
+    @PUT("users/{id}")<br>
+    Call&lt;User&gt; updateUser(@Path("id") int id, @Body User user);<br>
+<br>
+    @DELETE("users/{id}")<br>
+    Call&lt;Void&gt; deleteUser(@Path("id") int id);<br>
+}<br>
+<br>
+// User model<br>
+public class User {<br>
+    private int id;<br>
+    private String name;<br>
+    private String email;<br>
+<br>
+    // Getters and setters<br>
+}<br>
+<br>
+// Create Retrofit instance<br>
+public class ApiClient {<br>
+    private static final String BASE_URL = "https://jsonplaceholder.typicode.com/";<br>
+    private static Retrofit retrofit = null;<br>
+<br>
+    public static Retrofit getClient() {<br>
+        if (retrofit == null) {<br>
+            retrofit = new Retrofit.Builder()<br>
+                    .baseUrl(BASE_URL)<br>
+                    .addConverterFactory(GsonConverterFactory.create())<br>
+                    .build();<br>
+        }<br>
+        return retrofit;<br>
+    }<br>
+}<br>
+<br>
+// Usage<br>
+ApiService apiService = ApiClient.getClient().create(ApiService.class);<br>
+<br>
+// GET request<br>
+Call&lt;User&gt; call = apiService.getUser("1");<br>
+call.enqueue(new Callback&lt;User&gt;() {<br>
+    @Override<br>
+    public void onResponse(Call&lt;User&gt; call, Response&lt;User&gt; response) {<br>
+        if (response.isSuccessful()) {<br>
+            User user = response.body();<br>
+            // Handle success<br>
+        }<br>
+    }<br>
+<br>
+    @Override<br>
+    public void onFailure(Call&lt;User&gt; call, Throwable t) {<br>
+        // Handle failure<br>
+        Log.e("Error", t.getMessage());<br>
+    }<br>
+});
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">JSON Parsing with Gson</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// Add to build.gradle<br>
+dependencies {<br>
+    implementation 'com.google.code.gson:gson:2.8.9'<br>
+}<br>
+<br>
+// Parse JSON string to object<br>
+Gson gson = new Gson();<br>
+String jsonString = "{\"name\":\"John\",\"age\":30}";<br>
+Person person = gson.fromJson(jsonString, Person.class);<br>
+<br>
+// Convert object to JSON string<br>
+Person person = new Person("John", 30);<br>
+String json = gson.toJson(person);<br>
+<br>
+// Parse JSON array<br>
+String jsonArray = "[{\"name\":\"John\"},{\"name\":\"Jane\"}]";<br>
+Type listType = new TypeToken&lt;List&lt;Person&gt;&gt;(){}.getType();<br>
+List&lt;Person&gt; persons = gson.fromJson(jsonArray, listType);
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Network Security Best Practices</h3>
+            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                <p class="text-lg text-gray-700">Always use HTTPS in production, validate SSL certificates, and handle network errors gracefully.</p>
+            </div>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// Custom OkHttpClient with SSL pinning (for security)<br>
+OkHttpClient.Builder builder = new OkHttpClient.Builder();<br>
+<br>
+// Add certificate pinning<br>
+CertificatePinner certificatePinner = new CertificatePinner.Builder()<br>
+        .add("api.example.com", "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")<br>
+        .build();<br>
+<br>
+builder.certificatePinner(certificatePinner);<br>
+<br>
+// Add interceptors for logging<br>
+HttpLoggingInterceptor logging = new HttpLoggingInterceptor();<br>
+logging.setLevel(HttpLoggingInterceptor.Level.BODY);<br>
+builder.addInterceptor(logging);<br>
+<br>
+// Add timeout<br>
+builder.connectTimeout(30, TimeUnit.SECONDS);<br>
+builder.readTimeout(30, TimeUnit.SECONDS);<br>
+<br>
+OkHttpClient client = builder.build();<br>
+<br>
+// Use with Retrofit<br>
+Retrofit retrofit = new Retrofit.Builder()<br>
+        .baseUrl(BASE_URL)<br>
+        .client(client)<br>
+        .addConverterFactory(GsonConverterFactory.create())<br>
+        .build();
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Handling Network State</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+public class NetworkUtils {<br>
+    public static boolean isNetworkAvailable(Context context) {<br>
+        ConnectivityManager connectivityManager =<br>
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);<br>
+<br>
+        if (connectivityManager != null) {<br>
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();<br>
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();<br>
+        }<br>
+        return false;<br>
+    }<br>
+<br>
+    public static boolean isWifiConnected(Context context) {<br>
+        ConnectivityManager connectivityManager =<br>
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);<br>
+<br>
+        NetworkInfo wifiNetwork = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);<br>
+        return wifiNetwork != null && wifiNetwork.isConnected();<br>
+    }<br>
+}<br>
+<br>
+// Usage<br>
+if (NetworkUtils.isNetworkAvailable(this)) {<br>
+    // Perform network operation<br>
+} else {<br>
+    // Show no network message<br>
+    Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">AsyncTask vs Other Approaches</h3>
+            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                <p class="text-lg text-gray-700">AsyncTask is deprecated. Use Volley, Retrofit, or Kotlin Coroutines for modern Android development.</p>
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Network Threading Best Practices</h3>
+            <ul class="list-disc list-inside text-gray-700 space-y-2 mb-8">
+                <li>Never perform network operations on the main thread</li>
+                <li>Use background threads or AsyncTask alternatives</li>
+                <li>Handle configuration changes properly</li>
+                <li>Cancel network requests when appropriate</li>
+                <li>Show loading indicators to users</li>
+            </ul>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-6 mt-12">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <a href="android8.html" class="text-primary-600 hover:text-primary-700 font-medium px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200">← Previous Chapter</a>
+                <a href="android10.html" class="text-primary-600 hover:text-primary-700 font-medium px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200">Next Chapter →</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

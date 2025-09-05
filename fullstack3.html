@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full-Stack Web Development: Chapter 3 - CSS Fundamentals</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-container">
+                <h1>Full-Stack Web Development Study Guide</h1>
+                <ul class="nav-menu">
+                    <li><a href="fullstack1.html">Chapter 1</a></li>
+                    <li><a href="fullstack2.html">Chapter 2</a></li>
+                    <li><a href="fullstack3.html" class="active">Chapter 3</a></li>
+                    <li><a href="fullstack4.html">Chapter 4</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <article class="chapter-content">
+            <header class="chapter-header">
+                <h1>Chapter 3: CSS Fundamentals</h1>
+                <p class="chapter-subtitle">Styling Web Pages with Cascading Style Sheets</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </header>
+
+            <section id="introduction">
+                <h2>3.1 Introduction to CSS</h2>
+                <p>CSS (Cascading Style Sheets) is a style sheet language used to describe the presentation and formatting of HTML documents. CSS controls the visual appearance of web pages, including layout, colors, fonts, and animations.</p>
+
+                <div class="key-concept">
+                    <h3>Key Concept: Separation of Concerns</h3>
+                    <p>CSS separates content (HTML) from presentation (styling), making websites more maintainable, accessible, and flexible.</p>
+                </div>
+
+                <h3>CSS Evolution</h3>
+                <ul>
+                    <li><strong>CSS1 (1996)</strong> - Basic styling capabilities</li>
+                    <li><strong>CSS2 (1998)</strong> - Positioning, media types, aural styles</li>
+                    <li><strong>CSS2.1 (2004)</strong> - Bug fixes and clarifications</li>
+                    <li><strong>CSS3 (2011+)</strong> - Modules, animations, flexbox, grid</li>
+                </ul>
+
+                <h3>How CSS Works</h3>
+                <p>CSS uses a cascade system where multiple style rules can apply to the same element. The cascade determines which styles take precedence based on:</p>
+                <ol>
+                    <li>Importance (normal vs !important)</li>
+                    <li>Specificity (how specific the selector is)</li>
+                    <li>Source order (later rules override earlier ones)</li>
+                </ol>
+            </section>
+
+            <section id="syntax">
+                <h2>3.2 CSS Syntax and Structure</h2>
+                <p>CSS rules consist of selectors and declarations that define how elements should be styled.</p>
+
+                <h3>Basic CSS Rule Structure</h3>
+                <div class="code-example">
+                    <pre><code>selector {
+    property: value;
+    property: value;
+}</code></pre>
+                </div>
+
+                <h3>CSS Comments</h3>
+                <div class="code-example">
+                    <pre><code>/* This is a single-line comment */
+
+/*
+This is a multi-line comment
+that spans several lines
+*/</code></pre>
+                </div>
+
+                <h3>Adding CSS to HTML</h3>
+                <p>There are three ways to add CSS to HTML documents:</p>
+
+                <h4>1. External Stylesheet (Recommended)</h4>
+                <div class="code-example">
+                    <pre><code>&lt;!-- HTML file --&gt;
+&lt;head&gt;
+    &lt;link rel="stylesheet" href="styles.css"&gt;
+&lt;/head&gt;</code></pre>
+                </div>
+
+                <h4>2. Internal Stylesheet</h4>
+                <div class="code-example">
+                    <pre><code>&lt;!-- HTML file --&gt;
+&lt;head&gt;
+    &lt;style&gt;
+        body { background-color: lightblue; }
+    &lt;/style&gt;
+&lt;/head&gt;</code></pre>
+                </div>
+
+                <h4>3. Inline Styles</h4>
+                <div class="code-example">
+                    <pre><code>&lt;!-- HTML file --&gt;
+&lt;p style="color: red; font-size: 20px;"&gt;This is red text&lt;/p&gt;</code></pre>
+                </div>
+            </section>
+
+            <section id="selectors">
+                <h2>3.3 CSS Selectors</h2>
+                <p>Selectors target HTML elements to apply styles. CSS provides various types of selectors for different targeting needs.</p>
+
+                <h3>Basic Selectors</h3>
+                <table class="selector-table">
+                    <thead>
+                        <tr>
+                            <th>Selector</th>
+                            <th>Example</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Element</td>
+                            <td><code>p { }</code></td>
+                            <td>Selects all paragraph elements</td>
+                        </tr>
+                        <tr>
+                            <td>Class</td>
+                            <td><code>.classname { }</code></td>
+                            <td>Selects elements with class="classname"</td>
+                        </tr>
+                        <tr>
+                            <td>ID</td>
+                            <td><code>#idname { }</code></td>
+                            <td>Selects element with id="idname"</td>
+                        </tr>
+                        <tr>
+                            <td>Universal</td>
+                            <td><code>* { }</code></td>
+                            <td>Selects all elements</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Combinator Selectors</h3>
+                <table class="selector-table">
+                    <thead>
+                        <tr>
+                            <th>Selector</th>
+                            <th>Example</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Descendant</td>
+                            <td><code>div p { }</code></td>
+                            <td>Paragraphs inside div elements</td>
+                        </tr>
+                        <tr>
+                            <td>Child</td>
+                            <td><code>div > p { }</code></td>
+                            <td>Direct child paragraphs of div</td>
+                        </tr>
+                        <tr>
+                            <td>Adjacent Sibling</td>
+                            <td><code>h1 + p { }</code></td>
+                            <td>Paragraphs immediately after h1</td>
+                        </tr>
+                        <tr>
+                            <td>General Sibling</td>
+                            <td><code>h1 ~ p { }</code></td>
+                            <td>All paragraphs after h1</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Attribute Selectors</h3>
+                <div class="code-example">
+                    <pre><code>/* Selects all input elements with type="text" */
+input[type="text"] { }
+
+/* Selects all elements with href attribute */
+a[href] { }
+
+/* Selects links that start with "https" */
+a[href^="https"] { }
+
+/* Selects links that end with ".pdf" */
+a[href$=".pdf"] { }
+
+/* Selects links containing "example" */
+a[href*="example"] { }</code></pre>
+                </div>
+
+                <h3>Pseudo-Classes and Pseudo-Elements</h3>
+                <div class="code-example">
+                    <pre><code>/* Pseudo-classes */
+a:hover { color: red; }
+input:focus { border: 2px solid blue; }
+li:first-child { font-weight: bold; }
+li:last-child { margin-bottom: 0; }
+
+/* Pseudo-elements */
+p::first-line { font-weight: bold; }
+p::first-letter { font-size: 2em; }
+p::before { content: "→ "; }
+p::after { content: " ←"; }</code></pre>
+                </div>
+            </section>
+
+            <section id="box-model">
+                <h2>3.4 The CSS Box Model</h2>
+                <p>Every HTML element is treated as a rectangular box with content, padding, border, and margin.</p>
+
+                <div class="box-model-diagram">
+                    <div class="box-model-explanation">
+                        <h3>Box Model Components</h3>
+                        <ul>
+                            <li><strong>Content</strong> - The actual content (text, images, etc.)</li>
+                            <li><strong>Padding</strong> - Space between content and border</li>
+                            <li><strong>Border</strong> - Line around the padding</li>
+                            <li><strong>Margin</strong> - Space outside the border</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Box Model Properties</h3>
+                <div class="code-example">
+                    <pre><code>.box {
+    /* Content dimensions */
+    width: 200px;
+    height: 100px;
+
+    /* Padding */
+    padding-top: 10px;
+    padding-right: 20px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+
+    /* Shorthand: top right bottom left */
+    padding: 10px 20px 10px 20px;
+
+    /* Border */
+    border-width: 2px;
+    border-style: solid;
+    border-color: black;
+
+    /* Shorthand */
+    border: 2px solid black;
+
+    /* Margin */
+    margin: 10px;
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="colors-units">
+                <h2>3.5 Colors and Units</h2>
+
+                <h3>Color Values</h3>
+                <p>CSS supports various ways to specify colors:</p>
+                <div class="code-example">
+                    <pre><code>/* Named colors */
+color: red;
+color: blue;
+color: green;
+
+/* Hexadecimal */
+color: #FF0000;    /* Red */
+color: #00FF00;    /* Green */
+color: #0000FF;    /* Blue */
+color: #FFFFFF;    /* White */
+color: #000000;    /* Black */
+
+/* RGB */
+color: rgb(255, 0, 0);     /* Red */
+color: rgb(0, 255, 0);     /* Green */
+color: rgb(0, 0, 255);     /* Blue */
+
+/* RGBA (with alpha) */
+color: rgba(255, 0, 0, 0.5);  /* Semi-transparent red */
+
+/* HSL */
+color: hsl(0, 100%, 50%);     /* Red */
+color: hsl(120, 100%, 50%);   /* Green */
+color: hsl(240, 100%, 50%);   /* Blue */</code></pre>
+                </div>
+
+                <h3>CSS Units</h3>
+                <table class="units-table">
+                    <thead>
+                        <tr>
+                            <th>Unit Type</th>
+                            <th>Unit</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="3">Absolute</td>
+                            <td>px</td>
+                            <td>Pixels</td>
+                            <td>width: 200px;</td>
+                        </tr>
+                        <tr>
+                            <td>pt</td>
+                            <td>Points (1/72 inch)</td>
+                            <td>font-size: 12pt;</td>
+                        </tr>
+                        <tr>
+                            <td>cm</td>
+                            <td>Centimeters</td>
+                            <td>width: 10cm;</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4">Relative</td>
+                            <td>%</td>
+                            <td>Percentage</td>
+                            <td>width: 50%;</td>
+                        </tr>
+                        <tr>
+                            <td>em</td>
+                            <td>Relative to font-size</td>
+                            <td>font-size: 1.2em;</td>
+                        </tr>
+                        <tr>
+                            <td>rem</td>
+                            <td>Relative to root font-size</td>
+                            <td>font-size: 1.2rem;</td>
+                        </tr>
+                        <tr>
+                            <td>vw/vh</td>
+                            <td>Viewport width/height</td>
+                            <td>width: 50vw;</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="typography">
+                <h2>3.6 Typography</h2>
+                <p>CSS provides extensive control over text appearance and formatting.</p>
+
+                <h3>Font Properties</h3>
+                <div class="code-example">
+                    <pre><code>.text-example {
+    /* Font family */
+    font-family: 'Arial', sans-serif;
+
+    /* Font size */
+    font-size: 16px;
+
+    /* Font weight */
+    font-weight: bold;  /* or 100-900 */
+
+    /* Font style */
+    font-style: italic;
+
+    /* Text decoration */
+    text-decoration: underline;
+
+    /* Text transformation */
+    text-transform: uppercase;
+
+    /* Letter spacing */
+    letter-spacing: 2px;
+
+    /* Line height */
+    line-height: 1.5;
+
+    /* Text alignment */
+    text-align: center;
+}</code></pre>
+                </div>
+
+                <h3>Web Fonts</h3>
+                <p>Use Google Fonts or custom fonts with @font-face:</p>
+                <div class="code-example">
+                    <pre><code>/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Custom font with @font-face */
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('fonts/custom-font.woff2') format('woff2'),
+         url('fonts/custom-font.woff') format('woff');
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="layout">
+                <h2>3.7 Layout and Positioning</h2>
+
+                <h3>Display Property</h3>
+                <div class="code-example">
+                    <pre><code>/* Block elements */
+div { display: block; }
+
+/* Inline elements */
+span { display: inline; }
+
+/* Inline-block */
+.button { display: inline-block; }
+
+/* Hide elements */
+.hidden { display: none; }</code></pre>
+                </div>
+
+                <h3>Position Property</h3>
+                <div class="code-example">
+                    <pre><code>/* Static (default) */
+.static { position: static; }
+
+/* Relative */
+.relative {
+    position: relative;
+    top: 10px;
+    left: 20px;
+}
+
+/* Absolute */
+.absolute {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+/* Fixed */
+.fixed {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+
+/* Sticky */
+.sticky {
+    position: sticky;
+    top: 0;
+}</code></pre>
+                </div>
+
+                <h3>Float and Clear</h3>
+                <div class="code-example">
+                    <pre><code>/* Float elements */
+.left-float { float: left; }
+.right-float { float: right; }
+
+/* Clear floats */
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="responsive">
+                <h2>3.8 Responsive Design</h2>
+                <p>Create websites that work on all devices using media queries and flexible layouts.</p>
+
+                <h3>Media Queries</h3>
+                <div class="code-example">
+                    <pre><code>/* Mobile first approach */
+.container {
+    width: 100%;
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+    .container {
+        width: 750px;
+    }
+}
+
+/* Desktop */
+@media (min-width: 992px) {
+    .container {
+        width: 970px;
+    }
+}
+
+/* Large desktop */
+@media (min-width: 1200px) {
+    .container {
+        width: 1170px;
+    }
+}</code></pre>
+                </div>
+
+                <h3>Flexible Images</h3>
+                <div class="code-example">
+                    <pre><code>img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Or use responsive images */
+&lt;img src="small.jpg"
+     srcset="medium.jpg 768w, large.jpg 1200w"
+     sizes="(max-width: 768px) 100vw, 50vw"
+     alt="Responsive image"&gt;</code></pre>
+                </div>
+            </section>
+
+            <section id="flexbox">
+                <h2>3.9 Flexbox Layout</h2>
+                <p>Flexbox provides a modern way to create flexible layouts that adapt to different screen sizes.</p>
+
+                <h3>Flex Container Properties</h3>
+                <div class="code-example">
+                    <pre><code>.flex-container {
+    display: flex;
+
+    /* Direction */
+    flex-direction: row; /* row | row-reverse | column | column-reverse */
+
+    /* Wrapping */
+    flex-wrap: wrap; /* nowrap | wrap | wrap-reverse */
+
+    /* Shorthand */
+    flex-flow: row wrap;
+
+    /* Alignment */
+    justify-content: space-between; /* flex-start | flex-end | center | space-between | space-around */
+    align-items: center; /* flex-start | flex-end | center | baseline | stretch */
+    align-content: flex-start; /* flex-start | flex-end | center | space-between | space-around | stretch */
+}</code></pre>
+                </div>
+
+                <h3>Flex Item Properties</h3>
+                <div class="code-example">
+                    <pre><code>.flex-item {
+    /* Growth */
+    flex-grow: 1; /* How much it grows */
+
+    /* Shrink */
+    flex-shrink: 1; /* How much it shrinks */
+
+    /* Basis */
+    flex-basis: auto; /* Initial size */
+
+    /* Shorthand */
+    flex: 1 1 auto;
+
+    /* Self alignment */
+    align-self: flex-start; /* auto | flex-start | flex-end | center | baseline | stretch */
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="css-grid">
+                <h2>3.10 CSS Grid Layout</h2>
+                <p>CSS Grid provides two-dimensional layout capabilities for complex web layouts.</p>
+
+                <h3>Grid Container</h3>
+                <div class="code-example">
+                    <pre><code>.grid-container {
+    display: grid;
+
+    /* Define columns */
+    grid-template-columns: 1fr 2fr 1fr;
+
+    /* Define rows */
+    grid-template-rows: auto 1fr auto;
+
+    /* Gap between items */
+    gap: 20px;
+
+    /* Alternative syntax */
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 200px 1fr 200px;
+}</code></pre>
+                </div>
+
+                <h3>Grid Items</h3>
+                <div class="code-example">
+                    <pre><code>.grid-item {
+    /* Position items */
+    grid-column: 1 / 3; /* Start at line 1, end at line 3 */
+    grid-row: 2 / 4; /* Start at line 2, end at line 4 */
+
+    /* Shorthand */
+    grid-area: 2 / 1 / 4 / 3;
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="animations">
+                <h2>3.11 CSS Animations and Transitions</h2>
+                <p>Add smooth transitions and animations to enhance user experience.</p>
+
+                <h3>CSS Transitions</h3>
+                <div class="code-example">
+                    <pre><code>.button {
+    background-color: blue;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: red;
+}
+
+/* Multiple properties */
+.element {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}</code></pre>
+                </div>
+
+                <h3>CSS Animations</h3>
+                <div class="code-example">
+                    <pre><code>@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.animated-element {
+    animation: slideIn 0.5s ease-out;
+}
+
+/* Multiple keyframes */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-30px);
+    }
+    60% {
+        transform: translateY(-15px);
+    }
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="best-practices">
+                <h2>3.12 CSS Best Practices</h2>
+
+                <h3>Organization and Maintainability</h3>
+                <ul>
+                    <li>Use consistent naming conventions (BEM, SMACSS)</li>
+                    <li>Organize CSS into logical sections</li>
+                    <li>Use CSS variables for reusable values</li>
+                    <li>Avoid !important when possible</li>
+                    <li>Comment your CSS code</li>
+                </ul>
+
+                <h3>Performance</h3>
+                <ul>
+                    <li>Minimize CSS file size</li>
+                    <li>Use CSS sprites for small images</li>
+                    <li>Avoid expensive selectors</li>
+                    <li>Use hardware acceleration when possible</li>
+                    <li>Load critical CSS first</li>
+                </ul>
+
+                <h3>Accessibility</h3>
+                <ul>
+                    <li>Ensure sufficient color contrast</li>
+                    <li>Don't rely on color alone for information</li>
+                    <li>Respect user's motion preferences</li>
+                    <li>Provide focus indicators</li>
+                    <li>Test with screen readers</li>
+                </ul>
+            </section>
+
+            <section id="summary">
+                <h2>3.13 Summary</h2>
+                <p>CSS is essential for creating visually appealing and responsive web pages:</p>
+
+                <div class="key-takeaways">
+                    <h3>Key Takeaways</h3>
+                    <ul>
+                        <li>CSS separates presentation from content</li>
+                        <li>The cascade determines which styles apply</li>
+                        <li>The box model controls element dimensions</li>
+                        <li>Selectors target specific HTML elements</li>
+                        <li>Flexbox and Grid provide modern layout options</li>
+                        <li>Media queries enable responsive design</li>
+                        <li>Animations enhance user experience</li>
+                        <li>Best practices ensure maintainable and performant CSS</li>
+                    </ul>
+                </div>
+
+                <div class="practice-exercises">
+                    <h3>Practice Exercises</h3>
+                    <ol>
+                        <li>Create a responsive navigation menu</li>
+                        <li>Build a card layout using Flexbox</li>
+                        <li>Design a complex grid layout</li>
+                        <li>Implement smooth transitions and animations</li>
+                        <li>Create a mobile-first responsive design</li>
+                    </ol>
+                </div>
+            </section>
+        </article>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 Full-Stack Web Development Study Guide</p>
+            <div class="footer-links">
+                <a href="fullstack2.html">Previous: Chapter 2</a>
+                <a href="fullstack4.html">Next: Chapter 4</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

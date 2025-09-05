@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Study Guide - Chapter 11: Material Design 3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        }
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
+    <header class="hero-gradient text-white py-16 px-6 text-center mb-12">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-light mb-4">Android Study Guide</h1>
+            <div class="text-xl md:text-2xl opacity-90">Chapter 11: Material Design 3</div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <h2 class="text-primary-600 text-3xl font-light mb-6">Material Design 3 (Material You)</h2>
+            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                <p class="text-lg text-gray-700">Material Design 3 introduces a more expressive and personalized design system with dynamic color, improved accessibility, and modern components.</p>
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Material Design 3 Principles</h3>
+            <ul class="list-disc list-inside text-gray-700 space-y-2 mb-8">
+                <li><strong class="text-secondary-700">Personalization:</strong> Dynamic color based on user's wallpaper</li>
+                <li><strong class="text-secondary-700">Expressiveness:</strong> More rounded corners, refined typography, and expressive motion</li>
+                <li><strong class="text-secondary-700">Accessibility:</strong> Better contrast ratios and touch targets</li>
+                <li><strong class="text-secondary-700">Consistency:</strong> Unified design language across platforms</li>
+            </ul>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Setting Up Material Design 3</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// build.gradle (app level)<br>
+dependencies {<br>
+    implementation 'com.google.android.material:material:1.9.0'<br>
+    implementation 'androidx.appcompat:appcompat:1.6.1'<br>
+}<br>
+<br>
+// themes.xml<br>
+&lt;resources xmlns:tools="http://schemas.android.com/tools"&gt;<br>
+    &lt;style name="Theme.MyApp" parent="Theme.Material3.DayNight"&gt;<br>
+        &lt;item name="colorPrimary"&gt;@color/primary&lt;/item&gt;<br>
+        &lt;item name="colorOnPrimary"&gt;@color/on_primary&lt;/item&gt;<br>
+        &lt;item name="colorPrimaryContainer"&gt;@color/primary_container&lt;/item&gt;<br>
+        &lt;item name="colorOnPrimaryContainer"&gt;@color/on_primary_container&lt;/item&gt;<br>
+        &lt;item name="colorSecondary"&gt;@color/secondary&lt;/item&gt;<br>
+        &lt;item name="colorOnSecondary"&gt;@color/on_secondary&lt;/item&gt;<br>
+        &lt;item name="colorTertiary"&gt;@color/tertiary&lt;/item&gt;<br>
+        &lt;item name="colorOnTertiary"&gt;@color/on_tertiary&lt;/item&gt;<br>
+        &lt;item name="colorError"&gt;@color/error&lt;/item&gt;<br>
+        &lt;item name="colorOnError"&gt;@color/on_error&lt;/item&gt;<br>
+        &lt;item name="colorSurface"&gt;@color/surface&lt;/item&gt;<br>
+        &lt;item name="colorOnSurface"&gt;@color/on_surface&lt;/item&gt;<br>
+        &lt;item name="colorSurfaceVariant"&gt;@color/surface_variant&lt;/item&gt;<br>
+        &lt;item name="colorOnSurfaceVariant"&gt;@color/on_surface_variant&lt;/item&gt;<br>
+    &lt;/style&gt;<br>
+&lt;/resources&gt;<br>
+<br>
+// AndroidManifest.xml<br>
+&lt;application<br>
+    android:theme="@style/Theme.MyApp"<br>
+    ...&gt;<br>
+&lt;/application&gt;
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Dynamic Color (Material You)</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// Enable dynamic color in your theme<br>
+&lt;style name="Theme.MyApp" parent="Theme.Material3.DayNight"&gt;<br>
+    &lt;!-- Dynamic color attributes --&gt;<br>
+    &lt;item name="colorPrimary"&gt;@android:color/system_accent1_600&lt;/item&gt;<br>
+    &lt;item name="colorOnPrimary"&gt;@android:color/system_accent1_0&lt;/item&gt;<br>
+    &lt;item name="colorPrimaryContainer"&gt;@android:color/system_accent1_100&lt;/item&gt;<br>
+    &lt;item name="colorOnPrimaryContainer"&gt;@android:color/system_accent1_900&lt;/item&gt;<br>
+    &lt;item name="colorSecondary"&gt;@android:color/system_accent2_600&lt;/item&gt;<br>
+    &lt;item name="colorOnSecondary"&gt;@android:color/system_accent2_0&lt;/item&gt;<br>
+    &lt;item name="colorTertiary"&gt;@android:color/system_accent3_600&lt;/item&gt;<br>
+    &lt;item name="colorOnTertiary"&gt;@android:color/system_accent3_0&lt;/item&gt;<br>
+&lt;/style&gt;<br>
+<br>
+// Check if dynamic color is available<br>
+public class ThemeUtils {<br>
+    public static boolean isDynamicColorAvailable(Context context) {<br>
+        if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.S) {<br>
+            return true; // Android 12+<br>
+        }<br>
+        return false;<br>
+    }<br>
+<br>
+    public static void applyDynamicColors(Activity activity) {<br>
+        if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.S) {<br>
+            DynamicColors.applyToActivityIfAvailable(activity);<br>
+        }<br>
+    }<br>
+}<br>
+<br>
+// Apply dynamic colors in your activity<br>
+@Override<br>
+protected void onCreate(Bundle savedInstanceState) {<br>
+    super.onCreate(savedInstanceState);<br>
+    ThemeUtils.applyDynamicColors(this);<br>
+    setContentView(R.layout.activity_main);<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Material Components</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+&lt;!-- activity_main.xml --&gt;<br>
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"<br>
+    xmlns:app="http://schemas.android.com/apk/res-auto"<br>
+    android:layout_width="match_parent"<br>
+    android:layout_height="match_parent"<br>
+    android:orientation="vertical"<br>
+    android:padding="16dp"&gt;<br>
+<br>
+    &lt;!-- Material Button --&gt;<br>
+    &lt;com.google.android.material.button.MaterialButton<br>
+        android:id="@+id/button"<br>
+        android:layout_width="wrap_content"<br>
+        android:layout_height="wrap_content"<br>
+        android:text="Material Button"<br>
+        app:icon="@drawable/ic_add"<br>
+        style="@style/Widget.Material3.Button" /&gt;<br>
+<br>
+    &lt;!-- Material Card --&gt;<br>
+    &lt;com.google.android.material.card.MaterialCardView<br>
+        android:layout_width="match_parent"<br>
+        android:layout_height="wrap_content"<br>
+        android:layout_marginTop="16dp"<br>
+        app:cardCornerRadius="12dp"<br>
+        app:cardElevation="4dp"<br>
+        app:strokeColor="@color/outline"<br>
+        app:strokeWidth="1dp"&gt;<br>
+<br>
+        &lt;LinearLayout<br>
+            android:layout_width="match_parent"<br>
+            android:layout_height="wrap_content"<br>
+            android:orientation="vertical"<br>
+            android:padding="16dp"&gt;<br>
+<br>
+            &lt;TextView<br>
+                android:layout_width="wrap_content"<br>
+                android:layout_height="wrap_content"<br>
+                android:text="Material Card"<br>
+                android:textAppearance="?attr/textAppearanceHeadline6" /&gt;<br>
+<br>
+            &lt;TextView<br>
+                android:layout_width="wrap_content"<br>
+                android:layout_height="wrap_content"<br>
+                android:text="This is a material card with rounded corners and elevation"<br>
+                android:textAppearance="?attr/textAppearanceBody2" /&gt;<br>
+<br>
+        &lt;/LinearLayout&gt;<br>
+<br>
+    &lt;/com.google.android.material.card.MaterialCardView&gt;<br>
+<br>
+    &lt;!-- Material Text Field --&gt;<br>
+    &lt;com.google.android.material.textfield.TextInputLayout<br>
+        android:layout_width="match_parent"<br>
+        android:layout_height="wrap_content"<br>
+        android:layout_marginTop="16dp"<br>
+        android:hint="Email"<br>
+        app:endIconMode="password_toggle"<br>
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"&gt;<br>
+<br>
+        &lt;com.google.android.material.textfield.TextInputEditText<br>
+            android:layout_width="match_parent"<br>
+            android:layout_height="wrap_content"<br>
+            android:inputType="textEmailAddress" /&gt;<br>
+<br>
+    &lt;/com.google.android.material.textfield.TextInputLayout&gt;<br>
+<br>
+    &lt;!-- Material FAB --&gt;<br>
+    &lt;com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton<br>
+        android:id="@+id/fab"<br>
+        android:layout_width="wrap_content"<br>
+        android:layout_height="wrap_content"<br>
+        android:layout_marginTop="16dp"<br>
+        android:text="Extended FAB"<br>
+        app:icon="@drawable/ic_add"<br>
+        style="@style/Widget.Material3.ExtendedFloatingActionButton.Primary" /&gt;<br>
+<br>
+&lt;/LinearLayout&gt;
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Typography in Material Design 3</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// Typography styles in Material Design 3<br>
+&lt;style name="Theme.MyApp" parent="Theme.Material3.DayNight"&gt;<br>
+    &lt;!-- Typography --&gt;<br>
+    &lt;item name="textAppearanceDisplayLarge"&gt;@style/TextAppearance.Material3.DisplayLarge&lt;/item&gt;<br>
+    &lt;item name="textAppearanceDisplayMedium"&gt;@style/TextAppearance.Material3.DisplayMedium&lt;/item&gt;<br>
+    &lt;item name="textAppearanceDisplaySmall"&gt;@style/TextAppearance.Material3.DisplaySmall&lt;/item&gt;<br>
+    &lt;item name="textAppearanceHeadlineLarge"&gt;@style/TextAppearance.Material3.HeadlineLarge&lt;/item&gt;<br>
+    &lt;item name="textAppearanceHeadlineMedium"&gt;@style/TextAppearance.Material3.HeadlineMedium&lt;/item&gt;<br>
+    &lt;item name="textAppearanceHeadlineSmall"&gt;@style/TextAppearance.Material3.HeadlineSmall&lt;/item&gt;<br>
+    &lt;item name="textAppearanceTitleLarge"&gt;@style/TextAppearance.Material3.TitleLarge&lt;/item&gt;<br>
+    &lt;item name="textAppearanceTitleMedium"&gt;@style/TextAppearance.Material3.TitleMedium&lt;/item&gt;<br>
+    &lt;item name="textAppearanceTitleSmall"&gt;@style/TextAppearance.Material3.TitleSmall&lt;/item&gt;<br>
+    &lt;item name="textAppearanceBodyLarge"&gt;@style/TextAppearance.Material3.BodyLarge&lt;/item&gt;<br>
+    &lt;item name="textAppearanceBodyMedium"&gt;@style/TextAppearance.Material3.BodyMedium&lt;/item&gt;<br>
+    &lt;item name="textAppearanceBodySmall"&gt;@style/TextAppearance.Material3.BodySmall&lt;/item&gt;<br>
+    &lt;item name="textAppearanceLabelLarge"&gt;@style/TextAppearance.Material3.LabelLarge&lt;/item&gt;<br>
+    &lt;item name="textAppearanceLabelMedium"&gt;@style/TextAppearance.Material3.LabelMedium&lt;/item&gt;<br>
+    &lt;item name="textAppearanceLabelSmall"&gt;@style/TextAppearance.Material3.LabelSmall&lt;/item&gt;<br>
+&lt;/style&gt;<br>
+<br>
+// Using typography in XML<br>
+&lt;TextView<br>
+    android:layout_width="wrap_content"<br>
+    android:layout_height="wrap_content"<br>
+    android:text="Display Large"<br>
+    android:textAppearance="?attr/textAppearanceDisplayLarge" /&gt;<br>
+<br>
+&lt;TextView<br>
+    android:layout_width="wrap_content"<br>
+    android:layout_height="wrap_content"<br>
+    android:text="Headline Medium"<br>
+    android:textAppearance="?attr/textAppearanceHeadlineMedium" /&gt;<br>
+<br>
+&lt;TextView<br>
+    android:layout_width="wrap_content"<br>
+    android:layout_height="wrap_content"<br>
+    android:text="Body Large"<br>
+    android:textAppearance="?attr/textAppearanceBodyLarge" /&gt;
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Motion and Transitions</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// Motion in Material Design 3<br>
+&lt;style name="Theme.MyApp" parent="Theme.Material3.DayNight"&gt;<br>
+    &lt;!-- Motion --&gt;<br>
+    &lt;item name="motionEasingStandard"&gt;@string/material_motion_easing_standard&lt;/item&gt;<br>
+    &lt;item name="motionEasingEmphasized"&gt;@string/material_motion_easing_emphasized&lt;/item&gt;<br>
+    &lt;item name="motionDurationShort1"&gt;@integer/material_motion_duration_short_1&lt;/item&gt;<br>
+    &lt;item name="motionDurationShort2"&gt;@integer/material_motion_duration_short_2&lt;/item&gt;<br>
+    &lt;item name="motionDurationMedium1"&gt;@integer/material_motion_duration_medium_1&lt;/item&gt;<br>
+    &lt;item name="motionDurationMedium2"&gt;@integer/material_motion_duration_medium_2&lt;/item&gt;<br>
+    &lt;item name="motionDurationLong1"&gt;@integer/material_motion_duration_long_1&lt;/item&gt;<br>
+    &lt;item name="motionDurationLong2"&gt;@integer/material_motion_duration_long_2&lt;/item&gt;<br>
+&lt;/style&gt;<br>
+<br>
+// Container transform transition<br>
+public class DetailActivity extends AppCompatActivity {<br>
+    @Override<br>
+    protected void onCreate(Bundle savedInstanceState) {<br>
+        super.onCreate(savedInstanceState);<br>
+<br>
+        // Enable container transform<br>
+        getWindow().setSharedElementEnterTransition(<br>
+                TransitionInflater.from(this)<br>
+                        .inflateTransition(R.transition.container_transform));<br>
+<br>
+        setContentView(R.layout.activity_detail);<br>
+    }<br>
+}<br>
+<br>
+// transition_container_transform.xml<br>
+&lt;transitionSet xmlns:android="http://schemas.android.com/apk/res/android"&gt;<br>
+    &lt;transition class="com.google.android.material.transition.MaterialContainerTransform"&gt;<br>
+        &lt;targets&gt;<br>
+            &lt;target android:targetId="@id/container" /&gt;<br>
+        &lt;/targets&gt;<br>
+    &lt;/transition&gt;<br>
+&lt;/transitionSet&gt;
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Dark Theme Support</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// values/themes.xml (Light theme)<br>
+&lt;resources&gt;<br>
+    &lt;style name="Theme.MyApp" parent="Theme.Material3.Light"&gt;<br>
+        &lt;!-- Light theme colors --&gt;<br>
+        &lt;item name="colorPrimary"&gt;@color/primary_light&lt;/item&gt;<br>
+        &lt;item name="colorOnPrimary"&gt;@color/on_primary_light&lt;/item&gt;<br>
+        &lt;item name="colorSurface"&gt;@color/surface_light&lt;/item&gt;<br>
+        &lt;item name="colorOnSurface"&gt;@color/on_surface_light&lt;/item&gt;<br>
+    &lt;/style&gt;<br>
+&lt;/resources&gt;<br>
+<br>
+// values-night/themes.xml (Dark theme)<br>
+&lt;resources&gt;<br>
+    &lt;style name="Theme.MyApp" parent="Theme.Material3.Dark"&gt;<br>
+        &lt;!-- Dark theme colors --&gt;<br>
+        &lt;item name="colorPrimary"&gt;@color/primary_dark&lt;/item&gt;<br>
+        &lt;item name="colorOnPrimary"&gt;@color/on_primary_dark&lt;/item&gt;<br>
+        &lt;item name="colorSurface"&gt;@color/surface_dark&lt;/item&gt;<br>
+        &lt;item name="colorOnSurface"&gt;@color/on_surface_dark&lt;/item&gt;<br>
+    &lt;/style&gt;<br>
+&lt;/resources&gt;<br>
+<br>
+// Force dark mode programmatically<br>
+AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);<br>
+<br>
+// Follow system setting<br>
+AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);<br>
+<br>
+// Check current theme<br>
+int nightMode = AppCompatDelegate.getDefaultNightMode();<br>
+boolean isDarkMode = (nightMode == AppCompatDelegate.MODE_NIGHT_YES);
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Accessibility Improvements</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+&lt;!-- Improved touch targets --&gt;<br>
+&lt;Button<br>
+    android:layout_width="wrap_content"<br>
+    android:layout_height="wrap_content"<br>
+    android:text="Accessible Button"<br>
+    android:minWidth="48dp"<br>
+    android:minHeight="48dp"<br>
+    android:contentDescription="Button description for screen readers" /&gt;<br>
+<br>
+&lt;!-- High contrast colors --&gt;<br>
+&lt;style name="HighContrastButton" parent="Widget.Material3.Button"&gt;<br>
+    &lt;item name="backgroundTint"&gt;@color/high_contrast_primary&lt;/item&gt;<br>
+    &lt;item name="android:textColor"&gt;@color/high_contrast_on_primary&lt;/item&gt;<br>
+&lt;/style&gt;<br>
+<br>
+&lt;!-- Screen reader support --&gt;<br>
+&lt;TextView<br>
+    android:layout_width="wrap_content"<br>
+    android:layout_height="wrap_content"<br>
+    android:text="Important information"<br>
+    android:contentDescription="This is important information that screen readers should announce" /&gt;<br>
+<br>
+&lt;!-- Focus indicators --&gt;<br>
+&lt;Button<br>
+    android:layout_width="wrap_content"<br>
+    android:layout_height="wrap_content"<br>
+    android:text="Focusable Button"<br>
+    android:focusable="true"<br>
+    android:clickable="true"<br>
+    android:background="?attr/selectableItemBackgroundBorderless" /&gt;
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Material Design 3 Icons</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// Using Material Icons in XML<br>
+&lt;ImageView<br>
+    android:layout_width="24dp"<br>
+    android:layout_height="24dp"<br>
+    android:src="@drawable/ic_add_24"<br>
+    android:contentDescription="Add item" /&gt;<br>
+<br>
+// Using Material Icons programmatically<br>
+ImageView iconView = findViewById(R.id.icon_view);<br>
+iconView.setImageResource(R.drawable.ic_favorite_24);<br>
+<br>
+// Icon button with Material Design<br>
+&lt;com.google.android.material.button.MaterialButton<br>
+    android:layout_width="wrap_content"<br>
+    android:layout_height="wrap_content"<br>
+    app:icon="@drawable/ic_favorite_24"<br>
+    app:iconGravity="textStart"<br>
+    android:text="Favorite" /&gt;<br>
+<br>
+// Icon tinting<br>
+&lt;ImageView<br>
+    android:layout_width="24dp"<br>
+    android:layout_height="24dp"<br>
+    android:src="@drawable/ic_heart_24"<br>
+    android:tint="?attr/colorPrimary"<br>
+    android:contentDescription="Heart icon" /&gt;
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Material Design 3 Shapes</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// Shape appearance in theme<br>
+&lt;style name="Theme.MyApp" parent="Theme.Material3.DayNight"&gt;<br>
+    &lt;!-- Shape appearance --&gt;<br>
+    &lt;item name="shapeAppearanceSmallComponent"&gt;@style/ShapeAppearance.Material3.SmallComponent&lt;/item&gt;<br>
+    &lt;item name="shapeAppearanceMediumComponent"&gt;@style/ShapeAppearance.Material3.MediumComponent&lt;/item&gt;<br>
+    &lt;item name="shapeAppearanceLargeComponent"&gt;@style/ShapeAppearance.Material3.LargeComponent&lt;/item&gt;<br>
+&lt;/style&gt;<br>
+<br>
+// Custom shape for components<br>
+&lt;style name="CustomCard" parent="Widget.Material3.CardView.Elevated"&gt;<br>
+    &lt;item name="shapeAppearance"&gt;@style/ShapeAppearance.Material3.Corner.ExtraLarge&lt;/item&gt;<br>
+    &lt;item name="cardCornerRadius"&gt;16dp&lt;/item&gt;<br>
+&lt;/style&gt;<br>
+<br>
+// Shape appearance overlay<br>
+&lt;com.google.android.material.card.MaterialCardView<br>
+    style="@style/CustomCard"<br>
+    android:layout_width="match_parent"<br>
+    android:layout_height="wrap_content"<br>
+    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Top"&gt;<br>
+    &lt;!-- Card content --&gt;<br>
+&lt;/com.google.android.material.card.MaterialCardView&gt;
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Migration from Material Design 2</h3>
+            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                <p class="text-lg text-gray-700">Material Design 3 is backward compatible, but you should gradually migrate your existing components to take advantage of the new features.</p>
+            </div>
+            <ul class="list-disc list-inside text-gray-700 space-y-2 mb-8">
+                <li>Update your theme to inherit from Material3 themes</li>
+                <li>Replace old Material Components with new ones</li>
+                <li>Update color schemes to use the new color system</li>
+                <li>Implement dynamic color where appropriate</li>
+                <li>Test your app in both light and dark themes</li>
+                <li>Verify accessibility compliance</li>
+            </ul>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-6 mt-12">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <a href="android10.html" class="text-primary-600 hover:text-primary-700 font-medium px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200">← Previous Chapter</a>
+                <a href="android12.html" class="text-primary-600 hover:text-primary-700 font-medium px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200">Next Chapter →</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

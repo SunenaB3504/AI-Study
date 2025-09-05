@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progressive Web Apps - Chapter 4: Offline Functionality</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            color: #4285f4;
+            border-bottom: 3px solid #4285f4;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .section h3 {
+            color: #34a853;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .important {
+            background: #f8d7da;
+            padding: 15px;
+            border-left: 4px solid #dc3545;
+            margin: 20px 0;
+        }
+        .offline-scenarios {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .scenario-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+        }
+        .scenario-card h4 {
+            color: #4285f4;
+            margin: 0 0 10px 0;
+        }
+        .scenario-card p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .architecture-diagram {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .architecture-step {
+            display: inline-block;
+            background: #4285f4;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 5px;
+            font-size: 0.9em;
+        }
+        .sync-strategies {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .sync-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+        }
+        .sync-card h4 {
+            color: #4285f4;
+            margin: 0 0 10px 0;
+        }
+        .sync-card p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .quiz-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        .quiz-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .quiz-question {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .quiz-question h4 {
+            color: #4285f4;
+            margin: 0 0 15px 0;
+        }
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .quiz-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .quiz-option:hover {
+            background: #e3f2fd;
+            border-color: #4285f4;
+        }
+        .quiz-option.correct {
+            background: #e8f5e9;
+            border-color: #34a853;
+        }
+        .quiz-option.incorrect {
+            background: #ffebee;
+            border-color: #dc3545;
+        }
+        .quiz-result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+        }
+        .quiz-result.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .quiz-result.incorrect {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .navigation {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffcc02 100%);
+            border: 2px solid #ff9800;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        .nav-btn:hover {
+            background: #3367d6;
+        }
+        .nav-btn.secondary {
+            background: #34a853;
+        }
+        .nav-btn.secondary:hover {
+            background: #2e7d32;
+        }
+        .practice-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .practice-section h4 {
+            color: #4285f4;
+            margin: 0 0 15px 0;
+        }
+        .practice-list {
+            list-style: none;
+            padding: 0;
+        }
+        .practice-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .practice-list li:before {
+            content: "🔧 ";
+            margin-right: 8px;
+        }
+        .progressive-enhancement {
+            background: #e8f5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .progressive-enhancement h4 {
+            color: #2e7d32;
+            margin: 0 0 15px 0;
+        }
+        .enhancement-step {
+            background: white;
+            border: 1px solid #c8e6c9;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        .offline-ui {
+            background: #fff3e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .offline-ui h4 {
+            color: #e65100;
+            margin: 0 0 15px 0;
+        }
+        .ui-pattern {
+            background: white;
+            border: 1px solid #ffcc02;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .ui-pattern h5 {
+            color: #f57c00;
+            margin: 0 0 8px 0;
+        }
+        .ui-pattern p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Progressive Web Apps</h1>
+            <div class="subtitle">Chapter 4: Offline Functionality</div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>🔌 Offline-First Design Principles</h2>
+                <p>Offline-first design means building applications that work seamlessly whether users are online or offline. This approach prioritizes offline functionality as the default state, with online features as enhancements.</p>
+
+                <div class="highlight">
+                    <strong>Core Principles:</strong>
+                    <ul>
+                        <li><strong>Offline by Default</strong> - Assume users are offline and design accordingly</li>
+                        <li><strong>Progressive Enhancement</strong> - Add online features as enhancements</li>
+                        <li><strong>Graceful Degradation</strong> - Maintain functionality when features aren't available</li>
+                        <li><strong>User-Centric Design</strong> - Focus on user needs, not network conditions</li>
+                        <li><strong>Data Synchronization</strong> - Handle data conflicts and merging intelligently</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🏗️ Architecture Overview</h2>
+
+                <div class="architecture-diagram">
+                    <div class="architecture-step">📱 User Interface</div>
+                    <div class="architecture-step">⬇️</div>
+                    <div class="architecture-step">🔄 Service Worker</div>
+                    <div class="architecture-step">⬇️</div>
+                    <div class="architecture-step">💾 Cache Storage</div>
+                    <div class="architecture-step">⬇️</div>
+                    <div class="architecture-step">📡 Network/API</div>
+                </div>
+
+                <h3>Application Shell Architecture</h3>
+                <p>The App Shell model separates the application shell (UI chrome) from the content, allowing for instant loading and offline functionality.</p>
+
+                <div class="code-block">
+                    <pre><code>// App Shell caching strategy
+const CACHE_NAME = 'app-shell-v1';
+const APP_SHELL_URLS = [
+    '/',
+    '/index.html',
+    '/css/styles.css',
+    '/js/app.js',
+    '/manifest.json',
+    '/images/logo.png'
+];
+
+// Cache app shell during installation
+self.addEventListener('install', (event) => {
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then((cache) => cache.addAll(APP_SHELL_URLS))
+    );
+});
+
+// Serve from cache first, network second
+self.addEventListener('fetch', (event) => {
+    event.respondWith(
+        caches.match(event.request)
+            .then((response) => {
+                if (response) {
+                    return response;
+                }
+                return fetch(event.request);
+            })
+    );
+});</code></pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📱 Handling Offline Scenarios</h2>
+
+                <div class="offline-scenarios">
+                    <div class="scenario-card">
+                        <h4>🌐 Network Unavailable</h4>
+                        <p>When the network is completely unavailable, serve cached content and show offline indicators.</p>
+                    </div>
+
+                    <div class="scenario-card">
+                        <h4>🐌 Slow Network</h4>
+                        <p>On slow connections, prioritize critical content and defer non-essential resources.</p>
+                    </div>
+
+                    <div class="scenario-card">
+                        <h4>🔄 Intermittent Connectivity</h4>
+                        <p>Handle frequent network changes by queuing requests and syncing when connection returns.</p>
+                    </div>
+
+                    <div class="scenario-card">
+                        <h4>📊 Large Data</h4>
+                        <p>For large datasets, implement pagination and lazy loading to work within cache limits.</p>
+                    </div>
+
+                    <div class="scenario-card">
+                        <h4>🔐 Authentication</h4>
+                        <p>Handle authentication tokens and session management in offline scenarios.</p>
+                    </div>
+
+                    <div class="scenario-card">
+                        <h4>💰 Payment Processing</h4>
+                        <p>Queue payment requests and process them when connectivity is restored.</p>
+                    </div>
+                </div>
+
+                <h3>Network Detection</h3>
+                <div class="code-block">
+                    <pre><code>// Detect online/offline status
+function updateOnlineStatus() {
+    const statusElement = document.getElementById('network-status');
+
+    if (navigator.onLine) {
+        statusElement.textContent = '🟢 Online';
+        statusElement.className = 'status-online';
+        syncPendingRequests();
+    } else {
+        statusElement.textContent = '🔴 Offline';
+        statusElement.className = 'status-offline';
+    }
+}
+
+// Listen for network changes
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+
+// Initial status
+updateOnlineStatus();
+
+// Advanced network detection
+if ('connection' in navigator) {
+    const connection = navigator.connection;
+    console.log('Connection type:', connection.effectiveType);
+    console.log('Downlink speed:', connection.downlink, 'Mbps');
+
+    connection.addEventListener('change', () => {
+        console.log('Connection changed:', connection.effectiveType);
+    });
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔄 Data Synchronization Strategies</h2>
+
+                <div class="sync-strategies">
+                    <div class="sync-card">
+                        <h4>⚡ Real-time Sync</h4>
+                        <p>Sync data immediately when changes occur, using background sync for reliability.</p>
+                    </div>
+
+                    <div class="sync-card">
+                        <h4>⏰ Periodic Sync</h4>
+                        <p>Sync data at regular intervals, useful for non-critical data that doesn't need real-time updates.</p>
+                    </div>
+
+                    <div class="sync-card">
+                        <h4>👆 Manual Sync</h4>
+                        <p>Allow users to manually trigger synchronization when they want to update data.</p>
+                    </div>
+
+                    <div class="sync-card">
+                        <h4>🔄 Conflict Resolution</h4>
+                        <p>Handle data conflicts when offline changes conflict with server data.</p>
+                    </div>
+
+                    <div class="sync-card">
+                        <h4>📊 Delta Sync</h4>
+                        <p>Only sync changes since last synchronization to reduce bandwidth usage.</p>
+                    </div>
+
+                    <div class="sync-card">
+                        <h4>🎯 Selective Sync</h4>
+                        <p>Allow users to choose which data to sync based on their current needs.</p>
+                    </div>
+                </div>
+
+                <h3>Implementing Background Sync</h3>
+                <div class="code-block">
+                    <pre><code>// Register background sync
+async function registerBackgroundSync() {
+    if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration) {
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            await registration.sync.register('sync-data');
+            console.log('Background sync registered');
+        } catch (error) {
+            console.error('Background sync registration failed:', error);
+        }
+    }
+}
+
+// Handle sync events in service worker
+self.addEventListener('sync', (event) => {
+    if (event.tag === 'sync-data') {
+        event.waitUntil(syncData());
+    }
+});
+
+async function syncData() {
+    try {
+        // Get pending requests from IndexedDB
+        const pendingRequests = await getPendingRequests();
+
+        for (const request of pendingRequests) {
+            try {
+                await fetch(request.url, request.options);
+                await removePendingRequest(request.id);
+            } catch (error) {
+                console.error('Failed to sync request:', error);
+                // Keep failed requests for retry
+            }
+        }
+
+        // Notify user of successful sync
+        await showSyncNotification();
+    } catch (error) {
+        console.error('Sync failed:', error);
+    }
+}
+
+// Queue requests for offline use
+async function queueRequest(url, options) {
+    const request = {
+        id: Date.now(),
+        url,
+        options,
+        timestamp: new Date().toISOString()
+    };
+
+    await savePendingRequest(request);
+
+    // Try to register background sync
+    await registerBackgroundSync();
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🎨 Progressive Enhancement</h2>
+
+                <div class="progressive-enhancement">
+                    <h4>Building Offline-First Applications</h4>
+                    <div class="enhancement-step">
+                        <strong>1. Core Functionality</strong> - Ensure basic features work without JavaScript
+                    </div>
+                    <div class="enhancement-step">
+                        <strong>2. Offline Storage</strong> - Add caching and local data storage
+                    </div>
+                    <div class="enhancement-step">
+                        <strong>3. Service Worker</strong> - Implement background processing and network interception
+                    </div>
+                    <div class="enhancement-step">
+                        <strong>4. Synchronization</strong> - Add data syncing when online
+                    </div>
+                    <div class="enhancement-step">
+                        <strong>5. Advanced Features</strong> - Add push notifications and background sync
+                    </div>
+                </div>
+
+                <h3>Feature Detection and Fallbacks</h3>
+                <div class="code-block">
+                    <pre><code>// Progressive enhancement pattern
+class OfflineManager {
+    constructor() {
+        this.isOnline = navigator.onLine;
+        this.init();
+    }
+
+    async init() {
+        // Check for service worker support
+        if ('serviceWorker' in navigator) {
+            this.registerServiceWorker();
+        }
+
+        // Check for IndexedDB support
+        if ('indexedDB' in window) {
+            this.initDatabase();
+        }
+
+        // Check for Cache API support
+        if ('caches' in window) {
+            this.initCache();
+        }
+
+        // Check for Background Sync support
+        if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration) {
+            this.initBackgroundSync();
+        }
+
+        this.setupEventListeners();
+    }
+
+    // Fallback for unsupported features
+    fallbackToBasicMode() {
+        console.log('Using basic mode - some features may be limited');
+        // Show basic UI without advanced features
+        this.showBasicInterface();
+    }
+
+    // Graceful degradation
+    handleFeatureFailure(feature, error) {
+        console.warn(`${feature} failed:`, error);
+        // Continue with reduced functionality
+        this.disableFeature(feature);
+    }
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>💡 Offline User Experience</h2>
+
+                <div class="offline-ui">
+                    <h4>Best Practices for Offline UI</h4>
+
+                    <div class="ui-pattern">
+                        <h5>📊 Connection Status Indicators</h5>
+                        <p>Show users their current connection status and what features are available.</p>
+                    </div>
+
+                    <div class="ui-pattern">
+                        <h5>💾 Offline Data Indicators</h5>
+                        <p>Clearly mark which data is cached locally and which requires a connection.</p>
+                    </div>
+
+                    <div class="ui-pattern">
+                        <h5>🔄 Sync Status</h5>
+                        <p>Show the status of data synchronization and allow manual sync triggers.</p>
+                    </div>
+
+                    <div class="ui-pattern">
+                        <h5>⚠️ Offline Warnings</h5>
+                        <p>Warn users before actions that require connectivity, with clear explanations.</p>
+                    </div>
+
+                    <div class="ui-pattern">
+                        <h5>📝 Offline Forms</h5>
+                        <p>Allow form submission offline with local storage and sync when online.</p>
+                    </div>
+
+                    <div class="ui-pattern">
+                        <h5>🎯 Skeleton Screens</h5>
+                        <p>Use skeleton screens to show content structure while data loads.</p>
+                    </div>
+                </div>
+
+                <h3>Offline UI Implementation</h3>
+                <div class="code-block">
+                    <pre><code>// Connection status component
+class ConnectionStatus extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+        this.setupListeners();
+    }
+
+    render() {
+        this.shadowRoot.innerHTML = `
+            &lt;style&gt;
+                .status {
+                    padding: 8px 12px;
+                    border-radius: 4px;
+                    font-weight: 500;
+                    display: inline-block;
+                }
+                .online { background: #e8f5e9; color: #2e7d32; }
+                .offline { background: #ffebee; color: #c62828; }
+                .slow { background: #fff3e0; color: #e65100; }
+            &lt;/style&gt;
+            &lt;div class="status" id="status"&gt;
+                Checking connection...
+            &lt;/div&gt;
+        `;
+    }
+
+    setupListeners() {
+        window.addEventListener('online', () => this.updateStatus());
+        window.addEventListener('offline', () => this.updateStatus());
+
+        // Check connection quality
+        if ('connection' in navigator) {
+            navigator.connection.addEventListener('change', () => this.updateStatus());
+        }
+
+        this.updateStatus();
+    }
+
+    updateStatus() {
+        const statusEl = this.shadowRoot.getElementById('status');
+        const isOnline = navigator.onLine;
+
+        if (!isOnline) {
+            statusEl.textContent = '🔴 Offline';
+            statusEl.className = 'status offline';
+        } else {
+            const connection = navigator.connection;
+            if (connection && connection.effectiveType === 'slow-2g') {
+                statusEl.textContent = '🟡 Slow Connection';
+                statusEl.className = 'status slow';
+            } else {
+                statusEl.textContent = '🟢 Online';
+                statusEl.className = 'status online';
+            }
+        }
+    }
+}
+
+customElements.define('connection-status', ConnectionStatus);</code></pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🛠️ Advanced Offline Patterns</h2>
+
+                <h3>Optimistic UI Updates</h3>
+                <div class="code-block">
+                    <pre><code>// Optimistic UI pattern
+class OptimisticManager {
+    constructor() {
+        this.pendingActions = new Map();
+    }
+
+    async performAction(actionId, action, rollback) {
+        // Immediately update UI
+        this.updateUI(actionId, action);
+
+        // Store rollback function
+        this.pendingActions.set(actionId, rollback);
+
+        try {
+            // Perform the action
+            await action();
+
+            // Remove from pending if successful
+            this.pendingActions.delete(actionId);
+        } catch (error) {
+            // Rollback UI changes
+            rollback();
+            this.pendingActions.delete(actionId);
+
+            // Show error to user
+            this.showError('Action failed. Changes have been reverted.');
+        }
+    }
+
+    updateUI(actionId, action) {
+        // Update UI immediately
+        // Show loading state
+        // Disable conflicting actions
+    }
+
+    showError(message) {
+        // Show user-friendly error message
+        const toast = document.createElement('div');
+        toast.className = 'error-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => toast.remove(), 5000);
+    }
+}</code></pre>
+                </div>
+
+                <h3>IndexedDB for Complex Data</h3>
+                <div class="code-block">
+                    <pre><code>// IndexedDB wrapper for offline data storage
+class OfflineStorage {
+    constructor(dbName, version) {
+        this.dbName = dbName;
+        this.version = version;
+        this.db = null;
+    }
+
+    async init() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(this.dbName, this.version);
+
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => {
+                this.db = request.result;
+                resolve(this.db);
+            };
+
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+
+                // Create object stores
+                if (!db.objectStoreNames.contains('posts')) {
+                    const postsStore = db.createObjectStore('posts', { keyPath: 'id' });
+                    postsStore.createIndex('by-date', 'timestamp');
+                }
+
+                if (!db.objectStoreNames.contains('sync-queue')) {
+                    db.createObjectStore('sync-queue', { keyPath: 'id', autoIncrement: true });
+                }
+            };
+        });
+    }
+
+    async savePost(post) {
+        const transaction = this.db.transaction(['posts'], 'readwrite');
+        const store = transaction.objectStore('posts');
+        return new Promise((resolve, reject) => {
+            const request = store.put(post);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async getPosts() {
+        const transaction = this.db.transaction(['posts'], 'readonly');
+        const store = transaction.objectStore('posts');
+        const index = store.index('by-date');
+
+        return new Promise((resolve, reject) => {
+            const request = index.openCursor(null, 'prev'); // Most recent first
+            const results = [];
+
+            request.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    results.push(cursor.value);
+                    cursor.continue();
+                } else {
+                    resolve(results);
+                }
+            };
+
+            request.onerror = () => reject(request.error);
+        });
+    }
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>✅ Testing Offline Functionality</h2>
+
+                <div class="practice-section">
+                    <h4>🧪 Testing Checklist</h4>
+                    <ul class="practice-list">
+                        <li>Test app loading when completely offline</li>
+                        <li>Verify cached resources load correctly</li>
+                        <li>Test form submission and data storage offline</li>
+                        <li>Check data synchronization when connection returns</li>
+                        <li>Test background sync functionality</li>
+                        <li>Verify offline UI indicators work properly</li>
+                        <li>Test on various network conditions (slow, intermittent)</li>
+                        <li>Validate service worker updates and cache management</li>
+                    </ul>
+                </div>
+
+                <div class="important">
+                    <strong>Browser DevTools for Testing:</strong>
+                    <ul>
+                        <li><strong>Network tab</strong> - Simulate offline and slow connections</li>
+                        <li><strong>Application tab</strong> - Inspect service workers, cache storage, and IndexedDB</li>
+                        <li><strong>Console</strong> - Monitor service worker events and errors</li>
+                        <li><strong>Lighthouse</strong> - Audit PWA offline capabilities</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <h3>📝 Knowledge Check</h3>
+
+                <div class="quiz-question">
+                    <h4>1. What is the primary principle of offline-first design?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="false">Always require an internet connection</div>
+                        <div class="quiz-option" data-correct="true">Assume users are offline and design accordingly</div>
+                        <div class="quiz-option" data-correct="false">Only cache essential resources</div>
+                        <div class="quiz-option" data-correct="false">Disable features when offline</div>
+                    </div>
+                    <div class="quiz-result" id="result1"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>2. Which API is used for storing complex data structures offline?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="false">LocalStorage</div>
+                        <div class="quiz-option" data-correct="false">SessionStorage</div>
+                        <div class="quiz-option" data-correct="true">IndexedDB</div>
+                        <div class="quiz-option" data-correct="false">WebSQL</div>
+                    </div>
+                    <div class="quiz-result" id="result2"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>3. What does optimistic UI mean?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="false">Always show loading indicators</div>
+                        <div class="quiz-option" data-correct="true">Update UI immediately, handle failures gracefully</div>
+                        <div class="quiz-option" data-correct="false">Wait for server confirmation before updating</div>
+                        <div class="quiz-option" data-correct="false">Only update UI when offline</div>
+                    </div>
+                    <div class="quiz-result" id="result3"></div>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <h3>🎉 PWA Curriculum Complete!</h3>
+                <p>You've completed the comprehensive Progressive Web Apps curriculum. Here's what's next:</p>
+
+                <div class="nav-buttons">
+                    <a href="pwa3.html" class="nav-btn secondary">⬅️ App Manifest</a>
+                    <a href="cybersecurity1.html" class="nav-btn">🔒 Cybersecurity ➡️</a>
+                    <a href="study-guide-progress.html" class="nav-btn secondary">📊 Progress Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const quizOptions = document.querySelectorAll('.quiz-option');
+
+            quizOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const question = this.parentElement.parentElement;
+                    const options = question.querySelectorAll('.quiz-option');
+                    const resultDiv = question.querySelector('.quiz-result');
+                    const questionNumber = question.querySelector('h4').textContent.split('.')[0];
+
+                    // Remove previous selections
+                    options.forEach(opt => {
+                        opt.classList.remove('correct', 'incorrect');
+                    });
+
+                    // Check answer
+                    const isCorrect = this.getAttribute('data-correct') === 'true';
+
+                    if (isCorrect) {
+                        this.classList.add('correct');
+                        resultDiv.textContent = '✅ Correct! Well done.';
+                        resultDiv.className = 'quiz-result correct';
+                    } else {
+                        this.classList.add('incorrect');
+                        resultDiv.textContent = '❌ Incorrect. Try again!';
+                        resultDiv.className = 'quiz-result incorrect';
+                    }
+
+                    resultDiv.style.display = 'block';
+                });
+            });
+        });
+    </script>
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\Admin\Sunil\Study\pwa4.html

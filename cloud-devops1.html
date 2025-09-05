@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud & DevOps - Chapter 1: Git & Version Control</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #0056b3;
+        }
+
+        .nav-btn.secondary {
+            background: #6c757d;
+        }
+
+        .nav-btn.secondary:hover {
+            background: #545b62;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #FF6B35;
+        }
+
+        .section h3 {
+            color: #34495e;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+
+        .section h4 {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: "Terminal";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #FF6B35;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+
+        .code-block.config::before {
+            content: "Config";
+        }
+
+        .code-block.workflow::before {
+            content: "Workflow";
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .git-flow-diagram {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .branch-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .branch-step {
+            background: #f8f9fa;
+            border: 2px solid #FF6B35;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #FF6B35;
+            position: relative;
+        }
+
+        .branch-step::after {
+            content: '';
+            position: absolute;
+            right: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 2px;
+            background: #FF6B35;
+        }
+
+        .branch-step:last-child::after {
+            display: none;
+        }
+
+        .practice-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .practice-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .practice-exercise {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #FF6B35;
+        }
+
+        .practice-exercise h4 {
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+
+        .quiz-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .quiz-section h3 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .quiz-question {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .quiz-question h4 {
+            margin-bottom: 10px;
+        }
+
+        .quiz-options {
+            margin: 10px 0;
+        }
+
+        .quiz-option {
+            display: block;
+            margin: 5px 0;
+            padding: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: #FF6B35;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .branch-flow {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .branch-step::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>☁️ Cloud & DevOps</h1>
+            <div class="subtitle">Chapter 1: Git & Version Control</div>
+        </div>
+
+        <div class="nav">
+            <div class="nav-links">
+                <a href="study-guide-progress.html" class="nav-btn">📊 Progress Dashboard</a>
+                <a href="cloud-devops2.html" class="nav-btn">CI/CD Pipelines →</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>🎯 Chapter Overview</h2>
+                <p>Welcome to the Cloud & DevOps curriculum! This chapter introduces you to Git, the most widely used version control system in modern software development. By the end of this comprehensive guide, you'll understand:</p>
+                <ul>
+                    <li>Git fundamentals and core concepts</li>
+                    <li>Essential Git commands and workflows</li>
+                    <li>Branching strategies and collaboration patterns</li>
+                    <li>Remote repository management</li>
+                    <li>Advanced Git features and best practices</li>
+                    <li>Git integration with development workflows</li>
+                    <li>Troubleshooting common Git issues</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>📚 Git Fundamentals</h2>
+
+                <h3>🔍 What is Version Control?</h3>
+                <div class="info-box">
+                    <h4>Version Control Systems (VCS)</h4>
+                    <p>Version control is a system that records changes to files over time, allowing you to:</p>
+                    <ul>
+                        <li><strong>Track Changes:</strong> See what changed, when, and by whom</li>
+                        <li><strong>Revert Changes:</strong> Go back to previous versions</li>
+                        <li><strong>Collaborate:</strong> Work with others without conflicts</li>
+                        <li><strong>Branch & Merge:</strong> Work on features independently</li>
+                        <li><strong>Backup:</strong> Your code is safely stored remotely</li>
+                    </ul>
+                </div>
+
+                <h3>🚀 Why Git?</h3>
+                <div class="success-box">
+                    <h4>Git's Advantages:</h4>
+                    <ul>
+                        <li><strong>Distributed:</strong> Every developer has a full copy of the repository</li>
+                        <li><strong>Fast:</strong> Operations are local and extremely quick</li>
+                        <li><strong>Branching:</strong> Lightweight branches encourage experimentation</li>
+                        <li><strong>Integrity:</strong> Every change is cryptographically signed</li>
+                        <li><strong>Free & Open Source:</strong> No licensing costs</li>
+                        <li><strong>Industry Standard:</strong> Used by millions of developers worldwide</li>
+                    </ul>
+                </div>
+
+                <h3>⚙️ Git Installation & Setup</h3>
+
+                <h4>🔧 Installing Git</h4>
+                <div class="code-block">
+# Windows (using Chocolatey)
+choco install git
+
+# macOS (using Homebrew)
+brew install git
+
+# Ubuntu/Debian
+sudo apt update
+sudo apt install git
+
+# CentOS/RHEL
+sudo yum install git
+
+# Verify installation
+git --version
+                </div>
+
+                <h4>🔧 Initial Configuration</h4>
+                <div class="code-block config">
+# Set your identity
+git config --global user.name "Your Full Name"
+git config --global user.email "your.email@example.com"
+
+# Set default editor
+git config --global core.editor "code --wait"  # VS Code
+git config --global core.editor "nano"         # Nano editor
+
+# Set default branch name
+git config --global init.defaultBranch main
+
+# Enable helpful features
+git config --global core.autocrlf input        # Handle line endings
+git config --global pull.rebase false          # Merge strategy
+git config --global credential.helper store    # Store credentials
+
+# View configuration
+git config --list
+git config --global --list
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🎮 Essential Git Commands</h2>
+
+                <h3>🏗️ Creating & Initializing Repositories</h3>
+
+                <h4>🔧 Initialize a New Repository</h4>
+                <div class="code-block">
+# Initialize Git in current directory
+git init
+
+# Clone an existing repository
+git clone https://github.com/username/repository.git
+git clone git@github.com:username/repository.git
+
+# Clone with custom directory name
+git clone https://github.com/username/repo.git my-project
+
+# Initialize with initial commit
+echo "# My Project" > README.md
+git add README.md
+git commit -m "Initial commit"
+                </div>
+
+                <h4>🔧 Repository Status & Information</h4>
+                <div class="code-block">
+# Check repository status
+git status
+
+# View commit history
+git log
+git log --oneline          # Compact view
+git log --graph --oneline  # With branch graph
+
+# View detailed changes
+git log --stat             # File changes
+git log -p                 # Full diff
+
+# Check current branch
+git branch
+git branch -v             # With last commit
+
+# View remote repositories
+git remote -v
+                </div>
+
+                <h3>📝 Staging & Committing Changes</h3>
+
+                <h4>🔧 Add Files to Staging Area</h4>
+                <div class="code-block">
+# Add specific files
+git add filename.txt
+git add src/app.js
+
+# Add all changes in current directory
+git add .
+
+# Add all changes in entire repository
+git add -A
+
+# Interactive staging
+git add -p              # Patch mode - stage hunks
+git add -i              # Interactive mode
+
+# Unstage files
+git reset HEAD filename.txt
+git reset               # Unstage all
+                </div>
+
+                <h4>🔧 Create Commits</h4>
+                <div class="code-block">
+# Commit staged changes
+git commit -m "Add user authentication feature"
+
+# Commit with detailed message
+git commit -m "Add user authentication
+- Implement login form
+- Add password validation
+- Create session management"
+
+# Amend last commit
+git commit --amend -m "Updated commit message"
+
+# Commit all tracked files (skip staging)
+git commit -a -m "Quick fix for bug"
+
+# Empty commit (for tagging, etc.)
+git commit --allow-empty -m "Release v1.0.0"
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🌿 Branching & Merging</h2>
+
+                <h3>🔀 Branch Management</h3>
+
+                <h4>🔧 Create & Switch Branches</h4>
+                <div class="code-block">
+# Create and switch to new branch
+git checkout -b feature/user-auth
+git switch -c feature/user-auth  # Git 2.23+
+
+# Switch to existing branch
+git checkout main
+git switch main
+
+# Create branch without switching
+git branch feature/payment-integration
+
+# List all branches
+git branch -a                    # All branches
+git branch -r                    # Remote branches
+
+# Delete branch
+git branch -d feature/completed-feature
+git branch -D feature/abandoned-feature  # Force delete
+                </div>
+
+                <h4>🔧 Merging Branches</h4>
+                <div class="code-block">
+# Merge feature branch into main
+git checkout main
+git merge feature/user-auth
+
+# Merge with custom commit message
+git merge feature/user-auth -m "Merge user authentication feature"
+
+# Abort merge (if conflicts)
+git merge --abort
+
+# Fast-forward vs merge commit
+git merge --no-ff feature/important  # Always create merge commit
+git merge --ff-only feature/simple   # Only allow fast-forward
+                </div>
+
+                <h3>🔄 Rebasing</h3>
+
+                <h4>🔧 Interactive Rebase</h4>
+                <div class="code-block">
+# Rebase current branch on main
+git checkout feature/my-feature
+git rebase main
+
+# Interactive rebase (last 3 commits)
+git rebase -i HEAD~3
+
+# During interactive rebase, you can:
+# pick - use commit
+# reword - edit message
+# edit - amend commit
+# squash - merge with previous
+# fixup - merge without message
+# drop - remove commit
+
+# Abort rebase
+git rebase --abort
+
+# Continue after resolving conflicts
+git rebase --continue
+                </div>
+
+                <h3>🌊 Git Flow Workflow</h3>
+
+                <div class="git-flow-diagram">
+                    <h4>Git Flow Branching Strategy</h4>
+                    <div class="branch-flow">
+                        <div class="branch-step">main</div>
+                        <div class="branch-step">develop</div>
+                        <div class="branch-step">feature/*</div>
+                        <div class="branch-step">release/*</div>
+                        <div class="branch-step">hotfix/*</div>
+                    </div>
+                    <p><strong>Main branches:</strong> main (production), develop (integration)</p>
+                    <p><strong>Supporting branches:</strong> feature (new features), release (pre-production), hotfix (urgent fixes)</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🌐 Remote Repositories</h2>
+
+                <h3>🔗 Working with Remotes</h3>
+
+                <h4>🔧 Remote Repository Management</h4>
+                <div class="code-block">
+# Add remote repository
+git remote add origin https://github.com/username/repo.git
+git remote add upstream https://github.com/original/repo.git
+
+# View remotes
+git remote -v
+
+# Rename remote
+git remote rename origin github
+
+# Remove remote
+git remote remove origin
+
+# Change remote URL
+git remote set-url origin https://github.com/newuser/repo.git
+                </div>
+
+                <h4>🔧 Pushing & Pulling</h4>
+                <div class="code-block">
+# Push local branch to remote
+git push origin main
+git push -u origin feature/new-feature  # Set upstream
+
+# Push all branches
+git push --all origin
+
+# Push tags
+git push --tags
+
+# Pull changes from remote
+git pull origin main
+git pull  # Pull from tracked branch
+
+# Fetch without merging
+git fetch origin
+git fetch --all
+
+# Pull with rebase (avoid merge commits)
+git pull --rebase origin main
+                </div>
+
+                <h3>🤝 Collaboration Workflows</h3>
+
+                <h4>🔧 Fork & Pull Request Workflow</h4>
+                <div class="code-block workflow">
+# 1. Fork repository on GitHub/GitLab
+# 2. Clone your fork
+git clone https://github.com/yourusername/repo.git
+
+# 3. Add upstream remote
+git remote add upstream https://github.com/original/repo.git
+
+# 4. Create feature branch
+git checkout -b feature/amazing-improvement
+
+# 5. Make changes and commit
+git add .
+git commit -m "Add amazing improvement"
+
+# 6. Push to your fork
+git push origin feature/amazing-improvement
+
+# 7. Create Pull Request on GitHub
+# 8. Keep your fork updated
+git fetch upstream
+git checkout main
+git merge upstream/main
+                </div>
+
+                <h4>🔧 Shared Repository Workflow</h4>
+                <div class="code-block workflow">
+# 1. Clone shared repository
+git clone https://github.com/company/repo.git
+
+# 2. Create feature branch
+git checkout -b feature/new-dashboard
+
+# 3. Make changes and commit
+git add .
+git commit -m "Add new dashboard component"
+
+# 4. Push feature branch
+git push origin feature/new-dashboard
+
+# 5. Create Pull Request/Merge Request
+# 6. Code review and merge
+# 7. Delete merged branch
+git branch -d feature/new-dashboard
+git push origin --delete feature/new-dashboard
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔧 Advanced Git Features</h2>
+
+                <h3>🏷️ Tagging</h3>
+
+                <h4>🔧 Create & Manage Tags</h4>
+                <div class="code-block">
+# Create lightweight tag
+git tag v1.0.0
+
+# Create annotated tag
+git tag -a v1.0.0 -m "Release version 1.0.0"
+
+# Tag specific commit
+git tag -a v0.9.0 9fceb02 -m "Beta release"
+
+# List tags
+git tag
+git tag -l "v1.*"  # Pattern matching
+
+# Push tags
+git push origin v1.0.0
+git push origin --tags
+
+# Delete tags
+git tag -d v1.0.0
+git push origin --delete v1.0.0
+                </div>
+
+                <h3>🔍 Searching & Finding</h3>
+
+                <h4>🔧 Git Grep & Log Search</h4>
+                <div class="code-block">
+# Search for text in files
+git grep "function login"
+git grep -n "TODO"  # With line numbers
+
+# Search in commit messages
+git log --grep="fix bug"
+git log --oneline --grep="authentication"
+
+# Search by author
+git log --author="John Doe"
+git log --author="john@example.com"
+
+# Search by date
+git log --since="2024-01-01"
+git log --until="2024-12-31"
+git log --since="2 weeks ago"
+
+# Find commits that changed specific file
+git log --follow -- filename.txt
+                </div>
+
+                <h3>🔄 Stashing Changes</h3>
+
+                <h4>🔧 Stash Management</h4>
+                <div class="code-block">
+# Stash current changes
+git stash
+git stash save "Work in progress on user auth"
+
+# Stash untracked files too
+git stash -u
+git stash --include-untracked
+
+# List stashes
+git stash list
+
+# Apply stash
+git stash apply
+git stash apply stash@{1}  # Apply specific stash
+
+# Apply and remove stash
+git stash pop
+
+# Create branch from stash
+git stash branch feature/recover-work stash@{0}
+
+# Delete stashes
+git stash drop stash@{0}
+git stash clear  # Delete all stashes
+                </div>
+
+                <h3>🔧 Git Hooks</h3>
+
+                <h4>🔧 Pre-commit Hook Example</h4>
+                <div class="code-block">
+#!/bin/sh
+# .git/hooks/pre-commit
+
+# Run linting
+npm run lint
+
+# Run tests
+npm test
+
+# Check for console.log statements
+if git diff --cached --name-only | xargs grep -l "console.log"; then
+    echo "Error: console.log found in staged files"
+    exit 1
+fi
+
+echo "Pre-commit checks passed!"
+                </div>
+
+                <h4>🔧 Post-commit Hook Example</h4>
+                <div class="code-block">
+#!/bin/sh
+# .git/hooks/post-commit
+
+# Get commit hash
+COMMIT_HASH=$(git rev-parse HEAD)
+
+# Send notification (example)
+curl -X POST -H 'Content-type: application/json' \
+     --data "{\"text\":\"New commit: $COMMIT_HASH\"}" \
+     YOUR_SLACK_WEBHOOK_URL
+
+echo "Post-commit notification sent"
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚨 Troubleshooting Common Issues</h2>
+
+                <h3>⚠️ Merge Conflicts</h3>
+
+                <h4>🔧 Resolving Merge Conflicts</h4>
+                <div class="code-block">
+# When you encounter a merge conflict:
+git status  # See conflicted files
+
+# Edit conflicted files manually
+# Look for conflict markers:
+# <<<<<<< HEAD
+# Your changes
+# =======
+# Incoming changes
+# >>>>>>> branch-name
+
+# After resolving conflicts:
+git add resolved-file.txt
+git commit -m "Resolve merge conflict"
+
+# Abort merge if needed
+git merge --abort
+                </div>
+
+                <h3>🔄 Undoing Changes</h3>
+
+                <h4>🔧 Common Undo Scenarios</h4>
+                <div class="code-block">
+# Unstage file (before commit)
+git reset HEAD filename.txt
+
+# Undo last commit (keep changes)
+git reset --soft HEAD~1
+
+# Undo last commit (discard changes)
+git reset --hard HEAD~1
+
+# Revert specific commit
+git revert abc123
+
+# Reset to specific commit
+git reset --hard abc123
+
+# Create new commit that undoes changes
+git revert --no-commit abc123..def456
+git commit -m "Revert multiple commits"
+                </div>
+
+                <h3>📁 Repository Maintenance</h3>
+
+                <h4>🔧 Clean Up Repository</h4>
+                <div class="code-block">
+# Remove untracked files
+git clean -f        # Remove files
+git clean -fd       # Remove files and directories
+git clean -n        # Dry run (see what would be removed)
+
+# Garbage collect
+git gc
+git gc --aggressive  # More thorough but slower
+
+# Repack repository
+git repack -a -d
+
+# Clean reflog
+git reflog expire --expire=30.days --all
+git gc --prune=30.days
+
+# Check repository health
+git fsck
+                </div>
+            </div>
+
+            <div class="practice-section">
+                <h3>💪 Practice Exercises</h3>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 1: Basic Git Workflow</h4>
+                    <p>Create a new repository and practice the basic Git workflow:</p>
+                    <ol>
+                        <li>Initialize a new Git repository</li>
+                        <li>Create a README.md file with project description</li>
+                        <li>Add and commit the file</li>
+                        <li>Create a feature branch for adding a new feature</li>
+                        <li>Make changes and commit them</li>
+                        <li>Merge the feature branch back to main</li>
+                    </ol>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 2: Collaboration Workflow</h4>
+                    <p>Practice collaborative development:</p>
+                    <ol>
+                        <li>Fork a repository on GitHub</li>
+                        <li>Clone your fork locally</li>
+                        <li>Create a feature branch</li>
+                        <li>Make improvements and commit changes</li>
+                        <li>Push changes to your fork</li>
+                        <li>Create a pull request</li>
+                        <li>Handle feedback and merge</li>
+                    </ol>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 3: Advanced Git Operations</h4>
+                    <p>Practice advanced Git features:</p>
+                    <ol>
+                        <li>Use interactive rebase to clean up commit history</li>
+                        <li>Create and manage Git tags for releases</li>
+                        <li>Set up Git hooks for code quality checks</li>
+                        <li>Resolve a merge conflict scenario</li>
+                        <li>Use git bisect to find a bug-introducing commit</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <h3>🧠 Knowledge Check</h3>
+
+                <div class="quiz-question">
+                    <h4>Question 1: What command creates a new Git repository?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">git create</div>
+                        <div class="quiz-option">git init</div>
+                        <div class="quiz-option">git new</div>
+                        <div class="quiz-option">git start</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 2: Which command shows the current status of your repository?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">git status</div>
+                        <div class="quiz-option">git info</div>
+                        <div class="quiz-option">git check</div>
+                        <div class="quiz-option">git state</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 3: What does 'git pull --rebase' do?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">Creates a merge commit</div>
+                        <div class="quiz-option">Rebases local commits on top of fetched changes</div>
+                        <div class="quiz-option">Overwrites local changes</div>
+                        <div class="quiz-option">Creates a new branch</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📋 Git Best Practices</h2>
+
+                <div class="success-box">
+                    <h4>💡 Essential Git Best Practices:</h4>
+                    <ul>
+                        <li><strong>Commit Often:</strong> Make small, focused commits with clear messages</li>
+                        <li><strong>Write Good Commit Messages:</strong> Use imperative mood, be descriptive</li>
+                        <li><strong>Use Branches:</strong> Keep main branch clean, use feature branches</li>
+                        <li><strong>Pull Before Push:</strong> Always fetch and merge before pushing</li>
+                        <li><strong>Don't Commit Generated Files:</strong> Use .gitignore for build artifacts</li>
+                        <li><strong>Use Meaningful Branch Names:</strong> feature/user-auth, bugfix/login-issue</li>
+                        <li><strong>Review Before Merge:</strong> Use pull requests for code review</li>
+                        <li><strong>Keep Repository Clean:</strong> Regular maintenance and cleanup</li>
+                        <li><strong>Backup Important Branches:</strong> Don't rely solely on local copies</li>
+                        <li><strong>Learn from Mistakes:</strong> Use git reflog to recover from errors</li>
+                    </ul>
+                </div>
+
+                <h3>📝 Commit Message Guidelines</h3>
+
+                <h4>🔧 Good Commit Message Format</h4>
+                <div class="code-block">
+# Good commit messages follow this format:
+# Type: Brief description (50 chars max)
+
+# Types:
+# feat: New feature
+# fix: Bug fix
+# docs: Documentation changes
+# style: Code style changes (formatting, etc.)
+# refactor: Code refactoring
+# test: Adding or updating tests
+# chore: Maintenance tasks
+
+# Examples:
+feat: add user authentication with JWT tokens
+fix: resolve memory leak in image processing
+docs: update API documentation for v2 endpoints
+refactor: simplify user validation logic
+test: add unit tests for payment processing
+                </div>
+
+                <h3>🚫 Common Mistakes to Avoid</h3>
+
+                <div class="warning-box">
+                    <h4>❌ Git Anti-Patterns:</h4>
+                    <ul>
+                        <li><strong>Committing Large Files:</strong> Use Git LFS for large assets</li>
+                        <li><strong>Force Pushing:</strong> Avoid git push --force on shared branches</li>
+                        <li><strong>Committing Secrets:</strong> Never commit passwords, API keys, etc.</li>
+                        <li><strong>Mixing Unrelated Changes:</strong> One commit = one logical change</li>
+                        <li><strong>Working Directly on Main:</strong> Always use feature branches</li>
+                        <li><strong>Ignoring .gitignore:</strong> Keep generated files out of version control</li>
+                        <li><strong>Not Pulling Regularly:</strong> Stay up-to-date with team changes</li>
+                        <li><strong>Using git add . Blindly:</strong> Review changes before staging</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🛠️ Git Tools & Resources</h2>
+
+                <h3>🔧 Essential Git Tools</h3>
+                <div class="info-box">
+                    <h4>🛠️ Recommended Tools:</h4>
+                    <ul>
+                        <li><strong>GitHub Desktop:</strong> GUI for Git operations</li>
+                        <li><strong>SourceTree:</strong> Free Git GUI client</li>
+                        <li><strong>GitKraken:</strong> Modern Git GUI with advanced features</li>
+                        <li><strong>VS Code Git Extension:</strong> Integrated Git support in editor</li>
+                        <li><strong>GitHub CLI:</strong> Command-line tool for GitHub</li>
+                        <li><strong>Git LFS:</strong> Large file storage extension</li>
+                        <li><strong>Pre-commit:</strong> Framework for managing Git hooks</li>
+                        <li><strong>Conventional Commits:</strong> Standardized commit message format</li>
+                    </ul>
+                </div>
+
+                <h3>📚 Learning Resources</h3>
+                <div class="info-box">
+                    <h4>📖 Recommended Learning Materials:</h4>
+                    <ul>
+                        <li><strong>Official Git Documentation:</strong> git-scm.com/book</li>
+                        <li><strong>GitHub Learning Lab:</strong> Interactive Git tutorials</li>
+                        <li><strong>Atlassian Git Tutorials:</strong> Comprehensive guides</li>
+                        <li><strong>Pro Git Book:</strong> Free online Git reference</li>
+                        <li><strong>Git Cheat Sheet:</strong> Quick reference guide</li>
+                        <li><strong>Oh My Git:</strong> Interactive Git learning game</li>
+                        <li><strong>Learn Git Branching:</strong> Visual Git learning tool</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 Chapter Summary</h2>
+                <p>This comprehensive chapter has equipped you with essential Git knowledge and skills:</p>
+
+                <ul>
+                    <li><strong>Git Fundamentals:</strong> Version control concepts, installation, configuration</li>
+                    <li><strong>Core Commands:</strong> init, add, commit, status, log operations</li>
+                    <li><strong>Branching & Merging:</strong> Branch management, merge strategies, conflict resolution</li>
+                    <li><strong>Remote Repositories:</strong> Push, pull, fetch, collaboration workflows</li>
+                    <li><strong>Advanced Features:</strong> Rebasing, tagging, stashing, hooks</li>
+                    <li><strong>Troubleshooting:</strong> Common issues, undo operations, repository maintenance</li>
+                    <li><strong>Best Practices:</strong> Commit conventions, branching strategies, collaboration</li>
+                    <li><strong>Tools & Resources:</strong> GUI clients, learning materials, extensions</li>
+                </ul>
+
+                <div class="success-box">
+                    <strong>🎉 Congratulations!</strong> You now have a solid foundation in Git version control. These skills are essential for modern software development and will serve you well in collaborative projects and DevOps workflows.
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Study Guide Collection | <a href="study-guide-progress.html">View Progress Dashboard</a> | <a href="cloud-devops2.html">Next Chapter: CI/CD Pipelines →</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Quiz functionality
+            const quizOptions = document.querySelectorAll('.quiz-option');
+            const correctAnswers = [
+                'git init',
+                'git status',
+                'Rebases local commits on top of fetched changes'
+            ];
+
+            quizOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionIndex = Array.from(this.parentElement.parentElement.parentElement.children).indexOf(this.parentElement.parentElement);
+                    const isCorrect = this.textContent === correctAnswers[questionIndex];
+
+                    // Remove previous styling
+                    this.parentElement.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.style.background = '';
+                        opt.style.color = '';
+                    });
+
+                    if (isCorrect) {
+                        this.style.background = '#4CAF50';
+                        this.style.color = 'white';
+                        alert('✅ Correct!');
+                    } else {
+                        this.style.background = '#f44336';
+                        this.style.color = 'white';
+                        alert('❌ Incorrect. Try again!');
+                    }
+                });
+            });
+
+            // Code block copy functionality
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = '📋 Copy';
+                copyBtn.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 60px;
+                    background: #FF6B35;
+                    color: white;
+                    border: none;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.8em;
+                `;
+
+                copyBtn.addEventListener('click', function() {
+                    const code = block.textContent.replace(/^(Terminal|Config|Workflow)$/m, '').trim();
+                    navigator.clipboard.writeText(code).then(() => {
+                        this.textContent = '✅ Copied!';
+                        setTimeout(() => this.textContent = '📋 Copy', 2000);
+                    });
+                });
+
+                block.style.position = 'relative';
+                block.appendChild(copyBtn);
+            });
+        });
+    </script>
+</body>
+</html>

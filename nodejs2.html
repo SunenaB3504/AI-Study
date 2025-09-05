@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node.js Backend Development - Chapter 2: Express.js Framework</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4285f4',
+                        secondary: '#34a853',
+                        accent: '#ff9800'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-400 via-blue-500 to-green-400 py-5 px-5">
+    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-500 to-green-500 text-white py-12 px-8 text-center">
+            <h1 class="text-4xl md:text-5xl font-light mb-4">🚀 Node.js Backend Development</h1>
+            <div class="text-xl md:text-2xl opacity-90">Chapter 2: Express.js Framework</div>
+        </div>
+
+        <div class="px-8 md:px-12 py-8">
+            <div class="bg-gray-50 p-6 rounded-lg mb-8 border-l-4 border-blue-500">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                    <h3 class="text-lg font-semibold text-blue-600">📚 Chapter Navigation</h3>
+                    <button id="tts-toggle" class="bg-purple-500 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                        🔊 TTS: ON
+                    </button>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <a href="study-guide-progress.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">📊 Progress Dashboard</a>
+                    <a href="nodejs1.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">📖 Chapter 1: Fundamentals</a>
+                    <a href="nodejs2.html" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">📖 Current: Chapter 2</a>
+                    <a href="nodejs3.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">📖 Chapter 3: Databases</a>
+                    <a href="nodejs4.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">📖 Chapter 4: Auth & Security</a>
+                    <a href="nodejs5.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">📖 Chapter 5: API Development</a>
+                </div>
+            </div>
+
+            <div class="mb-10">
+                <h2 class="text-2xl md:text-3xl font-bold text-blue-600 border-b-2 border-gray-200 pb-3 mb-5">🎯 What is Express.js?</h2>
+                <p class="text-gray-700 text-lg leading-relaxed mb-6"><strong>Express.js</strong> is the most popular web application framework for Node.js. It provides a robust set of features for building web applications and APIs, making it much easier than using the built-in Node.js HTTP module.</p>
+
+                <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+                    <h4 class="text-lg font-semibold text-red-700 mb-3">💡 Why Express.js?</h4>
+                    <ul class="text-gray-700 space-y-2">
+                        <li><strong>Minimalist:</strong> Lightweight framework with essential features</li>
+                        <li><strong>Flexible:</strong> Highly customizable and extensible</li>
+                        <li><strong>Middleware:</strong> Powerful middleware system</li>
+                        <li><strong>Routing:</strong> Clean and intuitive routing</li>
+                        <li><strong>Community:</strong> Largest ecosystem of middleware and plugins</li>
+                        <li><strong>Production Ready:</strong> Used by millions of applications</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📦 Installation and Setup</h2>
+                <h3>Installing Express.js</h3>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6 overflow-x-auto">
+                    <div class="bg-gray-200 px-4 py-2 mb-4 rounded-t-lg font-bold text-gray-700">Installing Express.js</div>
+# Create a new project directory
+mkdir my-express-app
+cd my-express-app
+
+# Initialize npm project
+npm init -y
+
+# Install Express.js
+npm install express
+
+# Optional: Install nodemon for development
+npm install --save-dev nodemon
+                </div>
+
+                <h3>Basic Express Server</h3>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6 overflow-x-auto">
+                    <div class="bg-gray-200 px-4 py-2 mb-4 rounded-t-lg font-bold text-gray-700">server.js - Basic Express Server</div>
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Basic route
+app.get('/', (req, res) => {
+    res.send('Hello World from Express!');
+});
+
+// Start server
+app.listen(port, () => {
+    console.log(`Express server running at http://localhost:${port}`);
+});
+                </div>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6 overflow-x-auto">
+                    <div class="bg-gray-200 px-4 py-2 mb-4 rounded-t-lg font-bold text-gray-700">package.json - Scripts Configuration</div>
+{
+  "name": "my-express-app",
+  "version": "1.0.0",
+  "description": "Express.js application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
+                </div>
+            </div>
+
+            <div class="mb-10">
+                <h2 class="text-2xl md:text-3xl font-bold text-blue-600 border-b-2 border-gray-200 pb-3 mb-5">🛣️ Routing in Express.js</h2>
+                <p class="text-gray-700 text-lg leading-relaxed mb-6">Routing refers to how an application responds to client requests to particular endpoints (URIs) with specific HTTP methods.</p>
+
+                <h3>Basic Routing</h3>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6 overflow-x-auto">
+                    <div class="bg-gray-200 px-4 py-2 mb-4 rounded-t-lg font-bold text-gray-700">Basic Routing Example</div>
+const express = require('express');
+const app = express();
+
+// GET route
+app.get('/', (req, res) => {
+    res.send('Welcome to the homepage!');
+});
+
+// POST route
+app.post('/users', (req, res) => {
+    res.send('User created successfully!');
+});
+
+// PUT route
+app.put('/users/:id', (req, res) => {
+    res.send(`User ${req.params.id} updated successfully!`);
+});
+
+// DELETE route
+app.delete('/users/:id', (req, res) => {
+    res.send(`User ${req.params.id} deleted successfully!`);
+});
+
+app.listen(3000, () => {
+    console.log('Server running on port 3000');
+});
+                </div>
+
+                <h3>Route Parameters</h3>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6 overflow-x-auto">
+                    <div class="bg-gray-200 px-4 py-2 mb-4 rounded-t-lg font-bold text-gray-700">Route Parameters</div>
+// Single parameter
+app.get('/users/:id', (req, res) => {
+    const userId = req.params.id;
+    res.send(`User ID: ${userId}`);
+});
+
+// Multiple parameters
+app.get('/users/:userId/posts/:postId', (req, res) => {
+    const { userId, postId } = req.params;
+    res.send(`User: ${userId}, Post: ${postId}`);
+});
+
+// Query parameters
+app.get('/search', (req, res) => {
+    const { q, limit = 10 } = req.query;
+    res.send(`Searching for: ${q}, Limit: ${limit}`);
+});
+                </div>
+
+                <h3>Route Handlers</h3>
+                <div class="code-block">
+                    <div class="code-header">Route Handlers</div>
+// Single callback function
+app.get('/api/users', (req, res) => {
+    res.json({ users: ['Alice', 'Bob', 'Charlie'] });
+});
+
+// Multiple callback functions
+app.get('/api/data',
+    (req, res, next) => {
+        console.log('First middleware');
+        next();
+    },
+    (req, res) => {
+        res.send('Data processed');
+    }
+);
+
+// Array of callback functions
+const middleware1 = (req, res, next) => {
+    console.log('Middleware 1');
+    next();
+};
+
+const middleware2 = (req, res, next) => {
+    console.log('Middleware 2');
+    next();
+};
+
+app.get('/api/chain', [middleware1, middleware2], (req, res) => {
+    res.send('All middleware executed');
+});
+                </div>
+            </div>
+
+            <div class="mb-10">
+                <h2 class="text-2xl md:text-3xl font-bold text-blue-600 border-b-2 border-gray-200 pb-3 mb-5">🔧 Middleware in Express.js</h2>
+                <p class="text-gray-700 text-lg leading-relaxed mb-6">Middleware functions are functions that have access to the request object (req), the response object (res), and the next middleware function in the application's request-response cycle.</p>
+
+                <h3>Application-Level Middleware</h3>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6 overflow-x-auto">
+                    <div class="bg-gray-200 px-4 py-2 mb-4 rounded-t-lg font-bold text-gray-700">Application-Level Middleware</div>
+const express = require('express');
+const app = express();
+
+// Logger middleware
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+});
+
+// JSON parsing middleware
+app.use(express.json());
+
+// URL-encoded parsing middleware
+app.use(express.urlencoded({ extended: true }));
+
+// Static files middleware
+app.use(express.static('public'));
+
+// Custom middleware
+app.use('/api', (req, res, next) => {
+    console.log('API route accessed');
+    next();
+});
+
+app.get('/api/users', (req, res) => {
+    res.json({ message: 'Users endpoint' });
+});
+
+app.listen(3000);
+                </div>
+
+                <h3>Built-in Middleware</h3>
+                <div class="code-block">
+                    <div class="code-header">Built-in Middleware Examples</div>
+const express = require('express');
+const app = express();
+
+// Parse JSON bodies
+app.use(express.json({ limit: '10mb' }));
+
+// Parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Serve static files from 'public' directory
+app.use(express.static('public'));
+
+// Serve static files with custom options
+app.use('/assets', express.static('public', {
+    maxAge: '1d', // Cache for 1 day
+    etag: true
+}));
+                </div>
+
+                <h3>Third-Party Middleware</h3>
+                <div class="code-block">
+                    <div class="code-header">Installing and Using Third-Party Middleware</div>
+# Install popular middleware
+npm install cors helmet morgan compression
+
+# In your application
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const compression = require('compression');
+
+const app = express();
+
+// Security middleware
+app.use(helmet());
+
+// CORS middleware
+app.use(cors({
+    origin: ['http://localhost:3000', 'https://yourdomain.com'],
+    credentials: true
+}));
+
+// Logging middleware
+app.use(morgan('combined'));
+
+// Compression middleware
+app.use(compression());
+
+app.get('/', (req, res) => {
+    res.send('Server with middleware!');
+});
+
+app.listen(3000);
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📤 Response Methods</h2>
+                <p>Express provides various methods to send responses to the client.</p>
+
+                <div class="code-block">
+                    <div class="code-header">Response Methods</div>
+const express = require('express');
+const app = express();
+
+// Send text response
+app.get('/text', (req, res) => {
+    res.send('Hello World!');
+});
+
+// Send HTML response
+app.get('/html', (req, res) => {
+    res.send('<h1>Hello World!</h1>');
+});
+
+// Send JSON response
+app.get('/json', (req, res) => {
+    res.json({
+        message: 'Hello World!',
+        data: [1, 2, 3],
+        timestamp: new Date()
+    });
+});
+
+// Send file
+app.get('/file', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
+// Redirect
+app.get('/old-path', (req, res) => {
+    res.redirect('/new-path');
+});
+
+// Set status code
+app.get('/not-found', (req, res) => {
+    res.status(404).send('Not Found');
+});
+
+// Set headers
+app.get('/headers', (req, res) => {
+    res.set('Content-Type', 'application/json');
+    res.set('X-Custom-Header', 'Custom Value');
+    res.json({ message: 'Headers set' });
+});
+
+// Download file
+app.get('/download', (req, res) => {
+    res.download(__dirname + '/files/document.pdf');
+});
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚨 Error Handling</h2>
+                <p>Express provides mechanisms for handling errors that occur during request processing.</p>
+
+                <h3>Error Handling Middleware</h3>
+                <div class="code-block">
+                    <div class="code-header">Error Handling Middleware</div>
+const express = require('express');
+const app = express();
+
+// Regular middleware
+app.use(express.json());
+
+// Routes that might throw errors
+app.get('/users/:id', (req, res, next) => {
+    const userId = req.params.id;
+
+    // Simulate an error
+    if (userId === 'error') {
+        const error = new Error('User not found');
+        error.statusCode = 404;
+        return next(error);
+    }
+
+    res.json({ userId, name: 'John Doe' });
+});
+
+// Error handling middleware (must be last)
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Internal Server Error';
+
+    res.status(statusCode).json({
+        error: {
+            message,
+            status: statusCode
+        }
+    });
+});
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({
+        error: {
+            message: 'Route not found',
+            status: 404
+        }
+    });
+});
+
+app.listen(3000);
+                </div>
+
+                <h3>Async Error Handling</h3>
+                <div class="code-block">
+                    <div class="code-header">Async Error Handling</div>
+const express = require('express');
+const app = express();
+
+// Async route handler
+app.get('/async-route', async (req, res, next) => {
+    try {
+        // Simulate async operation that might fail
+        const result = await someAsyncOperation();
+
+        if (!result) {
+            const error = new Error('Operation failed');
+            error.statusCode = 400;
+            throw error;
+        }
+
+        res.json({ result });
+
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Helper function to simulate async operation
+async function someAsyncOperation() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            // Simulate random failure
+            if (Math.random() > 0.5) {
+                resolve({ data: 'Success' });
+            } else {
+                reject(new Error('Async operation failed'));
+            }
+        }, 1000);
+    });
+}
+
+app.listen(3000);
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🏗️ Building a REST API</h2>
+                <p>Let's build a complete REST API for managing a simple blog application.</p>
+
+                <div class="code-block">
+                    <div class="code-header">Complete REST API Example</div>
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// In-memory data store (in production, use a database)
+let posts = [
+    { id: 1, title: 'First Post', content: 'This is my first post', author: 'John' },
+    { id: 2, title: 'Second Post', content: 'This is my second post', author: 'Jane' }
+];
+
+// Middleware
+app.use(express.json());
+
+// GET /posts - Get all posts
+app.get('/api/posts', (req, res) => {
+    res.json({
+        success: true,
+        data: posts,
+        count: posts.length
+    });
+});
+
+// GET /posts/:id - Get single post
+app.get('/api/posts/:id', (req, res) => {
+    const postId = parseInt(req.params.id);
+    const post = posts.find(p => p.id === postId);
+
+    if (!post) {
+        return res.status(404).json({
+            success: false,
+            error: 'Post not found'
+        });
+    }
+
+    res.json({
+        success: true,
+        data: post
+    });
+});
+
+// POST /posts - Create new post
+app.post('/api/posts', (req, res) => {
+    const { title, content, author } = req.body;
+
+    if (!title || !content || !author) {
+        return res.status(400).json({
+            success: false,
+            error: 'Title, content, and author are required'
+        });
+    }
+
+    const newPost = {
+        id: posts.length + 1,
+        title,
+        content,
+        author,
+        createdAt: new Date()
+    };
+
+    posts.push(newPost);
+
+    res.status(201).json({
+        success: true,
+        data: newPost
+    });
+});
+
+// PUT /posts/:id - Update post
+app.put('/api/posts/:id', (req, res) => {
+    const postId = parseInt(req.params.id);
+    const postIndex = posts.findIndex(p => p.id === postId);
+
+    if (postIndex === -1) {
+        return res.status(404).json({
+            success: false,
+            error: 'Post not found'
+        });
+    }
+
+    const { title, content, author } = req.body;
+    posts[postIndex] = {
+        ...posts[postIndex],
+        title: title || posts[postIndex].title,
+        content: content || posts[postIndex].content,
+        author: author || posts[postIndex].author,
+        updatedAt: new Date()
+    };
+
+    res.json({
+        success: true,
+        data: posts[postIndex]
+    });
+});
+
+// DELETE /posts/:id - Delete post
+app.delete('/api/posts/:id', (req, res) => {
+    const postId = parseInt(req.params.id);
+    const postIndex = posts.findIndex(p => p.id === postId);
+
+    if (postIndex === -1) {
+        return res.status(404).json({
+            success: false,
+            error: 'Post not found'
+        });
+    }
+
+    const deletedPost = posts.splice(postIndex, 1)[0];
+
+    res.json({
+        success: true,
+        data: deletedPost
+    });
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'OK',
+        timestamp: new Date(),
+        uptime: process.uptime()
+    });
+});
+
+app.listen(port, () => {
+    console.log(`Blog API server running at http://localhost:${port}`);
+});
+                </div>
+            </div>
+
+            <div class="bg-cyan-50 border border-cyan-200 rounded-lg p-6 mb-8">
+                <h4 class="text-lg font-semibold text-cyan-800 mb-4">🛠️ Practice Exercise: Build a Task Management API</h4>
+                <p class="text-gray-700 mb-4">Create a REST API for managing tasks with the following endpoints:</p>
+                <ul class="text-gray-700 space-y-2 mb-4">
+                    <li><code class="bg-gray-100 px-2 py-1 rounded text-sm">GET /api/tasks</code> - Get all tasks (with optional query parameters for filtering)</li>
+                    <li><code class="bg-gray-100 px-2 py-1 rounded text-sm">GET /api/tasks/:id</code> - Get a specific task by ID</li>
+                    <li><code class="bg-gray-100 px-2 py-1 rounded text-sm">POST /api/tasks</code> - Create a new task</li>
+                    <li><code class="bg-gray-100 px-2 py-1 rounded text-sm">PUT /api/tasks/:id</code> - Update a task (mark as complete/incomplete)</li>
+                    <li><code class="bg-gray-100 px-2 py-1 rounded text-sm">DELETE /api/tasks/:id</code> - Delete a task</li>
+                    <li><code class="bg-gray-100 px-2 py-1 rounded text-sm">GET /api/tasks/completed</code> - Get only completed tasks</li>
+                    <li><code class="bg-gray-100 px-2 py-1 rounded text-sm">GET /api/tasks/pending</code> - Get only pending tasks</li>
+                </ul>
+                <p class="font-semibold text-gray-700 mb-2">Requirements:</p>
+                <ul class="text-gray-700 space-y-1">
+                    <li>Use proper HTTP status codes</li>
+                    <li>Implement input validation</li>
+                    <li>Add error handling middleware</li>
+                    <li>Include proper JSON responses</li>
+                    <li>Add logging middleware</li>
+                    <li>Include a health check endpoint</li>
+                </ul>
+            </div>
+
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
+                <h4 class="text-lg font-semibold text-yellow-800 mb-4">📝 Knowledge Check</h4>
+                <ol class="text-gray-700 space-y-3">
+                    <li>What is Express.js and why is it popular for Node.js development?</li>
+                    <li>Explain the difference between application-level middleware and route-level middleware.</li>
+                    <li>What are route parameters and how do you access them in Express.js?</li>
+                    <li>How does Express.js handle different HTTP methods (GET, POST, PUT, DELETE)?</li>
+                    <li>What is the purpose of <code class="bg-gray-100 px-2 py-1 rounded text-sm">next()</code> in middleware functions?</li>
+                    <li>Explain the difference between <code class="bg-gray-100 px-2 py-1 rounded text-sm">res.send()</code>, <code class="bg-gray-100 px-2 py-1 rounded text-sm">res.json()</code>, and <code class="bg-gray-100 px-2 py-1 rounded text-sm">res.sendFile()</code>.</li>
+                    <li>How do you handle errors in Express.js applications?</li>
+                    <li>What are some popular third-party middleware packages for Express.js?</li>
+                </ol>
+            </div>
+
+            <div class="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-8 mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">📚 Chapter Summary</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-blue-500">
+                        <h5 class="text-lg font-semibold text-blue-600 mb-3">🚀 Express.js Framework</h5>
+                        <p class="text-gray-700">Minimalist web framework for Node.js that simplifies building web applications and APIs with powerful routing and middleware capabilities.</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-blue-500">
+                        <h5 class="text-lg font-semibold text-blue-600 mb-3">🛣️ Routing System</h5>
+                        <p class="text-gray-700">Clean and intuitive routing system supporting all HTTP methods with route parameters, query parameters, and route handlers.</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-blue-500">
+                        <h5 class="text-lg font-semibold text-blue-600 mb-3">🔧 Middleware Architecture</h5>
+                        <p class="text-gray-700">Powerful middleware system for processing requests, including built-in middleware for JSON parsing, static files, and third-party packages.</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-blue-500">
+                        <h5 class="text-lg font-semibold text-blue-600 mb-3">📤 Response Methods</h5>
+                        <p class="text-gray-700">Multiple response methods for sending text, HTML, JSON, files, and redirects with proper status codes and headers.</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-blue-500">
+                        <h5 class="text-lg font-semibold text-blue-600 mb-3">🚨 Error Handling</h5>
+                        <p class="text-gray-700">Comprehensive error handling with middleware for catching and processing errors gracefully.</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-blue-500">
+                        <h5 class="text-lg font-semibold text-blue-600 mb-3">🏗️ REST API Development</h5>
+                        <p class="text-gray-700">Complete toolkit for building RESTful APIs with proper HTTP methods, status codes, and JSON responses.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-orange-300 rounded-xl p-8 mb-8 text-center">
+                <h3 class="text-2xl font-bold text-orange-800 mb-4">🎯 Ready for Chapter 3?</h3>
+                <p class="text-gray-700 text-lg mb-6">In the next chapter, we'll explore database integration with Express.js, covering both SQL and NoSQL databases to make your applications data-persistent.</p>
+                <a href="nodejs3.html" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium text-lg transition-colors duration-200 inline-block">Continue to Chapter 3: Database Integration →</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Text-to-Speech functionality
+        let ttsEnabled = true;
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+
+        // TTS Toggle functionality
+        document.getElementById('tts-toggle').addEventListener('click', function() {
+            ttsEnabled = !ttsEnabled;
+            this.textContent = ttsEnabled ? '🔊 TTS: ON' : '🔇 TTS: OFF';
+            this.className = ttsEnabled 
+                ? 'bg-purple-500 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200'
+                : 'bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200';
+            
+            if (!ttsEnabled && currentUtterance) {
+                speechSynthesis.cancel();
+            }
+        });
+
+        // Function to speak text
+        function speakText(text) {
+            if (!ttsEnabled || !speechSynthesis) return;
+            
+            // Cancel any ongoing speech
+            if (currentUtterance) {
+                speechSynthesis.cancel();
+            }
+            
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.rate = 0.9;
+            currentUtterance.pitch = 1;
+            currentUtterance.volume = 0.8;
+            
+            speechSynthesis.speak(currentUtterance);
+        }
+
+        // Add click handlers to headings for TTS
+        document.addEventListener('DOMContentLoaded', function() {
+            const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+            headings.forEach(heading => {
+                heading.addEventListener('click', function() {
+                    speakText(this.textContent);
+                });
+                heading.style.cursor = 'pointer';
+                heading.title = 'Click to hear this heading';
+            });
+
+            // Add click handlers to paragraphs
+            const paragraphs = document.querySelectorAll('p');
+            paragraphs.forEach(paragraph => {
+                paragraph.addEventListener('click', function() {
+                    speakText(this.textContent);
+                });
+                paragraph.style.cursor = 'pointer';
+                paragraph.title = 'Click to hear this text';
+            });
+
+            // Chapter tracking functionality
+            const chapterKey = 'nodejs2-progress';
+            let chapterProgress = JSON.parse(localStorage.getItem(chapterKey)) || {
+                completedSections: [],
+                lastRead: new Date().toISOString()
+            };
+
+            // Add completion buttons to section headers
+            const sections = document.querySelectorAll('h2');
+            sections.forEach((section, index) => {
+                const sectionId = `section-${index}`;
+                const button = document.createElement('button');
+                button.className = chapterProgress.completedSections.includes(sectionId) 
+                    ? 'bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm ml-3 transition-colors duration-200'
+                    : 'bg-gray-300 hover:bg-gray-400 text-gray-700 px-3 py-1 rounded text-sm ml-3 transition-colors duration-200';
+                button.textContent = chapterProgress.completedSections.includes(sectionId) ? '✓ Done' : 'Mark Complete';
+                button.onclick = function() {
+                    if (chapterProgress.completedSections.includes(sectionId)) {
+                        chapterProgress.completedSections = chapterProgress.completedSections.filter(id => id !== sectionId);
+                        this.textContent = 'Mark Complete';
+                        this.className = 'bg-gray-300 hover:bg-gray-400 text-gray-700 px-3 py-1 rounded text-sm ml-3 transition-colors duration-200';
+                    } else {
+                        chapterProgress.completedSections.push(sectionId);
+                        this.textContent = '✓ Done';
+                        this.className = 'bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm ml-3 transition-colors duration-200';
+                    }
+                    chapterProgress.lastRead = new Date().toISOString();
+                    localStorage.setItem(chapterKey, JSON.stringify(chapterProgress));
+                };
+                section.appendChild(button);
+            });
+
+            // Update last read timestamp
+            chapterProgress.lastRead = new Date().toISOString();
+            localStorage.setItem(chapterKey, JSON.stringify(chapterProgress));
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + T to toggle TTS
+            if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+                e.preventDefault();
+                document.getElementById('tts-toggle').click();
+            }
+        });
+    </script>
+</body>
+</html>

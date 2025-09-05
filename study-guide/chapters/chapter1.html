@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 1: Introduction to Full Stack Development</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <h1 class="text-3xl font-bold">Chapter 1</h1>
+                <a href="../index.html" class="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                    ← Back to Home
+                </a>
+            </div>
+            <h2 class="text-xl mt-2">Introduction to Full Stack Development</h2>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-wrap justify-between items-center">
+                <div class="flex gap-4">
+                    <button id="tts-toggle" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        🔊 Enable TTS
+                    </button>
+                    <button id="mark-chapter-complete" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        Mark Chapter Complete
+                    </button>
+                </div>
+                <div class="text-sm text-gray-600">
+                    <span id="reading-progress">0%</span> read
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Chapter Overview -->
+        <section id="overview" class="content-section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Chapter Overview</h3>
+            <p class="text-gray-700 mb-4">
+                This chapter introduces you to the world of full stack development. You'll learn about the fundamental concepts,
+                technologies, and development environment setup that form the foundation of modern web development.
+            </p>
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+                <p class="text-blue-700">
+                    <strong>Learning Objectives:</strong> By the end of this chapter, you'll understand what full stack development entails,
+                    the technologies involved, and how to set up your development environment.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 1: What is Full Stack Development? -->
+        <section id="what-is-fullstack" class="content-section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">1.1 What is Full Stack Development?</h3>
+
+            <p class="text-gray-700 mb-4">
+                Full stack development refers to the practice of developing both the frontend (client-side) and backend (server-side)
+                portions of a web application. A full stack developer is someone who can work on all layers of an application,
+                from the user interface to the database and everything in between.
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-green-800 mb-2">Frontend (Client-Side)</h4>
+                    <ul class="text-green-700 space-y-1">
+                        <li>• HTML - Structure and content</li>
+                        <li>• CSS - Styling and layout</li>
+                        <li>• JavaScript - Interactivity and behavior</li>
+                        <li>• Frameworks (React, Vue, Angular)</li>
+                    </ul>
+                </div>
+
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-blue-800 mb-2">Backend (Server-Side)</h4>
+                    <ul class="text-blue-700 space-y-1">
+                        <li>• Server logic and APIs</li>
+                        <li>• Database management</li>
+                        <li>• Authentication and security</li>
+                        <li>• Server frameworks (Node.js, Python, etc.)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                <h4 class="font-semibold text-yellow-800 mb-2">Why Full Stack?</h4>
+                <p class="text-yellow-700">
+                    Full stack developers can see the big picture and understand how all parts of an application work together.
+                    This holistic approach leads to better decision-making and more efficient development processes.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 2: The Technology Stack -->
+        <section id="tech-stack" class="content-section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">1.2 The Technology Stack</h3>
+
+            <p class="text-gray-700 mb-4">
+                A technology stack (or "stack") is the combination of technologies used to build a complete web application.
+                Different stacks are optimized for different use cases and development preferences.
+            </p>
+
+            <h4 class="text-xl font-semibold text-gray-800 mb-3">Popular Technology Stacks</h4>
+
+            <div class="grid md:grid-cols-3 gap-4 mb-6">
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">MERN Stack</h5>
+                    <ul class="text-gray-600 space-y-1 text-sm">
+                        <li>• MongoDB (Database)</li>
+                        <li>• Express.js (Backend)</li>
+                        <li>• React (Frontend)</li>
+                        <li>• Node.js (Runtime)</li>
+                    </ul>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">MEAN Stack</h5>
+                    <ul class="text-gray-600 space-y-1 text-sm">
+                        <li>• MongoDB (Database)</li>
+                        <li>• Express.js (Backend)</li>
+                        <li>• Angular (Frontend)</li>
+                        <li>• Node.js (Runtime)</li>
+                    </ul>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">LAMP Stack</h5>
+                    <ul class="text-gray-600 space-y-1 text-sm">
+                        <li>• Linux (OS)</li>
+                        <li>• Apache (Server)</li>
+                        <li>• MySQL (Database)</li>
+                        <li>• PHP (Language)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-gray-800 mb-2">Choosing a Stack</h4>
+                <p class="text-gray-700 text-sm">
+                    The best stack depends on your project requirements, team expertise, scalability needs, and personal preferences.
+                    Each stack has its strengths and is suited for different types of applications.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 3: Development Environment Setup -->
+        <section id="dev-environment" class="content-section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">1.3 Development Environment Setup</h3>
+
+            <p class="text-gray-700 mb-4">
+                Setting up a proper development environment is crucial for efficient and productive development.
+                Here's what you'll need to get started with full stack development.
+            </p>
+
+            <h4 class="text-xl font-semibold text-gray-800 mb-3">Essential Tools</h4>
+
+            <div class="space-y-4">
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Code Editor</h5>
+                    <p class="text-gray-600 mb-2">A powerful code editor with features like syntax highlighting, debugging, and extensions.</p>
+                    <div class="text-sm text-gray-500">
+                        <strong>Recommended:</strong> Visual Studio Code, Sublime Text, or Atom
+                    </div>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Version Control</h5>
+                    <p class="text-gray-600 mb-2">Track changes, collaborate with others, and manage different versions of your code.</p>
+                    <div class="text-sm text-gray-500">
+                        <strong>Recommended:</strong> Git with GitHub or GitLab
+                    </div>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Web Browser</h5>
+                    <p class="text-gray-600 mb-2">Test and debug your web applications with developer tools.</p>
+                    <div class="text-sm text-gray-500">
+                        <strong>Recommended:</strong> Google Chrome or Mozilla Firefox with developer tools
+                    </div>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Terminal/Command Line</h5>
+                    <p class="text-gray-600 mb-2">Run commands, manage files, and interact with development tools.</p>
+                    <div class="text-sm text-gray-500">
+                        <strong>Recommended:</strong> Terminal (macOS/Linux) or Command Prompt/PowerShell (Windows)
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Development Workflow -->
+        <section id="workflow" class="content-section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">1.4 Development Workflow</h3>
+
+            <p class="text-gray-700 mb-4">
+                Understanding the development workflow helps you organize your work and collaborate effectively with others.
+                A typical workflow includes planning, development, testing, and deployment phases.
+            </p>
+
+            <h4 class="text-xl font-semibold text-gray-800 mb-3">Key Phases</h4>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-semibold">1</div>
+                        <div>
+                            <h5 class="font-semibold text-gray-800">Planning</h5>
+                            <p class="text-gray-600 text-sm">Define requirements, design architecture, and create project plans.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
+                        <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-semibold">2</div>
+                        <div>
+                            <h5 class="font-semibold text-gray-800">Development</h5>
+                            <p class="text-gray-600 text-sm">Write code, implement features, and build the application.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-semibold">3</div>
+                        <div>
+                            <h5 class="font-semibold text-gray-800">Testing</h5>
+                            <p class="text-gray-600 text-sm">Test functionality, fix bugs, and ensure quality.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
+                        <div class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-semibold">4</div>
+                        <div>
+                            <h5 class="font-semibold text-gray-800">Deployment</h5>
+                            <p class="text-gray-600 text-sm">Deploy to production and monitor performance.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter Summary -->
+        <section id="summary" class="content-section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Chapter Summary</h3>
+
+            <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
+                <h4 class="font-semibold text-green-800 mb-2">Key Takeaways</h4>
+                <ul class="text-green-700 space-y-1">
+                    <li>• Full stack development involves both frontend and backend development</li>
+                    <li>• Choose a technology stack based on project requirements and team expertise</li>
+                    <li>• Set up a proper development environment with essential tools</li>
+                    <li>• Follow a structured development workflow for better organization</li>
+                    <li>• Continuous learning and adaptation are key to success in full stack development</li>
+                </ul>
+            </div>
+
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-blue-800 mb-2">Next Steps</h4>
+                <p class="text-blue-700">
+                    Now that you understand the basics of full stack development, move on to Chapter 2 to learn about HTML fundamentals,
+                    the building blocks of web pages.
+                </p>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <div class="flex justify-between items-center bg-white rounded-lg shadow-md p-6">
+            <div class="text-gray-500">← Previous Chapter</div>
+            <div class="text-gray-500">Chapter 1 of 23</div>
+            <a href="chapter2.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                Next Chapter →
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Full Stack Development Study Guide</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../js/progress-tracker.js"></script>
+    <script src="../js/tts.js"></script>
+    <script src="../js/chapter.js"></script>
+</body>
+</html>

@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud & DevOps - Chapter 3: Docker & Containers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #0056b3;
+        }
+
+        .nav-btn.secondary {
+            background: #6c757d;
+        }
+
+        .nav-btn.secondary:hover {
+            background: #545b62;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #FF6B35;
+        }
+
+        .section h3 {
+            color: #34495e;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+
+        .section h4 {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: "Dockerfile";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #FF6B35;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+
+        .code-block.docker::before {
+            content: "Docker";
+        }
+
+        .code-block.compose::before {
+            content: "Compose";
+        }
+
+        .code-block.k8s::before {
+            content: "Kubernetes";
+        }
+
+        .code-block.yaml::before {
+            content: "YAML";
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .container-diagram {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .container-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .container-step {
+            background: #f8f9fa;
+            border: 2px solid #FF6B35;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #FF6B35;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .container-step::after {
+            content: '';
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 2px;
+            background: #FF6B35;
+        }
+
+        .container-step:last-child::after {
+            display: none;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .comparison-table th {
+            background: #FF6B35;
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+
+        .practice-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .practice-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .practice-exercise {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #FF6B35;
+        }
+
+        .practice-exercise h4 {
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+
+        .quiz-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .quiz-section h3 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .quiz-question {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .quiz-question h4 {
+            margin-bottom: 10px;
+        }
+
+        .quiz-options {
+            margin: 10px 0;
+        }
+
+        .quiz-option {
+            display: block;
+            margin: 5px 0;
+            padding: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: #FF6B35;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .container-flow {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .container-step::after {
+                display: none;
+            }
+
+            .comparison-table {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>☁️ Cloud & DevOps</h1>
+            <div class="subtitle">Chapter 3: Docker & Containers</div>
+        </div>
+
+        <div class="nav">
+            <div class="nav-links">
+                <a href="study-guide-progress.html" class="nav-btn">📊 Progress Dashboard</a>
+                <a href="cloud-devops2.html" class="nav-btn">⬅️ CI/CD Pipelines</a>
+                <a href="cloud-devops4.html" class="nav-btn">Cloud Platforms →</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>🎯 Chapter Overview</h2>
+                <p>Welcome to the world of containerization! This chapter builds on the CI/CD foundation from Chapter 2 to explore Docker and container orchestration. By the end of this comprehensive guide, you'll understand:</p>
+                <ul>
+                    <li>Container fundamentals and Docker concepts</li>
+                    <li>Docker images, containers, and Dockerfiles</li>
+                    <li>Docker Compose for multi-container applications</li>
+                    <li>Kubernetes for container orchestration</li>
+                    <li>Container networking and storage</li>
+                    <li>Docker security and best practices</li>
+                    <li>Integration with CI/CD pipelines</li>
+                    <li>Troubleshooting and monitoring containers</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>📦 Container Fundamentals</h2>
+
+                <h3>🔍 What are Containers?</h3>
+                <div class="info-box">
+                    <h4>Containerization vs Virtualization</h4>
+                    <p>Containers provide lightweight, portable environments for running applications, sharing the host OS kernel while maintaining isolation.</p>
+
+                    <h4>Key Benefits:</h4>
+                    <ul>
+                        <li><strong>Portability:</strong> Run anywhere with consistent behavior</li>
+                        <li><strong>Efficiency:</strong> Lightweight compared to virtual machines</li>
+                        <li><strong>Isolation:</strong> Applications don't interfere with each other</li>
+                        <li><strong>Scalability:</strong> Easy to scale and manage</li>
+                        <li><strong>Consistency:</strong> Same environment from development to production</li>
+                    </ul>
+                </div>
+
+                <h3>🐳 Docker Architecture</h3>
+
+                <div class="container-diagram">
+                    <h4>Docker Architecture Overview</h4>
+                    <div class="container-flow">
+                        <div class="container-step">Docker<br/>Client</div>
+                        <div class="container-step">Docker<br/>Daemon</div>
+                        <div class="container-step">Container<br/>Runtime</div>
+                        <div class="container-step">Images<br/>Registry</div>
+                    </div>
+                    <p><strong>Docker Client</strong> → <strong>Docker Daemon</strong> → <strong>Container Runtime</strong> → <strong>Host OS</strong></p>
+                </div>
+
+                <h3>⚙️ Docker Installation & Setup</h3>
+
+                <h4>🔧 Installing Docker</h4>
+                <div class="code-block docker">
+# Windows (using Chocolatey)
+choco install docker-desktop
+
+# macOS (using Homebrew)
+brew install --cask docker
+
+# Ubuntu/Debian
+sudo apt update
+sudo apt install apt-transport-https ca-certificates curl gnupg lsb-release
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+sudo apt install docker-ce docker-ce-cli containerd.io
+
+# Start Docker service
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Verify installation
+docker --version
+docker run hello-world
+                </div>
+
+                <h4>🔧 Docker Post-Installation Setup</h4>
+                <div class="code-block docker">
+# Create docker group (Linux)
+sudo groupadd docker
+sudo usermod -aG docker $USER
+
+# Configure Docker daemon
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json > /dev/null <<EOF
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+
+# Restart Docker
+sudo systemctl restart docker
+
+# Test Docker without sudo
+docker run hello-world
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🏗️ Docker Images & Containers</h2>
+
+                <h3>🖼️ Working with Docker Images</h3>
+
+                <h4>🔧 Image Management</h4>
+                <div class="code-block docker">
+# Search for images
+docker search nginx
+docker search --limit 5 node
+
+# Pull images from registry
+docker pull nginx:latest
+docker pull node:18-alpine
+docker pull postgres:13
+
+# List local images
+docker images
+docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
+
+# Get image information
+docker inspect nginx:latest
+
+# Tag images
+docker tag nginx:latest myapp/nginx:v1.0
+
+# Remove images
+docker rmi nginx:latest
+docker image prune -f  # Remove dangling images
+
+# Save and load images
+docker save myapp:latest > myapp.tar
+docker load < myapp.tar
+                </div>
+
+                <h4>🔧 Building Custom Images</h4>
+                <div class="code-block">
+# Basic Node.js Dockerfile
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy application code
+COPY . .
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+# Change ownership
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1
+
+# Start application
+CMD ["npm", "start"]
+                </div>
+
+                <h4>🔧 Multi-Stage Dockerfile</h4>
+                <div class="code-block">
+# Multi-stage build for Go application
+# Build stage
+FROM golang:1.19-alpine AS builder
+
+WORKDIR /app
+
+# Copy go mod files
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+
+# Final stage
+FROM alpine:latest
+
+# Install ca-certificates for HTTPS
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
+# Copy the binary from builder stage
+COPY --from=builder /app/main .
+
+# Expose port
+EXPOSE 8080
+
+# Run the binary
+CMD ["./main"]
+                </div>
+
+                <h3>🚢 Container Lifecycle</h3>
+
+                <h4>🔧 Container Management</h4>
+                <div class="code-block docker">
+# Run a container
+docker run -d --name myapp -p 3000:3000 myapp:latest
+
+# List running containers
+docker ps
+docker ps -a  # Include stopped containers
+
+# Start/stop containers
+docker start myapp
+docker stop myapp
+docker restart myapp
+
+# Execute commands in running container
+docker exec -it myapp sh
+docker exec myapp npm test
+
+# View container logs
+docker logs myapp
+docker logs -f myapp  # Follow logs
+
+# Remove containers
+docker rm myapp
+docker rm $(docker ps -aq)  # Remove all containers
+
+# Container resource limits
+docker run -d --name limited-app \
+  --memory="512m" \
+  --cpus="0.5" \
+  --restart=unless-stopped \
+  myapp:latest
+                </div>
+
+                <h4>🔧 Container Networking</h4>
+                <div class="code-block docker">
+# Create custom network
+docker network create myapp-network
+
+# Run containers on custom network
+docker run -d --name db --network myapp-network postgres:13
+docker run -d --name app --network myapp-network \
+  -e DATABASE_URL=postgresql://db:5432/mydb \
+  myapp:latest
+
+# Connect existing container to network
+docker network connect myapp-network existing-container
+
+# Inspect network
+docker network inspect myapp-network
+
+# List networks
+docker network ls
+
+# Remove network
+docker network rm myapp-network
+
+# Port mapping and linking
+docker run -d --name web -p 8080:80 --link db:database nginx
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📋 Docker Compose</h2>
+
+                <h3>🔧 Multi-Container Applications</h3>
+
+                <h4>🔧 Basic Docker Compose</h4>
+                <div class="code-block compose">
+# docker-compose.yml
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - db
+    volumes:
+      - ./logs:/app/logs
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
+                </div>
+
+                <h4>🔧 Advanced Docker Compose</h4>
+                <div class="code-block compose">
+# docker-compose.prod.yml
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "80:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://db:5432/myapp
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d myapp"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/ssl/certs:ro
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+                </div>
+
+                <h4>🔧 Docker Compose Commands</h4>
+                <div class="code-block docker">
+# Start services
+docker-compose up -d
+docker-compose up --scale web=3  # Scale specific service
+
+# View service status
+docker-compose ps
+
+# View logs
+docker-compose logs
+docker-compose logs -f web  # Follow specific service
+
+# Execute commands
+docker-compose exec web sh
+docker-compose exec db psql -U myuser -d myapp
+
+# Stop and remove services
+docker-compose down
+docker-compose down -v  # Remove volumes too
+
+# Rebuild and restart
+docker-compose up -d --build
+docker-compose restart web
+
+# View resource usage
+docker-compose top
+
+# Validate configuration
+docker-compose config
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>☸️ Kubernetes Fundamentals</h2>
+
+                <h3>🔧 Kubernetes Architecture</h3>
+
+                <h4>🔧 Core Components</h4>
+                <div class="info-box">
+                    <h4>Kubernetes Control Plane:</h4>
+                    <ul>
+                        <li><strong>API Server:</strong> Frontend for Kubernetes API</li>
+                        <li><strong>etcd:</strong> Distributed key-value store</li>
+                        <li><strong>Controller Manager:</strong> Runs controller processes</li>
+                        <li><strong>Scheduler:</strong> Assigns pods to nodes</li>
+                    </ul>
+
+                    <h4>Worker Nodes:</h4>
+                    <ul>
+                        <li><strong>kubelet:</strong> Ensures containers are running</li>
+                        <li><strong>kube-proxy:</strong> Network proxy for services</li>
+                        <li><strong>Container Runtime:</strong> Runs containers (Docker, containerd)</li>
+                    </ul>
+                </div>
+
+                <h4>🔧 Kubernetes Objects</h4>
+                <div class="code-block k8s">
+# Pod definition
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: myapp
+    image: myapp:latest
+    ports:
+    - containerPort: 3000
+    resources:
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+
+---
+# Deployment definition
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: myapp:latest
+        ports:
+        - containerPort: 3000
+                </div>
+
+                <h4>🔧 Service Definition</h4>
+                <div class="code-block k8s">
+# Service for load balancing
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+spec:
+  selector:
+    app: myapp
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+  type: LoadBalancer
+
+---
+# ConfigMap for configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: myapp-config
+data:
+  DATABASE_URL: "postgresql://db:5432/myapp"
+  REDIS_URL: "redis://redis:6379"
+  NODE_ENV: "production"
+
+---
+# Secret for sensitive data
+apiVersion: v1
+kind: Secret
+metadata:
+  name: myapp-secrets
+type: Opaque
+data:
+  db-password: bXlwYXNzd29yZA==  # base64 encoded
+  api-key: YXBpa2V5MTIz  # base64 encoded
+                </div>
+
+                <h3>🔧 Kubernetes Commands</h3>
+
+                <h4>🔧 kubectl Basics</h4>
+                <div class="code-block docker">
+# View cluster information
+kubectl cluster-info
+kubectl get nodes
+
+# Manage pods
+kubectl get pods
+kubectl describe pod myapp-pod
+kubectl logs myapp-pod
+kubectl exec -it myapp-pod -- sh
+
+# Manage deployments
+kubectl get deployments
+kubectl scale deployment myapp --replicas=5
+kubectl rollout status deployment/myapp
+kubectl rollout undo deployment/myapp
+
+# Apply configurations
+kubectl apply -f deployment.yml
+kubectl delete -f deployment.yml
+
+# Port forwarding
+kubectl port-forward pod/myapp-pod 8080:3000
+
+# View events and logs
+kubectl get events --sort-by=.metadata.creationTimestamp
+kubectl logs -f deployment/myapp
+                </div>
+
+                <h4>🔧 kubectl Advanced Operations</h4>
+                <div class="code-block docker">
+# Context management
+kubectl config get-contexts
+kubectl config use-context production
+kubectl config set-context --current --namespace=myapp
+
+# Resource management
+kubectl get all
+kubectl get pods --all-namespaces
+kubectl top pods  # Resource usage
+kubectl top nodes
+
+# Troubleshooting
+kubectl describe pod myapp-pod
+kubectl logs myapp-pod --previous  # Previous container logs
+kubectl get events --field-selector involvedObject.name=myapp-pod
+
+# Namespace operations
+kubectl create namespace myapp
+kubectl get pods -n myapp
+kubectl delete namespace myapp
+
+# Label and selector operations
+kubectl label pods myapp-pod version=v2
+kubectl get pods -l app=myapp,version=v2
+
+# Rolling updates
+kubectl set image deployment/myapp myapp=myapp:v2
+kubectl rollout pause deployment/myapp
+kubectl rollout resume deployment/myapp
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔒 Docker Security & Best Practices</h2>
+
+                <h3>🛡️ Security Best Practices</h3>
+
+                <h4>🔧 Secure Dockerfile Practices</h4>
+                <div class="warning-box">
+                    <h4>🚨 Security Anti-Patterns to Avoid:</h4>
+                    <ul>
+                        <li><strong>Don't run as root:</strong> Create non-privileged users</li>
+                        <li><strong>Avoid latest tag:</strong> Use specific version tags</li>
+                        <li><strong>Don't store secrets:</strong> Use environment variables or secrets management</li>
+                        <li><strong>Minimize attack surface:</strong> Use minimal base images</li>
+                        <li><strong>Keep images updated:</strong> Regularly update base images and dependencies</li>
+                        <li><strong>Scan for vulnerabilities:</strong> Use security scanning tools</li>
+                    </ul>
+                </div>
+
+                <h4>🔧 Security-Enhanced Dockerfile</h4>
+                <div class="code-block">
+# Security-focused Dockerfile
+FROM node:18-alpine
+
+# Install security updates
+RUN apk update && apk upgrade && apk add --no-cache dumb-init
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+# Set working directory with correct permissions
+WORKDIR /app
+RUN chown -R nextjs:nodejs /app
+
+# Copy package files first for better caching
+COPY --chown=nextjs:nodejs package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy application code
+COPY --chown=nextjs:nodejs . .
+
+# Remove unnecessary files
+RUN rm -rf /tmp/* /var/cache/apk/*
+
+# Switch to non-root user
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["npm", "start"]
+                </div>
+
+                <h4>🔧 Docker Security Scanning</h4>
+                <div class="code-block docker">
+# Scan images for vulnerabilities
+docker scan myapp:latest
+
+# Use Trivy for comprehensive scanning
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+  aquasecurity/trivy:latest image myapp:latest
+
+# Scan running containers
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+  aquasecurity/trivy:latest container myapp-container
+
+# CI/CD integration
+# .github/workflows/security.yml
+name: Security Scan
+on: [push, pull_request]
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build image
+      run: docker build -t myapp .
+    - name: Scan image
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'image'
+        scan-ref: 'myapp'
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔍 Monitoring & Troubleshooting</h2>
+
+                <h3>📊 Container Monitoring</h3>
+
+                <h4>🔧 Docker Monitoring Commands</h4>
+                <div class="code-block docker">
+# View container resource usage
+docker stats
+docker stats myapp-container
+
+# View container logs
+docker logs myapp
+docker logs -f --tail 100 myapp  # Follow last 100 lines
+
+# Inspect container details
+docker inspect myapp
+docker inspect myapp | jq '.State'  # JSON formatted
+
+# View container processes
+docker top myapp
+
+# Check container health
+docker ps --filter "health=unhealthy"
+docker ps --filter "status=exited"
+
+# System monitoring
+docker system df  # Disk usage
+docker system info  # System information
+docker system prune  # Clean up unused resources
+                </div>
+
+                <h4>🔧 Kubernetes Monitoring</h4>
+                <div class="code-block docker">
+# Pod monitoring
+kubectl get pods -o wide
+kubectl describe pod myapp-pod
+kubectl logs myapp-pod -f
+
+# Resource monitoring
+kubectl top pods
+kubectl top nodes
+
+# Events monitoring
+kubectl get events --sort-by=.metadata.creationTimestamp
+kubectl get events -n kube-system
+
+# Health checks
+kubectl get componentstatuses
+kubectl cluster-info dump
+
+# Debug containers
+kubectl debug myapp-pod -it --image=busybox
+kubectl port-forward pod/myapp-pod 8080:3000
+
+# View pod metrics
+kubectl get --raw /apis/metrics.k8s.io/v1beta1/pods | jq .
+                </div>
+
+                <h3>🐛 Common Issues & Solutions</h3>
+
+                <h4>🔧 Troubleshooting Guide</h4>
+                <div class="warning-box">
+                    <h4>🔧 Common Docker Issues:</h4>
+                    <ul>
+                        <li><strong>Port conflicts:</strong> Check if ports are already in use</li>
+                        <li><strong>Permission denied:</strong> Add user to docker group or use sudo</li>
+                        <li><strong>Disk space:</strong> Clean up unused images and containers</li>
+                        <li><strong>Network issues:</strong> Check network configuration and DNS</li>
+                        <li><strong>Build failures:</strong> Verify Dockerfile syntax and dependencies</li>
+                        <li><strong>Container crashes:</strong> Check logs and resource limits</li>
+                    </ul>
+                </div>
+
+                <h4>🔧 Debug Commands</h4>
+                <div class="code-block docker">
+# Debug container startup issues
+docker run -it --entrypoint sh myapp:latest
+
+# Debug with additional tools
+docker run -it --entrypoint sh \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  myapp:latest
+
+# Check container environment
+docker exec myapp env
+docker exec myapp ps aux
+docker exec myapp netstat -tlnp
+
+# Debug network issues
+docker network ls
+docker network inspect bridge
+docker exec myapp ping google.com
+
+# Debug build issues
+docker build --no-cache -t myapp .
+docker build --progress=plain -t myapp .
+
+# Debug Kubernetes issues
+kubectl get pods -o yaml
+kubectl describe pod myapp-pod
+kubectl logs myapp-pod --previous
+kubectl exec -it myapp-pod -- sh
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔗 Integration with CI/CD</h2>
+
+                <h3>🏗️ Docker in CI/CD Pipelines</h3>
+
+                <h4>🔧 GitHub Actions with Docker</h4>
+                <div class="code-block yaml">
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: myapp
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy to production
+      run: |
+        echo "Deploying ${{ steps.meta.outputs.tags }} to production"
+        # Add your deployment commands here
+                </div>
+
+                <h4>🔧 Jenkins Pipeline with Docker</h4>
+                <div class="code-block groovy">
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = 'myapp'
+        DOCKER_TAG = "${env.BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                script {
+                    docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").inside {
+                        sh 'npm test'
+                    }
+                }
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                script {
+                    docker.image('aquasecurity/trivy:latest').inside("--entrypoint=''") {
+                        sh "trivy image --exit-code 0 --no-progress --format json ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    }
+                }
+            }
+        }
+
+        stage('Push to Registry') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.example.com', 'registry-credentials') {
+                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
+                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push('latest')
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    // Deploy using docker-compose or Kubernetes
+                    sh 'docker-compose pull && docker-compose up -d'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                // Clean up
+                docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").remove()
+            }
+        }
+    }
+}
+                </div>
+            </div>
+
+            <div class="practice-section">
+                <h3>💪 Practice Exercises</h3>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 1: Docker Fundamentals</h4>
+                    <p>Practice basic Docker operations:</p>
+                    <ol>
+                        <li>Pull and run a Nginx container with port mapping</li>
+                        <li>Create a custom Dockerfile for a Node.js application</li>
+                        <li>Build and tag a Docker image</li>
+                        <li>Run the container with environment variables</li>
+                        <li>View container logs and inspect container details</li>
+                    </ol>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 2: Multi-Container Applications</h4>
+                    <p>Create a multi-service application with Docker Compose:</p>
+                    <ol>
+                        <li>Set up a web application with database and cache</li>
+                        <li>Configure networking between containers</li>
+                        <li>Add volumes for data persistence</li>
+                        <li>Implement health checks</li>
+                        <li>Test scaling services</li>
+                    </ol>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 3: Kubernetes Deployment</h4>
+                    <p>Deploy an application to Kubernetes:</p>
+                    <ol>
+                        <li>Create Kubernetes manifests (Deployment, Service, ConfigMap)</li>
+                        <li>Deploy the application to a cluster</li>
+                        <li>Scale the deployment</li>
+                        <li>Perform rolling updates</li>
+                        <li>Set up monitoring and logging</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <h3>🧠 Knowledge Check</h3>
+
+                <div class="quiz-question">
+                    <h4>Question 1: What is the main difference between containers and virtual machines?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">Containers are faster</div>
+                        <div class="quiz-option">Containers share the host OS kernel</div>
+                        <div class="quiz-option">Containers use less memory</div>
+                        <div class="quiz-option">Containers are more secure</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 2: Which command is used to build a Docker image from a Dockerfile?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">docker run</div>
+                        <div class="quiz-option">docker build</div>
+                        <div class="quiz-option">docker create</div>
+                        <div class="quiz-option">docker pull</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 3: What is the purpose of a Kubernetes Service?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">To store configuration data</div>
+                        <div class="quiz-option">To provide network access to pods</div>
+                        <div class="quiz-option">To manage container images</div>
+                        <div class="quiz-option">To schedule pods on nodes</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📋 Docker & Kubernetes Best Practices</h2>
+
+                <div class="success-box">
+                    <h4>💡 Essential Best Practices:</h4>
+                    <ul>
+                        <li><strong>Use multi-stage builds:</strong> Reduce image size and improve security</li>
+                        <li><strong>Don't run as root:</strong> Create non-privileged users in containers</li>
+                        <li><strong>Use .dockerignore:</strong> Exclude unnecessary files from build context</li>
+                        <li><strong>Tag images properly:</strong> Use semantic versioning and meaningful tags</li>
+                        <li><strong>Implement health checks:</strong> Ensure containers are healthy</li>
+                        <li><strong>Use secrets management:</strong> Don't store sensitive data in images</li>
+                        <li><strong>Keep images small:</strong> Use minimal base images and clean up</li>
+                        <li><strong>Document everything:</strong> Use clear labels and documentation</li>
+                        <li><strong>Test containers:</strong> Include tests in your container workflow</li>
+                        <li><strong>Monitor and log:</strong> Implement proper monitoring and logging</li>
+                    </ul>
+                </div>
+
+                <h3>🔧 Docker Optimization Techniques</h3>
+
+                <h4>🚀 Performance Optimization</h4>
+                <div class="info-box">
+                    <h4>⚡ Optimize Your Docker Workflow:</h4>
+                    <ul>
+                        <li><strong>Layer caching:</strong> Order commands to maximize cache hits</li>
+                        <li><strong>Multi-stage builds:</strong> Separate build and runtime environments</li>
+                        <li><strong>Minimal base images:</strong> Use Alpine Linux for smaller images</li>
+                        <li><strong>Volume mounting:</strong> Mount source code for development</li>
+                        <li><strong>Resource limits:</strong> Set CPU and memory limits</li>
+                        <li><strong>Network optimization:</strong> Use bridge networks efficiently</li>
+                        <li><strong>Build context:</strong> Use .dockerignore to reduce build time</li>
+                        <li><strong>Parallel builds:</strong> Build multiple images simultaneously</li>
+                    </ul>
+                </div>
+
+                <h3>🛠️ Essential Tools & Resources</h3>
+                <div class="info-box">
+                    <h4>🔧 Recommended Tools:</h4>
+                    <ul>
+                        <li><strong>Docker Desktop:</strong> GUI for Docker development</li>
+                        <li><strong>Docker Compose:</strong> Multi-container application management</li>
+                        <li><strong>Kubernetes:</strong> Container orchestration platform</li>
+                        <li><strong>kubectl:</strong> Kubernetes command-line tool</li>
+                        <li><strong>Helm:</strong> Kubernetes package manager</li>
+                        <li><strong>Trivy:</strong> Container vulnerability scanner</li>
+                        <li><strong>Docker Scout:</strong> Docker image analysis</li>
+                        <li><strong>Portainer:</strong> Docker container management UI</li>
+                        <li><strong>Lens:</strong> Kubernetes IDE</li>
+                        <li><strong>k9s:</strong> Terminal-based Kubernetes UI</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 Chapter Summary</h2>
+                <p>This comprehensive chapter has equipped you with essential containerization knowledge and skills:</p>
+
+                <ul>
+                    <li><strong>Container Fundamentals:</strong> Docker concepts, architecture, installation</li>
+                    <li><strong>Images & Containers:</strong> Building, running, managing containers</li>
+                    <li><strong>Docker Compose:</strong> Multi-container application orchestration</li>
+                    <li><strong>Kubernetes:</strong> Container orchestration, deployments, services</li>
+                    <li><strong>Networking & Storage:</strong> Container communication and data persistence</li>
+                    <li><strong>Security:</strong> Best practices, vulnerability scanning, secure configurations</li>
+                    <li><strong>CI/CD Integration:</strong> Docker in automated pipelines</li>
+                    <li><strong>Troubleshooting:</strong> Monitoring, debugging, common issues</li>
+                    <li><strong>Best Practices:</strong> Optimization, security, performance</li>
+                    <li><strong>Tools & Resources:</strong> Essential tools for container development</li>
+                </ul>
+
+                <div class="success-box">
+                    <strong>🎉 Congratulations!</strong> You now have a solid foundation in Docker and container orchestration. These skills are essential for modern application deployment and will help you build scalable, portable applications.
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Study Guide Collection | <a href="study-guide-progress.html">View Progress Dashboard</a> | <a href="cloud-devops2.html">CI/CD Pipelines ←</a> | <a href="cloud-devops4.html">Cloud Platforms →</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Quiz functionality
+            const quizOptions = document.querySelectorAll('.quiz-option');
+            const correctAnswers = [
+                'Containers share the host OS kernel',
+                'docker build',
+                'To provide network access to pods'
+            ];
+
+            quizOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionIndex = Array.from(this.parentElement.parentElement.parentElement.children).indexOf(this.parentElement.parentElement);
+                    const isCorrect = this.textContent === correctAnswers[questionIndex];
+
+                    // Remove previous styling
+                    this.parentElement.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.style.background = '';
+                        opt.style.color = '';
+                    });
+
+                    if (isCorrect) {
+                        this.style.background = '#4CAF50';
+                        this.style.color = 'white';
+                        alert('✅ Correct!');
+                    } else {
+                        this.style.background = '#f44336';
+                        this.style.color = 'white';
+                        alert('❌ Incorrect. Try again!');
+                    }
+                });
+            });
+
+            // Code block copy functionality
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = '📋 Copy';
+                copyBtn.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 60px;
+                    background: #FF6B35;
+                    color: white;
+                    border: none;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.8em;
+                `;
+
+                copyBtn.addEventListener('click', function() {
+                    const code = block.textContent.replace(/^(Dockerfile|Docker|Compose|Kubernetes|YAML)$/m, '').trim();
+                    navigator.clipboard.writeText(code).then(() => {
+                        this.textContent = '✅ Copied!';
+                        setTimeout(() => this.textContent = '📋 Copy', 2000);
+                    });
+                });
+
+                block.style.position = 'relative';
+                block.appendChild(copyBtn);
+            });
+        });
+    </script>
+</body>
+</html>

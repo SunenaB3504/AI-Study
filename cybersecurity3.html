@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity - Chapter 3: Data Protection & Encryption</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            color: #4285f4;
+            border-bottom: 3px solid #4285f4;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .section h3 {
+            color: #34a853;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .important {
+            background: #f8d7da;
+            padding: 15px;
+            border-left: 4px solid #dc3545;
+            margin: 20px 0;
+        }
+        .encryption-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .encryption-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-left: 4px solid #4285f4;
+        }
+        .encryption-card h4 {
+            color: #4285f4;
+            margin: 0 0 10px 0;
+        }
+        .encryption-card p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .algorithm-comparison {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .algorithm-comparison th,
+        .algorithm-comparison td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .algorithm-comparison th {
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+        }
+        .algorithm-comparison tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .key-management {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .key-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .key-type {
+            background: white;
+            border: 1px solid #bbdefb;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .key-type h5 {
+            color: #1976d2;
+            margin: 0 0 8px 0;
+        }
+        .key-type p {
+            margin: 0;
+            color: #666;
+            font-size: 0.85em;
+        }
+        .data-protection {
+            background: #e8f5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .protection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .protection-item {
+            background: white;
+            border: 1px solid #c8e6c9;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .protection-item h5 {
+            color: #2e7d32;
+            margin: 0 0 8px 0;
+        }
+        .protection-item p {
+            margin: 0;
+            color: #666;
+            font-size: 0.85em;
+        }
+        .gdpr-compliance {
+            background: #fff3e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .gdpr-principles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .gdpr-principle {
+            background: white;
+            border: 1px solid #ffcc02;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .gdpr-principle h5 {
+            color: #e65100;
+            margin: 0 0 8px 0;
+        }
+        .gdpr-principle p {
+            margin: 0;
+            color: #666;
+            font-size: 0.85em;
+        }
+        .secure-communication {
+            background: #f3e5f5;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .protocol-comparison {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .protocol-comparison th,
+        .protocol-comparison td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .protocol-comparison th {
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+        }
+        .quiz-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        .quiz-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .quiz-question {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .quiz-question h4 {
+            color: #4285f4;
+            margin: 0 0 15px 0;
+        }
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .quiz-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .quiz-option:hover {
+            background: #e3f2fd;
+            border-color: #4285f4;
+        }
+        .quiz-option.correct {
+            background: #e8f5e9;
+            border-color: #34a853;
+        }
+        .quiz-option.incorrect {
+            background: #ffebee;
+            border-color: #dc3545;
+        }
+        .quiz-result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+        }
+        .quiz-result.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .quiz-result.incorrect {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .navigation {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffcc02 100%);
+            border: 2px solid #ff9800;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        .nav-btn:hover {
+            background: #3367d6;
+        }
+        .nav-btn.secondary {
+            background: #34a853;
+        }
+        .nav-btn.secondary:hover {
+            background: #2e7d32;
+        }
+        .data-classification {
+            background: #fce4ec;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .classification-levels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .classification-level {
+            background: white;
+            border: 1px solid #f8bbd9;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+        .classification-level h5 {
+            color: #c2185b;
+            margin: 0 0 8px 0;
+        }
+        .classification-level p {
+            margin: 0;
+            color: #666;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Cybersecurity</h1>
+            <div class="subtitle">Chapter 3: Data Protection & Encryption</div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>🔒 Cryptography Fundamentals</h2>
+
+                <div class="encryption-flow">
+                    <div class="encryption-card">
+                        <h4>Symmetric Encryption</h4>
+                        <p>Uses the same key for both encryption and decryption. Fast and efficient for large data volumes, but key distribution is challenging.</p>
+                    </div>
+
+                    <div class="encryption-card">
+                        <h4>Asymmetric Encryption</h4>
+                        <p>Uses a public key for encryption and a private key for decryption. Solves key distribution problems but slower than symmetric encryption.</p>
+                    </div>
+
+                    <div class="encryption-card">
+                        <h4>Hybrid Encryption</h4>
+                        <p>Combines both symmetric and asymmetric encryption. Uses asymmetric encryption to exchange symmetric keys, then symmetric for data.</p>
+                    </div>
+                </div>
+
+                <table class="algorithm-comparison">
+                    <thead>
+                        <tr>
+                            <th>Algorithm</th>
+                            <th>Type</th>
+                            <th>Key Size</th>
+                            <th>Use Case</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>AES</strong></td>
+                            <td>Symmetric</td>
+                            <td>128/192/256 bits</td>
+                            <td>Data encryption</td>
+                            <td>✅ Recommended</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RSA</strong></td>
+                            <td>Asymmetric</td>
+                            <td>2048/3072/4096 bits</td>
+                            <td>Key exchange, digital signatures</td>
+                            <td>✅ Recommended</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ECC</strong></td>
+                            <td>Asymmetric</td>
+                            <td>256/384/521 bits</td>
+                            <td>Mobile devices, IoT</td>
+                            <td>✅ Recommended</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DES</strong></td>
+                            <td>Symmetric</td>
+                            <td>56 bits</td>
+                            <td>Legacy systems</td>
+                            <td>❌ Deprecated</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MD5</strong></td>
+                            <td>Hash</td>
+                            <td>N/A</td>
+                            <td>File integrity (legacy)</td>
+                            <td>❌ Deprecated</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SHA-256</strong></td>
+                            <td>Hash</td>
+                            <td>N/A</td>
+                            <td>Digital signatures, certificates</td>
+                            <td>✅ Recommended</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>🔑 Key Management</h2>
+
+                <div class="key-management">
+                    <h4>Key Management Lifecycle</h4>
+                    <div class="key-types">
+                        <div class="key-type">
+                            <h5>Generation</h5>
+                            <p>Create cryptographically secure keys using approved random number generators. Never reuse keys across different contexts.</p>
+                        </div>
+
+                        <div class="key-type">
+                            <h5>Storage</h5>
+                            <p>Store keys securely using hardware security modules (HSM) or encrypted key stores. Never store keys in application code.</p>
+                        </div>
+
+                        <div class="key-type">
+                            <h5>Distribution</h5>
+                            <p>Use secure channels for key exchange. Implement perfect forward secrecy to limit damage from compromised keys.</p>
+                        </div>
+
+                        <div class="key-type">
+                            <h5>Rotation</h5>
+                            <p>Regularly rotate encryption keys to minimize the impact of key compromise. Automate key rotation processes.</p>
+                        </div>
+
+                        <div class="key-type">
+                            <h5>Revocation</h5>
+                            <p>Immediately revoke compromised keys and update all systems. Maintain key revocation lists.</p>
+                        </div>
+
+                        <div class="key-type">
+                            <h5>Destruction</h5>
+                            <p>Securely destroy keys when no longer needed using cryptographic erasure methods.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Key Management Implementation</h3>
+                <div class="code-block">
+                    <pre><code>// Node.js - Secure Key Management
+const crypto = require('crypto');
+const fs = require('fs').promises;
+
+class KeyManager {
+    static async generateKeyPair() {
+        return crypto.generateKeyPairSync('rsa', {
+            modulusLength: 2048,
+            publicKeyEncoding: {
+                type: 'spki',
+                format: 'pem'
+            },
+            privateKeyEncoding: {
+                type: 'pkcs8',
+                format: 'pem'
+            }
+        });
+    }
+
+    static generateSymmetricKey() {
+        // Generate 256-bit key for AES-256
+        return crypto.randomBytes(32);
+    }
+
+    static async encryptWithPublicKey(publicKey, data) {
+        const buffer = Buffer.from(data);
+        return crypto.publicEncrypt(
+            {
+                key: publicKey,
+                padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+                oaepHash: 'sha256'
+            },
+            buffer
+        );
+    }
+
+    static decryptWithPrivateKey(privateKey, encryptedData) {
+        return crypto.privateDecrypt(
+            {
+                key: privateKey,
+                padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+                oaepHash: 'sha256'
+            },
+            encryptedData
+        );
+    }
+
+    static encryptData(key, data) {
+        const iv = crypto.randomBytes(16);
+        const cipher = crypto.createCipher('aes-256-cbc', key);
+        let encrypted = cipher.update(data, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+        return { encrypted, iv: iv.toString('hex') };
+    }
+
+    static decryptData(key, encryptedData, iv) {
+        const decipher = crypto.createDecipher('aes-256-cbc', key);
+        let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+        return decrypted;
+    }
+
+    // Secure key storage (in production, use HSM or key management service)
+    static async storeKeySecurely(keyId, keyData) {
+        const encryptedKey = await this.encryptKey(keyData);
+        await fs.writeFile(`keys/${keyId}.enc`, encryptedKey);
+    }
+
+    static async retrieveKeySecurely(keyId) {
+        const encryptedKey = await fs.readFile(`keys/${keyId}.enc`);
+        return await this.decryptKey(encryptedKey);
+    }
+}
+
+// Usage example
+async function demonstrateKeyManagement() {
+    // Generate key pair
+    const { publicKey, privateKey } = KeyManager.generateKeyPair();
+
+    // Generate symmetric key
+    const symmetricKey = KeyManager.generateSymmetricKey();
+
+    // Encrypt data with symmetric key
+    const data = 'Sensitive information';
+    const { encrypted, iv } = KeyManager.encryptData(symmetricKey, data);
+
+    // Encrypt symmetric key with public key
+    const encryptedKey = await KeyManager.encryptWithPublicKey(publicKey, symmetricKey);
+
+    // Decrypt symmetric key with private key
+    const decryptedKey = KeyManager.decryptWithPrivateKey(privateKey, encryptedKey);
+
+    // Decrypt data
+    const decryptedData = KeyManager.decryptData(decryptedKey, encrypted, iv);
+
+    console.log('Original:', data);
+    console.log('Decrypted:', decryptedData);
+    console.log('Match:', data === decryptedData);
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📊 Data Classification & Protection</h2>
+
+                <div class="data-classification">
+                    <h4>Data Classification Levels</h4>
+                    <div class="classification-levels">
+                        <div class="classification-level">
+                            <h5>Public</h5>
+                            <p>Data that can be freely disclosed without harm. No encryption required.</p>
+                        </div>
+
+                        <div class="classification-level">
+                            <h5>Internal</h5>
+                            <p>Data for internal use only. Basic access controls and encryption recommended.</p>
+                        </div>
+
+                        <div class="classification-level">
+                            <h5>Confidential</h5>
+                            <p>Sensitive business data. Strong encryption and strict access controls required.</p>
+                        </div>
+
+                        <div class="classification-level">
+                            <h5>Restricted</h5>
+                            <p>Highly sensitive data (PII, financial). Maximum security measures required.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-protection">
+                    <h4>Data Protection Strategies</h4>
+                    <div class="protection-grid">
+                        <div class="protection-item">
+                            <h5>Data at Rest</h5>
+                            <p>Encrypt data stored in databases, files, and backups using AES-256. Implement proper key management and rotation.</p>
+                        </div>
+
+                        <div class="protection-item">
+                            <h5>Data in Transit</h5>
+                            <p>Use TLS 1.3 for all network communications. Implement certificate pinning and perfect forward secrecy.</p>
+                        </div>
+
+                        <div class="protection-item">
+                            <h5>Data in Use</h5>
+                            <p>Protect data while being processed. Use secure enclaves, memory encryption, and access controls.</p>
+                        </div>
+
+                        <div class="protection-item">
+                            <h5>Data Masking</h5>
+                            <p>Replace sensitive data with realistic but fake values for testing and development environments.</p>
+                        </div>
+
+                        <div class="protection-item">
+                            <h5>Data Tokenization</h5>
+                            <p>Replace sensitive data with non-sensitive tokens. Keep mapping in secure token vault.</p>
+                        </div>
+
+                        <div class="protection-item">
+                            <h5>Data Minimization</h5>
+                            <p>Collect and retain only necessary data. Implement data retention policies and automated deletion.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔒 Secure Communication Protocols</h2>
+
+                <div class="secure-communication">
+                    <h4>TLS/SSL Implementation</h4>
+
+                    <table class="protocol-comparison">
+                        <thead>
+                            <tr>
+                                <th>Protocol</th>
+                                <th>Version</th>
+                                <th>Security</th>
+                                <th>Recommendation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>SSL</strong></td>
+                                <td>2.0, 3.0</td>
+                                <td>Deprecated, vulnerable</td>
+                                <td>❌ Do not use</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TLS</strong></td>
+                                <td>1.0</td>
+                                <td>Weak, vulnerable to attacks</td>
+                                <td>❌ Do not use</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TLS</strong></td>
+                                <td>1.1</td>
+                                <td>Better than 1.0, but outdated</td>
+                                <td>⚠️ Migrate away</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TLS</strong></td>
+                                <td>1.2</td>
+                                <td>Strong, widely supported</td>
+                                <td>✅ Acceptable</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TLS</strong></td>
+                                <td>1.3</td>
+                                <td>Latest, most secure</td>
+                                <td>✅ Recommended</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>TLS Configuration</h3>
+                <div class="code-block">
+                    <pre><code>// Node.js HTTPS Server with TLS 1.3
+const https = require('https');
+const fs = require('fs');
+
+const options = {
+    key: fs.readFileSync('private-key.pem'),
+    cert: fs.readFileSync('certificate.pem'),
+
+    // TLS 1.3 configuration
+    minVersion: 'TLSv1.2', // Allow TLS 1.2 for compatibility
+    maxVersion: 'TLSv1.3', // Support up to TLS 1.3
+
+    // Cipher suites (prefer TLS 1.3 cipher suites)
+    ciphers: [
+        'TLS_AES_256_GCM_SHA384',
+        'TLS_AES_128_GCM_SHA256',
+        'TLS_CHACHA20_POLY1305_SHA256',
+        'ECDHE-RSA-AES256-GCM-SHA384',
+        'ECDHE-RSA-AES128-GCM-SHA256'
+    ].join(':'),
+
+    // Enable perfect forward secrecy
+    dhparam: fs.readFileSync('dhparam.pem'),
+
+    // Certificate chain
+    ca: fs.readFileSync('intermediate-ca.pem'),
+
+    // Security headers
+    secureOptions: require('constants').SSL_OP_NO_TLSv1 | require('constants').SSL_OP_NO_TLSv1_1,
+
+    // Session resumption
+    sessionTimeout: 300, // 5 minutes
+
+    // OCSP stapling for faster certificate validation
+    requestOCSP: true
+};
+
+const server = https.createServer(options, (req, res) => {
+    // Check if connection is secure
+    if (!req.socket.encrypted) {
+        res.writeHead(400);
+        res.end('HTTPS required');
+        return;
+    }
+
+    // Log TLS information
+    console.log('TLS Version:', req.socket.getProtocol());
+    console.log('Cipher:', req.socket.getCipher().name);
+
+    res.writeHead(200, {
+        'Content-Type': 'text/plain',
+        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+        'X-Frame-Options': 'DENY',
+        'X-Content-Type-Options': 'nosniff'
+    });
+
+    res.end('Secure connection established');
+});
+
+server.listen(443, () => {
+    console.log('HTTPS server running on port 443');
+});
+
+// Redirect HTTP to HTTPS
+const http = require('http');
+http.createServer((req, res) => {
+    res.writeHead(301, {
+        'Location': `https://${req.headers.host}${req.url}`
+    });
+    res.end();
+}).listen(80);</code></pre>
+                </div>
+
+                <div class="important">
+                    <strong>TLS Best Practices:</strong>
+                    <ul>
+                        <li>Use TLS 1.3 whenever possible</li>
+                        <li>Disable older TLS versions and weak cipher suites</li>
+                        <li>Implement HSTS (HTTP Strict Transport Security)</li>
+                        <li>Use strong certificates from trusted CAs</li>
+                        <li>Enable OCSP stapling for faster validation</li>
+                        <li>Implement certificate pinning in mobile apps</li>
+                        <li>Regularly rotate certificates before expiration</li>
+                        <li>Monitor for certificate revocation</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>⚖️ GDPR & Data Privacy Compliance</h2>
+
+                <div class="gdpr-compliance">
+                    <h4>GDPR Principles</h4>
+                    <div class="gdpr-principles">
+                        <div class="gdpr-principle">
+                            <h5>Lawfulness, Fairness, Transparency</h5>
+                            <p>Process personal data lawfully, fairly, and transparently. Inform individuals about data processing.</p>
+                        </div>
+
+                        <div class="gdpr-principle">
+                            <h5>Purpose Limitation</h5>
+                            <p>Collect data for specified, explicit, and legitimate purposes. Don't process data for incompatible purposes.</p>
+                        </div>
+
+                        <div class="gdpr-principle">
+                            <h5>Data Minimisation</h5>
+                            <p>Limit data collection to what's necessary for the intended purpose. Don't collect excessive data.</p>
+                        </div>
+
+                        <div class="gdpr-principle">
+                            <h5>Accuracy</h5>
+                            <p>Keep personal data accurate and up to date. Correct or erase inaccurate data.</p>
+                        </div>
+
+                        <div class="gdpr-principle">
+                            <h5>Storage Limitation</h5>
+                            <p>Don't keep personal data longer than necessary. Implement data retention policies.</p>
+                        </div>
+
+                        <div class="gdpr-principle">
+                            <h5>Integrity & Confidentiality</h5>
+                            <p>Protect personal data against unauthorized access, alteration, or disclosure.</p>
+                        </div>
+
+                        <div class="gdpr-principle">
+                            <h5>Accountability</h5>
+                            <p>Be responsible for complying with GDPR principles and demonstrate compliance.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>GDPR Implementation</h3>
+                <div class="code-block">
+                    <pre><code>// GDPR-compliant data handling
+const crypto = require('crypto');
+
+class GDPRCompliance {
+    static hashPersonalData(data) {
+        // Use SHA-256 for data pseudonymization
+        return crypto.createHash('sha256').update(data).digest('hex');
+    }
+
+    static encryptPersonalData(data, key) {
+        const algorithm = 'aes-256-gcm';
+        const iv = crypto.randomBytes(16);
+
+        const cipher = crypto.createCipher(algorithm, key);
+        let encrypted = cipher.update(data, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+
+        return {
+            encrypted,
+            iv: iv.toString('hex'),
+            tag: cipher.getAuthTag().toString('hex')
+        };
+    }
+
+    static decryptPersonalData(encryptedData, key, iv, tag) {
+        const algorithm = 'aes-256-gcm';
+        const decipher = crypto.createDecipher(algorithm, key);
+
+        decipher.setAuthTag(Buffer.from(tag, 'hex'));
+        decipher.setAAD(Buffer.from(iv, 'hex'));
+
+        let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+
+        return decrypted;
+    }
+
+    static anonymizeData(data) {
+        // Remove or mask personally identifiable information
+        const anonymized = { ...data };
+
+        // Mask email
+        if (anonymized.email) {
+            const [local, domain] = anonymized.email.split('@');
+            anonymized.email = `${local.substring(0, 2)}***@${domain}`;
+        }
+
+        // Remove phone number
+        delete anonymized.phone;
+
+        // Hash sensitive identifiers
+        if (anonymized.ssn) {
+            anonymized.ssn = this.hashPersonalData(anonymized.ssn);
+        }
+
+        return anonymized;
+    }
+
+    static checkDataRetention(dataCreationDate, retentionPeriodDays = 2555) { // 7 years default
+        const retentionDate = new Date(dataCreationDate);
+        retentionDate.setDate(retentionDate.getDate() + retentionPeriodDays);
+
+        return new Date() > retentionDate;
+    }
+
+    static generatePrivacyNotice() {
+        return {
+            dataController: 'Your Company Name',
+            purpose: 'Providing services and improving user experience',
+            legalBasis: 'Consent and legitimate interest',
+            dataCategories: ['Personal information', 'Usage data', 'Device information'],
+            recipients: ['Service providers', 'Analytics platforms'],
+            retentionPeriod: '7 years or until consent withdrawn',
+            rights: ['Access', 'Rectification', 'Erasure', 'Portability', 'Restriction', 'Objection'],
+            contact: 'privacy@yourcompany.com'
+        };
+    }
+}
+
+// Data Subject Rights Implementation
+class DataSubjectRights {
+    static async handleAccessRequest(userId) {
+        // Retrieve all personal data for the user
+        const userData = await User.findById(userId);
+        const anonymizedData = GDPRCompliance.anonymizeData(userData);
+
+        return {
+            data: anonymizedData,
+            collected: userData.createdAt,
+            lastModified: userData.updatedAt,
+            sources: ['User registration', 'Service usage']
+        };
+    }
+
+    static async handleErasureRequest(userId) {
+        // Implement right to erasure (right to be forgotten)
+        await User.findByIdAndDelete(userId);
+        await AuditLog.create({
+            action: 'DATA_ERASURE',
+            userId,
+            timestamp: new Date(),
+            reason: 'User requested data erasure'
+        });
+
+        return { status: 'Data erased successfully' };
+    }
+
+    static async handleRectificationRequest(userId, corrections) {
+        // Update user data with corrections
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            corrections,
+            { new: true }
+        );
+
+        await AuditLog.create({
+            action: 'DATA_RECTIFICATION',
+            userId,
+            timestamp: new Date(),
+            changes: corrections
+        });
+
+        return updatedUser;
+    }
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🛡️ Database Encryption</h2>
+
+                <h3>Encrypting Database Fields</h3>
+                <div class="code-block">
+                    <pre><code>// Database field-level encryption
+const mongoose = require('mongoose');
+const crypto = require('crypto');
+
+class EncryptedField {
+    constructor(encryptionKey) {
+        this.algorithm = 'aes-256-gcm';
+        this.key = encryptionKey;
+    }
+
+    encrypt(text) {
+        const iv = crypto.randomBytes(16);
+        const cipher = crypto.createCipher(this.algorithm, this.key);
+
+        let encrypted = cipher.update(text, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+
+        return {
+            encrypted,
+            iv: iv.toString('hex'),
+            tag: cipher.getAuthTag().toString('hex')
+        };
+    }
+
+    decrypt(encryptedData) {
+        const decipher = crypto.createDecipher(this.algorithm, this.key);
+        decipher.setAuthTag(Buffer.from(encryptedData.tag, 'hex'));
+
+        let decrypted = decipher.update(encryptedData.encrypted, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+
+        return decrypted;
+    }
+}
+
+// Mongoose plugin for automatic encryption
+function encryptionPlugin(schema, options) {
+    const encryptedFields = options.encryptedFields || [];
+    const encryptionKey = options.encryptionKey;
+
+    if (!encryptionKey) {
+        throw new Error('Encryption key is required');
+    }
+
+    const encrypter = new EncryptedField(encryptionKey);
+
+    // Encrypt fields before saving
+    schema.pre('save', function(next) {
+        encryptedFields.forEach(field => {
+            if (this.isModified(field) && this[field]) {
+                const encrypted = encrypter.encrypt(this[field]);
+                this[field] = JSON.stringify(encrypted);
+            }
+        });
+        next();
+    });
+
+    // Decrypt fields after retrieval
+    schema.post('find', function(docs) {
+        docs.forEach(doc => {
+            encryptedFields.forEach(field => {
+                if (doc[field] && typeof doc[field] === 'string') {
+                    try {
+                        const encrypted = JSON.parse(doc[field]);
+                        doc[field] = encrypter.decrypt(encrypted);
+                    } catch (e) {
+                        // Field might not be encrypted, skip
+                    }
+                }
+            });
+        });
+    });
+
+    schema.post('findOne', function(doc) {
+        if (doc) {
+            encryptedFields.forEach(field => {
+                if (doc[field] && typeof doc[field] === 'string') {
+                    try {
+                        const encrypted = JSON.parse(doc[field]);
+                        doc[field] = encrypter.decrypt(encrypted);
+                    } catch (e) {
+                        // Field might not be encrypted, skip
+                    }
+                }
+            });
+        }
+    });
+}
+
+// User schema with encrypted fields
+const userSchema = new mongoose.Schema({
+    email: { type: String, required: true },
+    firstName: String,
+    lastName: String,
+    ssn: String, // Will be encrypted
+    creditCard: String, // Will be encrypted
+    medicalHistory: String, // Will be encrypted
+    createdAt: { type: Date, default: Date.now }
+});
+
+// Apply encryption plugin
+userSchema.plugin(encryptionPlugin, {
+    encryptedFields: ['ssn', 'creditCard', 'medicalHistory'],
+    encryptionKey: process.env.DATABASE_ENCRYPTION_KEY
+});
+
+const User = mongoose.model('User', userSchema);
+
+// Usage
+async function createSecureUser() {
+    const user = new User({
+        email: 'user@example.com',
+        firstName: 'John',
+        lastName: 'Doe',
+        ssn: '123-45-6789', // Automatically encrypted
+        creditCard: '4111-1111-1111-1111', // Automatically encrypted
+        medicalHistory: 'Patient has diabetes' // Automatically encrypted
+    });
+
+    await user.save();
+
+    // Data is encrypted in database
+    const rawUser = await mongoose.connection.db.collection('users').findOne({ email: 'user@example.com' });
+    console.log(rawUser.ssn); // Shows encrypted data
+
+    // But decrypted when retrieved through model
+    const retrievedUser = await User.findOne({ email: 'user@example.com' });
+    console.log(retrievedUser.ssn); // Shows decrypted: '123-45-6789'
+}</code></pre>
+                </div>
+
+                <div class="highlight">
+                    <strong>Database Encryption Best Practices:</strong>
+                    <ul>
+                        <li>Use application-level encryption for sensitive fields</li>
+                        <li>Implement transparent data encryption (TDE) at database level</li>
+                        <li>Encrypt backups and ensure key separation</li>
+                        <li>Use different keys for different data classifications</li>
+                        <li>Implement proper key rotation procedures</li>
+                        <li>Monitor encryption performance impact</li>
+                        <li>Have disaster recovery plans for encrypted data</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <h3>📝 Knowledge Check</h3>
+
+                <div class="quiz-question">
+                    <h4>1. Which encryption algorithm is currently recommended for symmetric encryption?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="false">DES</div>
+                        <div class="quiz-option" data-correct="true">AES-256</div>
+                        <div class="quiz-option" data-correct="false">MD5</div>
+                        <div class="quiz-option" data-correct="false">SHA-1</div>
+                    </div>
+                    <div class="quiz-result" id="result1"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>2. What is the primary advantage of asymmetric encryption over symmetric encryption?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="false">Faster performance</div>
+                        <div class="quiz-option" data-correct="true">Secure key distribution</div>
+                        <div class="quiz-option" data-correct="false">Smaller key sizes</div>
+                        <div class="quiz-option" data-correct="false">Better for large data volumes</div>
+                    </div>
+                    <div class="quiz-result" id="result2"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>3. Which TLS version should be used for maximum security?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="false">TLS 1.0</div>
+                        <div class="quiz-option" data-correct="false">TLS 1.1</div>
+                        <div class="quiz-option" data-correct="false">TLS 1.2</div>
+                        <div class="quiz-option" data-correct="true">TLS 1.3</div>
+                    </div>
+                    <div class="quiz-result" id="result3"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>4. What does GDPR's "data minimization" principle require?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="false">Store all possible user data</div>
+                        <div class="quiz-option" data-correct="true">Collect only necessary data for the intended purpose</div>
+                        <div class="quiz-option" data-correct="false">Delete data immediately after collection</div>
+                        <div class="quiz-option" data-correct="false">Encrypt all data regardless of sensitivity</div>
+                    </div>
+                    <div class="quiz-result" id="result4"></div>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <h3>📚 Chapter Navigation</h3>
+                <p>Continue your cybersecurity learning journey:</p>
+
+                <div class="nav-buttons">
+                    <a href="cybersecurity2.html" class="nav-btn secondary">⬅️ Authentication & Authorization</a>
+                    <a href="cybersecurity4.html" class="nav-btn">Security Best Practices ➡️</a>
+                    <a href="study-guide-progress.html" class="nav-btn secondary">📊 Progress Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const quizOptions = document.querySelectorAll('.quiz-option');
+
+            quizOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const question = this.parentElement.parentElement;
+                    const options = question.querySelectorAll('.quiz-option');
+                    const resultDiv = question.querySelector('.quiz-result');
+                    const questionNumber = question.querySelector('h4').textContent.split('.')[0];
+
+                    // Remove previous selections
+                    options.forEach(opt => {
+                        opt.classList.remove('correct', 'incorrect');
+                    });
+
+                    // Check answer
+                    const isCorrect = this.getAttribute('data-correct') === 'true';
+
+                    if (isCorrect) {
+                        this.classList.add('correct');
+                        resultDiv.textContent = '✅ Correct! Well done.';
+                        resultDiv.className = 'quiz-result correct';
+                    } else {
+                        this.classList.add('incorrect');
+                        resultDiv.textContent = '❌ Incorrect. Try again!';
+                        resultDiv.className = 'quiz-result incorrect';
+                    }
+
+                    resultDiv.style.display = 'block';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

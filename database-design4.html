@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Design - Chapter 4: Performance Optimization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #0056b3;
+        }
+
+        .nav-btn.secondary {
+            background: #6c757d;
+        }
+
+        .nav-btn.secondary:hover {
+            background: #545b62;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4CAF50;
+        }
+
+        .section h3 {
+            color: #34495e;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+
+        .section h4 {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: "SQL";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #6c757d;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+
+        .code-block.mongo::before {
+            content: "MongoDB";
+        }
+
+        .code-block.redis::before {
+            content: "Redis";
+        }
+
+        .code-block.metrics::before {
+            content: "Metrics";
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .metrics-table th,
+        .metrics-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .metrics-table th {
+            background: #4CAF50;
+            color: white;
+            font-weight: 600;
+        }
+
+        .metrics-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .metrics-table tr:hover {
+            background: #e3f2fd;
+        }
+
+        .practice-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .practice-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .practice-exercise {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .practice-exercise h4 {
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+
+        .quiz-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .quiz-section h3 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .quiz-question {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .quiz-question h4 {
+            margin-bottom: 10px;
+        }
+
+        .quiz-options {
+            margin: 10px 0;
+        }
+
+        .quiz-option {
+            display: block;
+            margin: 5px 0;
+            padding: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .metrics-table {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ Database Design</h1>
+            <div class="subtitle">Chapter 4: Performance Optimization</div>
+        </div>
+
+        <div class="nav">
+            <div class="nav-links">
+                <a href="study-guide-progress.html" class="nav-btn">📊 Progress Dashboard</a>
+                <a href="database-design3.html" class="nav-btn">⬅️ Design Patterns</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>🎯 Chapter Overview</h2>
+                <p>Welcome to the final chapter of Database Design! This comprehensive guide focuses on performance optimization strategies that ensure your databases can handle production workloads efficiently. By the end of this chapter, you'll understand:</p>
+                <ul>
+                    <li>Query performance analysis and optimization techniques</li>
+                    <li>Database monitoring and key performance metrics</li>
+                    <li>Scaling strategies for growing applications</li>
+                    <li>Caching strategies and implementation patterns</li>
+                    <li>Connection pooling and resource management</li>
+                    <li>Database maintenance and tuning procedures</li>
+                    <li>Performance testing and benchmarking methods</li>
+                    <li>Troubleshooting common performance issues</li>
+                    <li>High availability and disaster recovery strategies</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>🔍 Query Performance Analysis</h2>
+
+                <h3>📊 Execution Plan Analysis</h3>
+                <p>Understanding how your database executes queries is crucial for optimization:</p>
+
+                <h4>🔧 SQL Query Analysis</h4>
+                <div class="code-block">
+-- Analyze query execution plan
+EXPLAIN ANALYZE
+SELECT u.name, COUNT(o.id) as order_count, SUM(o.total) as total_spent
+FROM users u
+LEFT JOIN orders o ON u.id = o.user_id
+WHERE u.created_at >= '2024-01-01'
+  AND u.active = true
+GROUP BY u.id, u.name
+HAVING COUNT(o.id) > 5
+ORDER BY total_spent DESC
+LIMIT 10;
+
+-- Key metrics to examine:
+-- - Total execution time
+-- - Number of rows processed
+-- - Index usage (vs table scans)
+-- - Join types and order
+-- - Memory usage
+                </div>
+
+                <h4>🔧 MongoDB Query Analysis</h4>
+                <div class="code-block mongo">
+// Analyze MongoDB query performance
+db.orders.explain("executionStats").aggregate([
+    {
+        $match: {
+            created_at: { $gte: new Date('2024-01-01') },
+            status: "completed"
+        }
+    },
+    {
+        $group: {
+            _id: "$customer_id",
+            order_count: { $sum: 1 },
+            total_spent: { $sum: "$total" }
+        }
+    },
+    {
+        $match: { order_count: { $gt: 5 } }
+    },
+    {
+        $sort: { total_spent: -1 }
+    },
+    {
+        $limit: 10
+    }
+]);
+
+// Key metrics:
+db.orders.explain("executionStats").find({
+    customer_id: ObjectId("..."),
+    status: "completed"
+});
+                </div>
+
+                <div class="info-box">
+                    <h4>⚡ Common Performance Issues:</h4>
+                    <ul>
+                        <li><strong>Table scans</strong> instead of index seeks</li>
+                        <li><strong>Inefficient joins</strong> (nested loops vs hash joins)</li>
+                        <li><strong>Missing indexes</strong> on frequently queried columns</li>
+                        <li><strong>Suboptimal query structure</strong> (correlated subqueries)</li>
+                        <li><strong>Large result sets</strong> without proper pagination</li>
+                        <li><strong>Lock contention</strong> in high-concurrency scenarios</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📈 Database Monitoring & Metrics</h2>
+
+                <h3>🔢 Key Performance Indicators (KPIs)</h3>
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Metric Category</th>
+                            <th>Key Metrics</th>
+                            <th>Tools</th>
+                            <th>Alert Thresholds</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Query Performance</strong></td>
+                            <td>Query execution time, slow queries, query throughput</td>
+                            <td>pg_stat_statements, slow query log</td>
+                            <td>&gt; 1 second execution time</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Resource Usage</strong></td>
+                            <td>CPU usage, memory usage, disk I/O, network I/O</td>
+                            <td>System monitors, database stats</td>
+                            <td>&gt; 80% sustained usage</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Connection Management</strong></td>
+                            <td>Active connections, connection pool utilization</td>
+                            <td>Connection pool monitors</td>
+                            <td>&gt; 90% pool utilization</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Storage Metrics</strong></td>
+                            <td>Disk space usage, table/index sizes, growth rate</td>
+                            <td>Database system tables</td>
+                            <td>&gt; 85% disk utilization</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cache Performance</strong></td>
+                            <td>Cache hit ratio, eviction rate, memory usage</td>
+                            <td>Redis INFO, application metrics</td>
+                            <td>&lt; 95% cache hit ratio</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Replication Lag</strong></td>
+                            <td>Replication delay, sync status</td>
+                            <td>Replication monitoring tools</td>
+                            <td>&gt; 30 seconds lag</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>📊 Monitoring Tools & Techniques</h3>
+
+                <h4>🔧 PostgreSQL Monitoring</h4>
+                <div class="code-block">
+-- Query performance statistics
+SELECT query, calls, total_time, mean_time, rows
+FROM pg_stat_statements
+ORDER BY total_time DESC
+LIMIT 10;
+
+-- Active connections and states
+SELECT state, count(*) as count
+FROM pg_stat_activity
+GROUP BY state;
+
+-- Table and index sizes
+SELECT schemaname, tablename,
+       pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
+FROM pg_tables
+ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
+
+-- Index usage statistics
+SELECT schemaname, tablename, indexname,
+       idx_scan, idx_tup_read, idx_tup_fetch
+FROM pg_stat_user_indexes
+ORDER BY idx_scan DESC;
+                </div>
+
+                <h4>🔧 MongoDB Monitoring</h4>
+                <div class="code-block mongo">
+// Database statistics
+db.stats();
+
+// Collection statistics
+db.collection.stats();
+
+// Server status
+db.serverStatus();
+
+// Current operations
+db.currentOp();
+
+// Profiling slow queries (enable profiling first)
+db.setProfilingLevel(2, { slowms: 100 });
+
+// View profiled queries
+db.system.profile.find().sort({ ts: -1 }).limit(5);
+                </div>
+
+                <h4>🔧 Redis Monitoring</h4>
+                <div class="code-block redis">
+// Server information
+INFO
+
+// Memory usage
+INFO memory
+
+// Keyspace information
+INFO keyspace
+
+// Command statistics
+INFO commandstats
+
+// Replication information
+INFO replication
+
+// Slow log
+SLOWLOG GET 10
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>⚖️ Scaling Strategies</h2>
+
+                <h3>📈 Vertical vs Horizontal Scaling</h3>
+
+                <h4>🔼 Vertical Scaling (Scale Up)</h4>
+                <div class="info-box">
+                    <h4>💪 Advantages:</h4>
+                    <ul>
+                        <li>Simpler architecture and management</li>
+                        <li>No application code changes required</li>
+                        <li>Better single-threaded performance</li>
+                        <li>Easier backup and recovery</li>
+                    </ul>
+                    <h4>⚠️ Limitations:</h4>
+                    <ul>
+                        <li>Hardware limits (maximum CPU cores, RAM)</li>
+                        <li>Downtime during upgrades</li>
+                        <li>Single point of failure</li>
+                        <li>Cost increases exponentially</li>
+                    </ul>
+                </div>
+
+                <h4>🔄 Horizontal Scaling (Scale Out)</h4>
+                <div class="info-box">
+                    <h4>🚀 Advantages:</h4>
+                    <ul>
+                        <li>Nearly unlimited scalability</li>
+                        <li>Better fault tolerance</li>
+                        <li>Cost-effective for large scale</li>
+                        <li>Zero-downtime upgrades possible</li>
+                    </ul>
+                    <h4>⚠️ Challenges:</h4>
+                    <ul>
+                        <li>Complex architecture and management</li>
+                        <li>Application code changes required</li>
+                        <li>Data consistency challenges</li>
+                        <li>Increased operational complexity</li>
+                    </ul>
+                </div>
+
+                <h3>🏗️ Database Sharding Strategies</h3>
+
+                <h4>🔧 Range-Based Sharding</h4>
+                <div class="code-block">
+// Shard by user ID ranges
+// Shard 1: user_id 1-1000000
+// Shard 2: user_id 1000001-2000000
+// Shard 3: user_id 2000001+
+
+function getShard(userId) {
+    if (userId <= 1000000) return 'shard1';
+    if (userId <= 2000000) return 'shard2';
+    return 'shard3';
+}
+                </div>
+
+                <h4>🔧 Hash-Based Sharding</h4>
+                <div class="code-block">
+// Consistent hashing for even distribution
+function getShard(key) {
+    const hash = crypto.createHash('md5').update(key).digest('hex');
+    const shardNumber = parseInt(hash.substring(0, 8), 16) % 4;
+    return `shard${shardNumber}`;
+}
+
+// MongoDB hash-based sharding
+db.runCommand({
+    shardCollection: "mydb.users",
+    key: { _id: "hashed" }
+});
+                </div>
+
+                <h4>🔧 Directory-Based Sharding</h4>
+                <div class="code-block">
+// Lookup table approach
+const shardMap = {
+    'US': 'us-shard',
+    'EU': 'eu-shard',
+    'ASIA': 'asia-shard'
+};
+
+function getShardByRegion(region) {
+    return shardMap[region] || 'default-shard';
+}
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 Caching Strategies</h2>
+
+                <h3>📋 Cache Types and Patterns</h3>
+
+                <h4>🔧 Application-Level Caching</h4>
+                <div class="code-block">
+// Node.js with Redis caching
+const redis = require('redis');
+const client = redis.createClient();
+
+async function getUserWithCache(userId) {
+    // Check cache first
+    const cachedUser = await client.get(`user:${userId}`);
+    if (cachedUser) {
+        return JSON.parse(cachedUser);
+    }
+
+    // Fetch from database
+    const user = await db.query('SELECT * FROM users WHERE id = $1', [userId]);
+
+    // Cache for 1 hour
+    await client.setex(`user:${userId}`, 3600, JSON.stringify(user));
+
+    return user;
+}
+                </div>
+
+                <h4>🔧 Database Query Result Caching</h4>
+                <div class="code-block">
+// Cache expensive query results
+async function getTopProducts(limit = 10) {
+    const cacheKey = `top_products:${limit}`;
+
+    // Check cache
+    const cached = await client.get(cacheKey);
+    if (cached) {
+        return JSON.parse(cached);
+    }
+
+    // Execute expensive query
+    const products = await db.query(`
+        SELECT p.*, COUNT(o.id) as order_count
+        FROM products p
+        LEFT JOIN order_items oi ON p.id = oi.product_id
+        LEFT JOIN orders o ON oi.order_id = o.id
+        WHERE o.created_at >= NOW() - INTERVAL '30 days'
+        GROUP BY p.id
+        ORDER BY order_count DESC
+        LIMIT $1
+    `, [limit]);
+
+    // Cache for 15 minutes
+    await client.setex(cacheKey, 900, JSON.stringify(products));
+
+    return products;
+}
+                </div>
+
+                <h4>🔧 Page-Level Caching</h4>
+                <div class="code-block">
+// Cache entire HTML pages
+const cache = require('memory-cache');
+
+function cachePage(duration) {
+    return (req, res, next) => {
+        const key = `__express__${req.originalUrl}`;
+        const cachedBody = cache.get(key);
+
+        if (cachedBody) {
+            res.send(cachedBody);
+            return;
+        }
+
+        const originalSend = res.send;
+        res.send = (body) => {
+            cache.put(key, body, duration * 1000);
+            originalSend.call(res, body);
+        };
+
+        next();
+    };
+}
+
+// Usage
+app.get('/products', cachePage(300), async (req, res) => {
+    const products = await getProducts();
+    res.render('products', { products });
+});
+                </div>
+
+                <h3>🔄 Cache Invalidation Strategies</h3>
+
+                <h4>⏰ Time-Based Expiration</h4>
+                <div class="code-block">
+// Automatic expiration
+await client.setex('user:123', 3600, userData); // Expires in 1 hour
+
+// Pattern-based expiration
+const keys = await client.keys('user:*');
+for (const key of keys) {
+    await client.expire(key, 3600);
+}
+                </div>
+
+                <h4>🔄 Event-Based Invalidation</h4>
+                <div class="code-block">
+// Invalidate cache when data changes
+async function updateUser(userId, userData) {
+    // Update database
+    await db.query('UPDATE users SET ... WHERE id = $1', [userId, ...]);
+
+    // Invalidate cache
+    await client.del(`user:${userId}`);
+
+    // Also invalidate related caches
+    await client.del(`user_posts:${userId}`);
+    await client.del(`user_friends:${userId}`);
+}
+                </div>
+
+                <h4>🔄 Write-Through Caching</h4>
+                <div class="code-block">
+// Update cache immediately when data changes
+async function updateUserWithCache(userId, userData) {
+    // Update database
+    await db.query('UPDATE users SET ... WHERE id = $1', [userId, ...]);
+
+    // Update cache immediately
+    await client.setex(`user:${userId}`, 3600, JSON.stringify(userData));
+}
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔌 Connection Pooling & Management</h2>
+
+                <h3>🏊 Connection Pool Configuration</h3>
+
+                <h4>🔧 PostgreSQL Connection Pooling</h4>
+                <div class="code-block">
+// Using pg with connection pooling
+const { Pool } = require('pg');
+
+const pool = new Pool({
+    host: 'localhost',
+    port: 5432,
+    database: 'mydb',
+    user: 'myuser',
+    password: 'mypassword',
+    max: 20,        // Maximum number of clients in the pool
+    min: 5,         // Minimum number of clients in the pool
+    idleTimeoutMillis: 30000,  // Close idle clients after 30 seconds
+    connectionTimeoutMillis: 2000, // Return error after 2 seconds if connection could not be established
+});
+
+// Use the pool
+async function getUsers() {
+    const client = await pool.connect();
+    try {
+        const result = await client.query('SELECT * FROM users');
+        return result.rows;
+    } finally {
+        client.release(); // Always release the client back to the pool
+    }
+}
+                </div>
+
+                <h4>🔧 MongoDB Connection Pooling</h4>
+                <div class="code-block mongo">
+// MongoDB connection with pooling
+const { MongoClient } = require('mongodb');
+
+const client = new MongoClient('mongodb://localhost:27017', {
+    maxPoolSize: 10,        // Maximum number of connections in the connection pool
+    minPoolSize: 5,         // Minimum number of connections in the connection pool
+    maxIdleTimeMS: 30000,   // The maximum number of milliseconds that a connection can remain idle
+    serverSelectionTimeoutMS: 5000, // How long to wait for server selection
+});
+
+await client.connect();
+
+// Connection pool is automatically managed
+const db = client.db('mydb');
+const users = await db.collection('users').find().toArray();
+                </div>
+
+                <h3>📊 Connection Pool Monitoring</h3>
+
+                <h4>🔧 Pool Statistics</h4>
+                <div class="code-block metrics">
+// Monitor PostgreSQL connection pool
+const poolStats = {
+    totalCount: pool.totalCount,     // Total number of clients existing within the pool
+    idleCount: pool.idleCount,       // Number of clients currently idle
+    waitingCount: pool.waitingCount  // Number of queued requests waiting for a client
+};
+
+console.log('Pool Statistics:', poolStats);
+
+// Monitor MongoDB connection pool
+const mongoStats = await client.db('admin').command({ serverStatus: 1 });
+console.log('MongoDB Connections:', {
+    current: mongoStats.connections.current,
+    available: mongoStats.connections.available,
+    totalCreated: mongoStats.connections.totalCreated
+});
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔧 Database Maintenance & Tuning</h2>
+
+                <h3>🧹 Routine Maintenance Tasks</h3>
+
+                <h4>🔧 PostgreSQL Maintenance</h4>
+                <div class="code-block">
+-- Analyze tables for query planning
+ANALYZE;  -- Analyze all tables
+ANALYZE users;  -- Analyze specific table
+
+-- Vacuum for space reclamation
+VACUUM;  -- Vacuum all tables
+VACUUM FULL users;  -- Aggressive vacuum (locks table)
+VACUUM ANALYZE users;  -- Vacuum and analyze
+
+-- Reindex for performance
+REINDEX INDEX idx_users_email;
+REINDEX TABLE users;  -- Reindex all indexes on table
+
+-- Monitor table bloat
+SELECT schemaname, tablename,
+       n_dead_tup, n_live_tup,
+       ROUND(n_dead_tup::float / (n_live_tup + n_dead_tup) * 100, 2) as bloat_ratio
+FROM pg_stat_user_tables
+ORDER BY n_dead_tup DESC;
+                </div>
+
+                <h4>🔧 MongoDB Maintenance</h4>
+                <div class="code-block mongo">
+// Compact collection to reclaim space
+db.collection.compact();
+
+// Build indexes during low-traffic periods
+db.collection.createIndex({ field: 1 }, { background: true });
+
+// Monitor collection statistics
+db.collection.stats();
+
+// Repair database (use with caution)
+db.repairDatabase();
+
+// View current operations
+db.currentOp();
+                </div>
+
+                <h3>⚙️ Configuration Tuning</h3>
+
+                <h4>🔧 PostgreSQL Configuration</h4>
+                <div class="code-block">
+-- Key PostgreSQL configuration parameters
+-- Memory settings
+shared_buffers = 256MB          # Shared memory for cache
+work_mem = 4MB                  # Memory for complex operations
+maintenance_work_mem = 64MB     # Memory for maintenance operations
+
+-- Connection settings
+max_connections = 100           # Maximum concurrent connections
+listen_addresses = '*'          # Listen on all interfaces
+
+-- Logging settings
+log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+log_statement = 'ddl'           # Log DDL statements
+log_duration = on               # Log query duration
+
+-- Performance settings
+random_page_cost = 1.1          # SSD optimization
+effective_cache_size = 1GB      # Estimated cache size
+                </div>
+
+                <h4>🔧 MongoDB Configuration</h4>
+                <div class="code-block mongo">
+// MongoDB configuration (mongod.conf)
+storage:
+  dbPath: /var/lib/mongodb
+  wiredTiger:
+    cacheSizeGB: 1              # WiredTiger cache size
+    maxCacheOverflowSizeGB: 0.5 # Maximum cache overflow
+
+systemLog:
+  destination: file
+  path: /var/log/mongodb/mongod.log
+  logAppend: true
+
+net:
+  bindIp: 127.0.0.1
+  port: 27017
+
+processManagement:
+  fork: true                    # Run as daemon
+  pidFilePath: /var/run/mongodb/mongod.pid
+
+operationProfiling:
+  mode: slowOp                  # Enable slow operation profiling
+  slowOpThresholdMs: 100        # Log operations slower than 100ms
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🧪 Performance Testing & Benchmarking</h2>
+
+                <h3>📊 Load Testing Tools</h3>
+
+                <h4>🔧 Database Load Testing</h4>
+                <div class="code-block">
+// Using Artillery for database load testing
+// artillery.yml
+config:
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 60
+      arrivalRate: 10  # 10 requests per second
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 50  # 50 requests per second
+      name: "Load test"
+    - duration: 60
+      arrivalRate: 100 # 100 requests per second
+      name: "Stress test"
+
+scenarios:
+  - name: "User registration"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/users"
+          json:
+            name: "Test User {{ $randomInt }}"
+            email: "user{{ $randomInt }}@test.com"
+
+  - name: "Get user profile"
+    weight: 70
+    flow:
+      - get:
+          url: "/api/users/{{ $randomInt(1, 1000) }}"
+                </div>
+
+                <h4>🔧 Database Benchmarking</h4>
+                <div class="code-block">
+// PostgreSQL benchmarking with pgbench
+# Initialize test database
+pgbench -i -s 10 testdb
+
+# Run benchmark
+pgbench -c 10 -j 2 -T 60 testdb
+
+# Custom benchmark script
+pgbench -f custom_queries.sql -c 20 -j 4 -T 120 testdb
+
+# Results analysis
+# - Transactions per second (TPS)
+# - Response time percentiles
+# - Connection pooling efficiency
+                </div>
+
+                <h3>📈 Performance Metrics to Monitor</h3>
+
+                <h4>🔧 Application Performance Metrics</h4>
+                <div class="code-block metrics">
+// Key performance indicators
+const performanceMetrics = {
+    // Response time metrics
+    p50: 150,    // 50th percentile: 150ms
+    p95: 500,    // 95th percentile: 500ms
+    p99: 2000,   // 99th percentile: 2 seconds
+
+    // Throughput metrics
+    requestsPerSecond: 150,
+    concurrentUsers: 50,
+
+    // Error rates
+    errorRate: 0.01,  // 1% error rate
+    timeoutRate: 0.005, // 0.5% timeout rate
+
+    // Database metrics
+    connectionPoolUtilization: 0.75,  // 75% pool usage
+    slowQueryCount: 5,  // 5 slow queries per minute
+    cacheHitRatio: 0.95  // 95% cache hit rate
+};
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚨 Troubleshooting Common Issues</h2>
+
+                <h3>🐌 Slow Query Issues</h3>
+
+                <h4>🔧 Query Optimization Steps</h4>
+                <div class="success-box">
+                    <h4>🔍 Systematic Query Optimization:</h4>
+                    <ol>
+                        <li><strong>Identify slow queries</strong> using database logs or monitoring tools</li>
+                        <li><strong>Analyze execution plans</strong> to understand query bottlenecks</li>
+                        <li><strong>Check index usage</strong> and create missing indexes</li>
+                        <li><strong>Rewrite queries</strong> to use more efficient patterns</li>
+                        <li><strong>Consider query result caching</strong> for frequently accessed data</li>
+                        <li><strong>Test and measure improvements</strong> after each optimization</li>
+                    </ol>
+                </div>
+
+                <h4>🔧 Common Query Anti-Patterns</h4>
+                <div class="warning-box">
+                    <h4>❌ Avoid These Patterns:</h4>
+                    <ul>
+                        <li><code>SELECT * FROM large_table</code> - Fetch only needed columns</li>
+                        <li><code>WHERE column LIKE '%search%'</code> - Avoid leading wildcards</li>
+                        <li><code>SELECT COUNT(*) FROM table</code> - Use estimated counts when possible</li>
+                        <li>Complex subqueries in WHERE clauses - Use JOINs instead</li>
+                        <li>Missing LIMIT on large result sets - Always paginate</li>
+                        <li>Functions on indexed columns - <code>WHERE YEAR(date_col) = 2024</code></li>
+                    </ul>
+                </div>
+
+                <h3>🔒 Connection Pool Issues</h3>
+
+                <h4>🔧 Connection Pool Exhaustion</h4>
+                <div class="code-block">
+// Monitor and handle connection pool exhaustion
+const pool = new Pool({
+    max: 10,
+    min: 2,
+    acquireTimeoutMillis: 60000,
+    createTimeoutMillis: 30000,
+    destroyTimeoutMillis: 5000,
+    reapIntervalMillis: 1000,
+    createRetryIntervalMillis: 200,
+});
+
+async function executeWithRetry(query, params, maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const client = await pool.connect();
+            try {
+                const result = await client.query(query, params);
+                return result;
+            } finally {
+                client.release();
+            }
+        } catch (error) {
+            if (error.code === 'POOL_EXHAUSTED' && attempt < maxRetries) {
+                console.log(`Pool exhausted, retrying (${attempt}/${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                continue;
+            }
+            throw error;
+        }
+    }
+}
+                </div>
+
+                <h3>💾 Memory and Disk Issues</h3>
+
+                <h4>🔧 Memory Optimization</h4>
+                <div class="code-block">
+// Monitor memory usage
+const memUsage = process.memoryUsage();
+console.log({
+    rss: `${Math.round(memUsage.rss / 1024 / 1024)} MB`,      // Resident Set Size
+    heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)} MB`, // Total heap
+    heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)} MB`,   // Used heap
+    external: `${Math.round(memUsage.external / 1024 / 1024)} MB`     // External memory
+});
+
+// Optimize memory usage
+// 1. Use streaming for large datasets
+// 2. Implement proper garbage collection
+// 3. Use memory-efficient data structures
+// 4. Monitor for memory leaks
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🛡️ High Availability & Disaster Recovery</h2>
+
+                <h3>🔄 Replication Strategies</h3>
+
+                <h4>🔧 PostgreSQL Streaming Replication</h4>
+                <div class="code-block">
+-- Primary server configuration (postgresql.conf)
+wal_level = replica
+max_wal_senders = 3
+wal_keep_segments = 64
+
+-- Standby server configuration (recovery.conf)
+primary_conninfo = 'host=primary.example.com port=5432 user=replicator'
+restore_command = 'cp /var/lib/postgresql/archive/%f %p'
+recovery_target_timeline = 'latest'
+
+-- Monitor replication status
+SELECT client_addr, state, sent_lsn, write_lsn, flush_lsn, replay_lsn
+FROM pg_stat_replication;
+                </div>
+
+                <h4>🔧 MongoDB Replica Sets</h4>
+                <div class="code-block mongo">
+// Initialize replica set
+rs.initiate({
+    _id: "myReplicaSet",
+    members: [
+        { _id: 0, host: "mongodb1.example.com:27017" },
+        { _id: 1, host: "mongodb2.example.com:27017" },
+        { _id: 2, host: "mongodb3.example.com:27017", arbiterOnly: true }
+    ]
+});
+
+// Check replica set status
+rs.status();
+
+// Monitor replication lag
+db.printSlaveReplicationInfo();
+                </div>
+
+                <h3>🔄 Failover and Recovery</h3>
+
+                <h4>🔧 Automatic Failover Setup</h4>
+                <div class="code-block">
+// PostgreSQL automatic failover with repmgr
+-- Install and configure repmgr
+repmgr -f /etc/repmgr.conf cluster show
+
+-- Monitor cluster status
+repmgr -f /etc/repmgr.conf cluster matrix
+
+-- Manual failover (if needed)
+repmgr -f /etc/repmgr.conf standby promote
+                </div>
+
+                <h4>🔧 Backup and Recovery Strategies</h4>
+                <div class="code-block">
+# PostgreSQL backup strategies
+# 1. Logical backups (pg_dump)
+pg_dump -U postgres -h localhost mydb > mydb_backup.sql
+
+# 2. Physical backups (pg_basebackup)
+pg_basebackup -U postgres -h localhost -D /backup/mydb -Ft -z
+
+# 3. Continuous archiving (WAL archiving)
+archive_command = 'cp %p /var/lib/postgresql/archive/%f'
+
+# MongoDB backup strategies
+# 1. mongodump (logical backup)
+mongodump --db mydb --out /backup/mongodb
+
+# 2. Filesystem snapshots (physical backup)
+# Stop MongoDB, create snapshot, restart MongoDB
+
+# 3. Cloud backup services
+# AWS DMS, MongoDB Atlas Backup, etc.
+                </div>
+            </div>
+
+            <div class="practice-section">
+                <h3>💪 Practice Exercises</h3>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 1: Query Optimization</h4>
+                    <p>Analyze and optimize this slow query:</p>
+                    <div class="code-block">
+SELECT u.name, p.title, COUNT(c.id) as comment_count
+FROM users u
+JOIN posts p ON u.id = p.user_id
+LEFT JOIN comments c ON p.id = c.post_id
+WHERE u.created_at > '2024-01-01'
+  AND p.status = 'published'
+GROUP BY u.id, u.name, p.id, p.title
+ORDER BY comment_count DESC
+LIMIT 20;
+                    </div>
+                    <p>Create appropriate indexes and suggest query improvements.</p>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 2: Caching Implementation</h4>
+                    <p>Implement a multi-level caching strategy for a user profile system:</p>
+                    <ol>
+                        <li>Use Redis for session data and frequently accessed profiles</li>
+                        <li>Implement cache invalidation on profile updates</li>
+                        <li>Add cache warming for popular users</li>
+                        <li>Monitor cache hit ratios and performance</li>
+                    </ol>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 3: Performance Monitoring</h4>
+                    <p>Set up monitoring for a PostgreSQL database:</p>
+                    <ul>
+                        <li>Configure slow query logging</li>
+                        <li>Set up connection pool monitoring</li>
+                        <li>Create alerts for high CPU/memory usage</li>
+                        <li>Implement automated maintenance scripts</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <h3>🧠 Knowledge Check</h3>
+
+                <div class="quiz-question">
+                    <h4>Question 1: Which caching strategy updates the cache immediately when data changes?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">Cache-Aside</div>
+                        <div class="quiz-option">Write-Through</div>
+                        <div class="quiz-option">Write-Behind</div>
+                        <div class="quiz-option">Refresh-Ahead</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 2: What is the primary advantage of horizontal scaling over vertical scaling?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">Simpler management</div>
+                        <div class="quiz-option">Nearly unlimited scalability</div>
+                        <div class="quiz-option">Better single-threaded performance</div>
+                        <div class="quiz-option">Easier backup and recovery</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 3: Which PostgreSQL command is used to reclaim space from deleted rows?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">ANALYZE</div>
+                        <div class="quiz-option">VACUUM</div>
+                        <div class="quiz-option">REINDEX</div>
+                        <div class="quiz-option">CLUSTER</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 Best Practices Summary</h2>
+
+                <div class="success-box">
+                    <h4>💡 Performance Optimization Best Practices:</h4>
+                    <ul>
+                        <li><strong>Monitor continuously</strong> - Set up comprehensive monitoring and alerting</li>
+                        <li><strong>Optimize queries first</strong> - Most performance gains come from better queries</li>
+                        <li><strong>Use appropriate indexing</strong> - But don't over-index</li>
+                        <li><strong>Implement caching strategically</strong> - Cache at multiple levels when appropriate</li>
+                        <li><strong>Scale horizontally when possible</strong> - Design for distributed systems</li>
+                        <li><strong>Plan for failure</strong> - Implement proper backup and recovery strategies</li>
+                        <li><strong>Test performance regularly</strong> - Load testing should be part of your process</li>
+                        <li><strong>Automate maintenance</strong> - Regular vacuum, reindexing, and analysis</li>
+                        <li><strong>Use connection pooling</strong> - Never create connections on-demand</li>
+                        <li><strong>Profile before optimizing</strong> - Measure performance before making changes</li>
+                    </ul>
+                </div>
+
+                <h3>🛠️ Essential Tools for Performance Optimization</h3>
+                <div class="info-box">
+                    <h4>🔧 Recommended Tools:</h4>
+                    <ul>
+                        <li><strong>Monitoring:</strong> Prometheus, Grafana, DataDog, New Relic</li>
+                        <li><strong>Load Testing:</strong> Artillery, k6, JMeter, Locust</li>
+                        <li><strong>Database Tools:</strong> pgBadger, MongoDB Compass, Redis Insight</li>
+                        <li><strong>Profiling:</strong> Application Performance Monitoring (APM) tools</li>
+                        <li><strong>Caching:</strong> Redis, Memcached, Varnish</li>
+                        <li><strong>Backup:</strong> pgBackRest, mongodump, automated scripts</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📚 Chapter Summary</h2>
+                <p>This final chapter has equipped you with comprehensive performance optimization strategies:</p>
+
+                <ul>
+                    <li><strong>Query Analysis:</strong> Execution plans, performance metrics, optimization techniques</li>
+                    <li><strong>Monitoring:</strong> Key performance indicators, monitoring tools, alerting</li>
+                    <li><strong>Scaling:</strong> Vertical vs horizontal scaling, sharding strategies</li>
+                    <li><strong>Caching:</strong> Multiple caching patterns, invalidation strategies</li>
+                    <li><strong>Connection Management:</strong> Pooling, monitoring, optimization</li>
+                    <li><strong>Maintenance:</strong> Vacuum, reindexing, configuration tuning</li>
+                    <li><strong>Testing:</strong> Load testing, benchmarking, performance metrics</li>
+                    <li><strong>Troubleshooting:</strong> Common issues, systematic problem-solving</li>
+                    <li><strong>High Availability:</strong> Replication, failover, disaster recovery</li>
+                    <li><strong>Best Practices:</strong> Comprehensive optimization guidelines</li>
+                </ul>
+
+                <div class="success-box">
+                    <strong>🎉 Congratulations!</strong> You have completed the Database Design curriculum. You now have the knowledge and skills to design, optimize, and maintain high-performance database systems that can scale to handle production workloads effectively.
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Study Guide Collection | <a href="study-guide-progress.html">View Progress Dashboard</a> | <a href="database-design3.html">Previous Chapter ←</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Quiz functionality
+            const quizOptions = document.querySelectorAll('.quiz-option');
+            const correctAnswers = [
+                'Write-Through',
+                'Nearly unlimited scalability',
+                'VACUUM'
+            ];
+
+            quizOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionIndex = Array.from(this.parentElement.parentElement.parentElement.children).indexOf(this.parentElement.parentElement);
+                    const isCorrect = this.textContent === correctAnswers[questionIndex];
+
+                    // Remove previous styling
+                    this.parentElement.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.style.background = '';
+                        opt.style.color = '';
+                    });
+
+                    if (isCorrect) {
+                        this.style.background = '#4CAF50';
+                        this.style.color = 'white';
+                        alert('✅ Correct!');
+                    } else {
+                        this.style.background = '#f44336';
+                        this.style.color = 'white';
+                        alert('❌ Incorrect. Try again!');
+                    }
+                });
+            });
+
+            // Code block copy functionality
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = '📋 Copy';
+                copyBtn.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 60px;
+                    background: #4CAF50;
+                    color: white;
+                    border: none;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.8em;
+                `;
+
+                copyBtn.addEventListener('click', function() {
+                    const code = block.textContent.replace(/^(SQL|MongoDB|Redis|Metrics)$/m, '').trim();
+                    navigator.clipboard.writeText(code).then(() => {
+                        this.textContent = '✅ Copied!';
+                        setTimeout(() => this.textContent = '📋 Copy', 2000);
+                    });
+                });
+
+                block.style.position = 'relative';
+                block.appendChild(copyBtn);
+            });
+        });
+    </script>
+</body>
+</html>

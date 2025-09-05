@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrome DevTools Study Guide - Complete Developer Toolkit</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            color: #202124;
+            padding: 40px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin: 0;
+            font-size: 3em;
+            font-weight: 300;
+            background: linear-gradient(45deg, #4285f4, #34a853);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.8;
+            margin-top: 15px;
+            color: #5f6368;
+        }
+        .content {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e8f0fe;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+        h2 {
+            color: #4285f4;
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        h2::before {
+            content: "🔧";
+            font-size: 1.5em;
+        }
+        h3 {
+            color: #34a853;
+            font-size: 1.6em;
+            margin: 30px 0 20px 0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h3::before {
+            content: "⚡";
+            font-size: 1.2em;
+        }
+        .highlight {
+            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+            border-left: 5px solid #34a853;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 10px 10px 0;
+            box-shadow: 0 2px 8px rgba(52, 168, 83, 0.1);
+        }
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        .panel-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .panel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .panel-card h4 {
+            color: #4285f4;
+            margin: 0 0 15px 0;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .panel-card h4::before {
+            content: "🎯";
+            font-size: 1.1em;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e3f2fd;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .feature-item::before {
+            content: "✓";
+            color: #34a853;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-top: 2px;
+        }
+        .code-demo {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+            border: 1px solid #333;
+        }
+        .workflow-steps {
+            background: #fff3e0;
+            border: 1px solid #ffcc02;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .workflow-steps ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .workflow-steps li {
+            margin-bottom: 10px;
+            color: #e65100;
+        }
+        .keyboard-shortcut {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #bbdefb;
+        }
+        .metric-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        .metric-card .label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .debugging-workflow {
+            background: linear-gradient(135deg, #fff8e1 0%, #f3e5f5 100%);
+            border: 2px solid #ff9800;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .debugging-workflow h4 {
+            color: #e65100;
+            margin: 0 0 15px 0;
+            font-size: 1.4em;
+        }
+        .quiz-section {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            padding: 35px;
+            border-radius: 15px;
+            margin-top: 40px;
+        }
+        .quiz-question {
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .quiz-question h4 {
+            margin: 0 0 15px 0;
+            font-size: 1.2em;
+        }
+        .quiz-options {
+            margin-left: 20px;
+        }
+        .quiz-options label {
+            display: block;
+            margin-bottom: 8px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .quiz-options label:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .practice-exercise {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .practice-exercise h4 {
+            color: #2e7d32;
+            margin: 0 0 15px 0;
+            font-size: 1.3em;
+        }
+        .navigation {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .nav-links a {
+            color: #4285f4;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 2px solid #4285f4;
+            font-weight: 500;
+        }
+        .nav-links a:hover {
+            background: #4285f4;
+            color: white;
+            transform: translateY(-2px);
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            .panel-grid {
+                grid-template-columns: 1fr;
+            }
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+            .performance-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .nav-links {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            h1 {
+                font-size: 2.2em;
+            }
+            h2 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Chrome DevTools</h1>
+            <div class="subtitle">Complete Developer Toolkit & Debugging Guide</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="content">
+            <div class="section">
+                <h2>Introduction to Chrome DevTools</h2>
+                <p>Chrome DevTools is a comprehensive set of web developer tools built directly into Google Chrome. It provides powerful debugging, performance analysis, and development capabilities that help you build better websites faster.</p>
+
+                <div class="highlight">
+                    <strong>Why DevTools Matters:</strong> DevTools allows you to inspect, debug, and optimize your web applications in real-time without leaving the browser. It's an essential toolkit for modern web development.
+                </div>
+
+                <h3>Opening DevTools</h3>
+                <p>You can open DevTools in several ways:</p>
+                <ul>
+                    <li><strong>Right-click</strong> any element and select "Inspect"</li>
+                    <li><strong>Keyboard shortcuts:</strong>
+                        <span class="keyboard-shortcut">F12</span>,
+                        <span class="keyboard-shortcut">Ctrl+Shift+I</span> (Windows/Linux),
+                        <span class="keyboard-shortcut">Cmd+Opt+I</span> (Mac)
+                    </li>
+                    <li><strong>Menu:</strong> Chrome menu → More tools → Developer tools</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>Core Panels Overview</h2>
+                <p>DevTools consists of multiple specialized panels, each designed for specific debugging and development tasks.</p>
+
+                <div class="panel-grid">
+                    <div class="panel-card">
+                        <h4>Elements Panel</h4>
+                        <p>Inspect and modify the DOM and CSS in real-time. View computed styles, edit HTML structure, and debug CSS issues.</p>
+                        <ul>
+                            <li>Live DOM inspection</li>
+                            <li>CSS style editing</li>
+                            <li>Box model visualization</li>
+                            <li>Accessibility auditing</li>
+                        </ul>
+                    </div>
+
+                    <div class="panel-card">
+                        <h4>Console Panel</h4>
+                        <p>JavaScript REPL for logging, debugging, and executing code. View error messages and interact with your application.</p>
+                        <ul>
+                            <li>JavaScript execution</li>
+                            <li>Error logging</li>
+                            <li>Command-line API</li>
+                            <li>Live expression monitoring</li>
+                        </ul>
+                    </div>
+
+                    <div class="panel-card">
+                        <h4>Sources Panel</h4>
+                        <p>Debug JavaScript with breakpoints, step-through execution, and source code editing. Work with source maps and workspaces.</p>
+                        <ul>
+                            <li>Breakpoint debugging</li>
+                            <li>Source map support</li>
+                            <li>Workspace integration</li>
+                            <li>Snippet execution</li>
+                        </ul>
+                    </div>
+
+                    <div class="panel-card">
+                        <h4>Network Panel</h4>
+                        <p>Monitor and analyze all network requests. Debug loading performance, inspect headers, and simulate network conditions.</p>
+                        <ul>
+                            <li>Request monitoring</li>
+                            <li>Performance analysis</li>
+                            <li>Network throttling</li>
+                            <li>Request blocking</li>
+                        </ul>
+                    </div>
+
+                    <div class="panel-card">
+                        <h4>Performance Panel</h4>
+                        <p>Analyze runtime performance, identify bottlenecks, and optimize your application's speed and responsiveness.</p>
+                        <ul>
+                            <li>FPS monitoring</li>
+                            <li>CPU profiling</li>
+                            <li>Memory analysis</li>
+                            <li>Timeline recording</li>
+                        </ul>
+                    </div>
+
+                    <div class="panel-card">
+                        <h4>Application Panel</h4>
+                        <p>Inspect web app storage, service workers, and background services. Debug Progressive Web Apps and cache management.</p>
+                        <ul>
+                            <li>Storage inspection</li>
+                            <li>Service worker debugging</li>
+                            <li>Cache analysis</li>
+                            <li>Security auditing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>JavaScript Debugging Mastery</h2>
+                <p>The Sources panel provides comprehensive JavaScript debugging capabilities that rival dedicated IDEs.</p>
+
+                <div class="debugging-workflow">
+                    <h4>JavaScript Debugging Workflow</h4>
+                    <div class="workflow-steps">
+                        <ol>
+                            <li><strong>Reproduce the Bug:</strong> Create a consistent test case that triggers the issue</li>
+                            <li><strong>Open Sources Panel:</strong> Navigate to the relevant JavaScript file</li>
+                            <li><strong>Set Breakpoints:</strong> Click line numbers or use conditional breakpoints</li>
+                            <li><strong>Execute Code:</strong> Trigger the bug while DevTools is open</li>
+                            <li><strong>Step Through:</strong> Use Step Over, Step Into, and Step Out controls</li>
+                            <li><strong>Inspect Variables:</strong> Check Scope, Watch expressions, and Console</li>
+                            <li><strong>Apply Fixes:</strong> Edit code directly in DevTools and test</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <h3>Breakpoint Types</h3>
+                <div class="feature-list">
+                    <div class="feature-item">Line-of-code breakpoints for specific lines</div>
+                    <div class="feature-item">Conditional breakpoints with custom expressions</div>
+                    <div class="feature-item">Event listener breakpoints for DOM events</div>
+                    <div class="feature-item">XHR/fetch breakpoints for network requests</div>
+                    <div class="feature-item">Exception breakpoints for caught/uncaught errors</div>
+                    <div class="feature-item">Function breakpoints for specific function calls</div>
+                </div>
+
+                <h3>Variable Inspection Methods</h3>
+                <div class="code-demo">
+// Method 1: Scope Panel - View local/global variables
+function calculateTotal(price, tax) {
+    const subtotal = price * 1.1;  // Set breakpoint here
+    const total = subtotal + tax;
+    return total;
+}
+
+// Method 2: Watch Expressions
+// Add expressions like: typeof price, price > 100, etc.
+
+// Method 3: Console Evaluation
+// At breakpoint: parseInt(price), console.log(tax)
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Performance Analysis & Optimization</h2>
+                <p>DevTools provides comprehensive performance monitoring tools to identify and fix performance bottlenecks.</p>
+
+                <div class="performance-metrics">
+                    <div class="metric-card">
+                        <div class="value">60</div>
+                        <div class="label">FPS Target</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="value">&lt;100ms</div>
+                        <div class="label">Response Time</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="value">&lt;16ms</div>
+                        <div class="label">Frame Budget</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="value">0</div>
+                        <div class="label">Layout Thrashing</div>
+                    </div>
+                </div>
+
+                <h3>Performance Recording Workflow</h3>
+                <div class="workflow-steps">
+                    <ol>
+                        <li><strong>Enable CPU Throttling:</strong> Simulate mobile device performance</li>
+                        <li><strong>Start Recording:</strong> Click the record button in Performance panel</li>
+                        <li><strong>Execute User Flows:</strong> Perform the actions you want to analyze</li>
+                        <li><strong>Stop Recording:</strong> DevTools processes and displays results</li>
+                        <li><strong>Analyze FPS Chart:</strong> Look for red bars indicating dropped frames</li>
+                        <li><strong>Examine CPU Chart:</strong> Identify periods of high CPU usage</li>
+                        <li><strong>Zoom into Issues:</strong> Focus on specific performance problems</li>
+                        <li><strong>Identify Root Causes:</strong> Use flame charts to find bottlenecks</li>
+                    </ol>
+                </div>
+
+                <h3>Common Performance Issues</h3>
+                <div class="feature-list">
+                    <div class="feature-item">Forced synchronous layouts (layout thrashing)</div>
+                    <div class="feature-item">Expensive CSS selectors and style recalculations</div>
+                    <div class="feature-item">JavaScript execution blocking rendering</div>
+                    <div class="feature-item">Memory leaks and garbage collection issues</div>
+                    <div class="feature-item">Inefficient animations and transitions</div>
+                    <div class="feature-item">Large DOM trees and complex layouts</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Network Debugging & Analysis</h2>
+                <p>The Network panel is your window into all HTTP requests, responses, and network performance.</p>
+
+                <h3>Network Monitoring Features</h3>
+                <div class="feature-list">
+                    <div class="feature-item">Real-time request/response monitoring</div>
+                    <div class="feature-item">HTTP header inspection and modification</div>
+                    <div class="feature-item">Network throttling (3G, 4G, offline simulation)</div>
+                    <div class="feature-item">Request blocking and filtering</div>
+                    <div class="feature-item">Performance timing breakdown</div>
+                    <div class="feature-item">Screenshot capture during page load</div>
+                </div>
+
+                <h3>Network Throttling Demo</h3>
+                <div class="code-demo">
+// Simulate different network conditions
+Network Conditions:
+• Online (no throttling)
+• Fast 3G (1.6 Mbps down, 0.75 Mbps up)
+• Slow 3G (0.78 Mbps down, 0.33 Mbps up)
+• Offline (0 Mbps)
+
+// Use for testing:
+• Progressive loading strategies
+• Offline-first applications
+• Network error handling
+• Performance on slow connections
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>CSS Debugging & Styling</h2>
+                <p>The Elements panel provides powerful CSS inspection and editing capabilities.</p>
+
+                <h3>CSS Debugging Techniques</h3>
+                <div class="feature-list">
+                    <div class="feature-item">Live CSS editing with instant visual feedback</div>
+                    <div class="feature-item">Computed styles inspection</div>
+                    <div class="feature-item">Box model visualization and editing</div>
+                    <div class="feature-item">CSS rule precedence analysis</div>
+                    <div class="feature-item">Pseudo-state simulation (:hover, :focus, etc.)</div>
+                    <div class="feature-item">CSS Grid and Flexbox debugging</div>
+                </div>
+
+                <h3>Box Model Interactive Editing</h3>
+                <div class="code-demo">
+/* Box Model Properties */
+.element {
+    /* Content */
+    width: 200px;
+    height: 100px;
+
+    /* Padding */
+    padding-top: 10px;
+    padding-right: 15px;
+    padding-bottom: 10px;
+    padding-left: 15px;
+
+    /* Border */
+    border: 2px solid #4285f4;
+
+    /* Margin */
+    margin: 20px;
+}
+
+/* Use DevTools to:
+ * - Hover over values to see visual highlights
+ * - Click and drag to adjust dimensions
+ * - Edit values directly in the Styles panel
+ */
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Application Storage & PWA Debugging</h2>
+                <p>Debug Progressive Web Apps, service workers, and client-side storage with the Application panel.</p>
+
+                <h3>Storage Types Supported</h3>
+                <div class="feature-list">
+                    <div class="feature-item">Local Storage and Session Storage</div>
+                    <div class="feature-item">IndexedDB databases and object stores</div>
+                    <div class="feature-item">Web SQL databases (deprecated)</div>
+                    <div class="feature-item">Cookies with domain/path inspection</div>
+                    <div class="feature-item">Cache Storage for service workers</div>
+                    <div class="feature-item">Application Cache (AppCache)</div>
+                </div>
+
+                <h3>Service Worker Debugging</h3>
+                <div class="code-demo">
+// Service Worker Lifecycle
+1. Registration
+   navigator.serviceWorker.register('/sw.js')
+
+2. Installation
+   self.addEventListener('install', (event) => {
+     // Cache resources
+   });
+
+3. Activation
+   self.addEventListener('activate', (event) => {
+     // Clean up old caches
+   });
+
+4. Fetch handling
+   self.addEventListener('fetch', (event) => {
+     // Respond with cached or network resources
+   });
+
+// Debug with DevTools:
+• View registered service workers
+• Simulate push events
+• Monitor background sync
+• Inspect cache contents
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Security & Privacy Analysis</h2>
+                <p>The Security panel helps identify HTTPS issues, mixed content problems, and privacy concerns.</p>
+
+                <h3>Security Issues Detected</h3>
+                <div class="feature-list">
+                    <div class="feature-item">Non-secure origins (HTTP instead of HTTPS)</div>
+                    <div class="feature-item">Mixed content (HTTP resources on HTTPS pages)</div>
+                    <div class="feature-item">Certificate problems and expiration</div>
+                    <div class="feature-item">Third-party cookie tracking</div>
+                    <div class="feature-item">Insecure request handling</div>
+                    <div class="feature-item">Privacy sandbox compliance</div>
+                </div>
+
+                <h3>Third-Party Cookie Control</h3>
+                <div class="code-demo">
+// Privacy Controls in DevTools
+1. Temporarily limit third-party cookies
+2. Add exceptions for specific sites
+3. Inspect blocked/allowed cookies
+4. Test privacy-first implementations
+
+// Use for:
+• Testing cookie consent implementations
+• Debugging third-party integrations
+• Privacy compliance verification
+• Cross-site tracking analysis
+                </div>
+            </div>
+
+            <div class="practice-exercise">
+                <h4>Practice Exercise: Complete Debugging Workflow</h4>
+                <ol>
+                    <li>Open DevTools on any website (<span class="keyboard-shortcut">F12</span> or <span class="keyboard-shortcut">Ctrl+Shift+I</span>)</li>
+                    <li>In the Elements panel, inspect different HTML elements and modify their CSS</li>
+                    <li>In the Console panel, try executing JavaScript: <code>console.log('Hello DevTools!')</code></li>
+                    <li>In the Network panel, reload the page and analyze the network requests</li>
+                    <li>In the Performance panel, record a page interaction and analyze the results</li>
+                    <li>In the Application panel, explore the website's storage and cookies</li>
+                    <li>Try setting a breakpoint in the Sources panel on a JavaScript function</li>
+                    <li>Use Device Mode to test responsive design on different screen sizes</li>
+                </ol>
+            </div>
+
+            <div class="quiz-section">
+                <h3>DevTools Mastery Quiz</h3>
+
+                <div class="quiz-question">
+                    <h4>1. Which panel would you use to debug JavaScript execution flow?</h4>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q1"> Elements Panel</label>
+                        <label><input type="radio" name="q1"> Sources Panel</label>
+                        <label><input type="radio" name="q1"> Network Panel</label>
+                        <label><input type="radio" name="q1"> Performance Panel</label>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>2. What does CPU throttling in the Performance panel simulate?</h4>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q2"> Network speed limitations</label>
+                        <label><input type="radio" name="q2"> Mobile device processing power</label>
+                        <label><input type="radio" name="q2"> Memory constraints</label>
+                        <label><input type="radio" name="q2"> Battery life</label>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>3. Which feature allows you to edit CSS and see changes instantly?</h4>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q3"> Live CSS editing in Elements panel</label>
+                        <label><input type="radio" name="q3"> Console command execution</label>
+                        <label><input type="radio" name="q3"> Network request blocking</label>
+                        <label><input type="radio" name="q3"> Performance recording</label>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>4. What is the primary purpose of the Application panel?</h4>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q4"> HTML structure inspection</label>
+                        <label><input type="radio" name="q4"> JavaScript debugging</label>
+                        <label><input type="radio" name="q4"> Storage and PWA debugging</label>
+                        <label><input type="radio" name="q4"> Network analysis</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <div class="nav-links">
+                <a href="android1.html">← Android Development</a>
+                <a href="fullstack1.html">Full-Stack Development →</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interactive quiz functionality
+        const quizQuestions = document.querySelectorAll('.quiz-question');
+
+        quizQuestions.forEach(question => {
+            const radios = question.querySelectorAll('input[type="radio"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    // Remove previous highlighting
+                    const options = question.querySelectorAll('label');
+                    options.forEach(option => option.style.backgroundColor = '');
+
+                    // Highlight selected answer
+                    if (this.checked) {
+                        this.parentElement.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                    }
+                });
+            });
+        });
+
+        // Add smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add keyboard shortcuts info
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                alert('DevTools shortcut detected! You can open DevTools with Ctrl+Shift+I (or F12)');
+            }
+        });
+    </script>
+</body>
+</html>

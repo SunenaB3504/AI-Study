@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node.js Backend Development - Chapter 1: Node.js Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4285f4',
+                        secondary: '#34a853',
+                        accent: '#ea4335'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-primary to-secondary text-white p-8 text-center">
+                <h1 class="text-4xl font-bold mb-2">🚀 Node.js Backend Development</h1>
+                <div class="text-xl opacity-90">Chapter 1: Node.js Fundamentals</div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-8">
+                <div class="bg-gray-50 p-6 rounded-lg mb-8 flex justify-between items-center flex-wrap gap-4">
+                    <a href="react6.html" class="bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-lg font-medium transition-colors no-underline">⬅️ React Chapter 6</a>
+                    <a href="study-guide-progress.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg font-medium transition-colors no-underline">📊 Progress Dashboard</a>
+                    <a href="nodejs2.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg font-medium transition-colors no-underline">� Node.js Chapter 2 ➡️</a>
+                    <button id="tts-toggle" class="bg-purple-500 hover:bg-purple-600 text-white px-5 py-3 rounded-lg font-medium transition-colors flex items-center gap-2">
+                        <span id="tts-icon">�</span>
+                        <span id="tts-text">Enable TTS</span>
+                    </button>
+                </div>
+
+            <div class="section">
+                <h2 class="text-primary text-2xl font-semibold mb-4">🎯 What is Node.js?</h2>
+                <p class="text-gray-700 mb-4"><strong>Node.js</strong> is a JavaScript runtime built on Chrome's V8 JavaScript engine. It allows you to run JavaScript code outside of a web browser, making it possible to build server-side applications using JavaScript.</p>
+
+                <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+                    <h4 class="text-red-800 font-semibold mb-3">💡 Key Characteristics</h4>
+                    <ul class="text-red-800 space-y-1">
+                        <li><strong>Single-threaded:</strong> Uses a single thread for event processing</li>
+                        <li><strong>Non-blocking I/O:</strong> Handles multiple connections efficiently</li>
+                        <li><strong>Event-driven:</strong> Uses events and callbacks for asynchronous operations</li>
+                        <li><strong>NPM:</strong> Largest ecosystem of open-source libraries</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="text-primary text-2xl font-semibold mb-4">⚡ Why Node.js for Backend Development?</h2>
+                <ul class="text-gray-700 space-y-2 mb-6">
+                    <li><strong>Unified Language:</strong> Use JavaScript for both frontend and backend</li>
+                    <li><strong>High Performance:</strong> V8 engine provides excellent performance</li>
+                    <li><strong>Scalability:</strong> Handles thousands of concurrent connections</li>
+                    <li><strong>Large Community:</strong> Extensive ecosystem and support</li>
+                    <li><strong>Microservices:</strong> Perfect for building microservices architecture</li>
+                    <li><strong>Real-time Applications:</strong> Excellent for chat, gaming, and live updates</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2 class="text-primary text-2xl font-semibold mb-4">📦 Installation and Setup</h2>
+                <h3 class="text-lg font-semibold mb-3">Installing Node.js</h3>
+                <p class="text-gray-700 mb-4">Visit <a href="https://nodejs.org" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">nodejs.org</a> and download the LTS (Long Term Support) version for your operating system.</p>
+
+                <div class="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto">
+                    <div class="bg-gray-200 px-3 py-2 rounded-t font-sans font-semibold text-gray-700 mb-2">Verify Installation</div>
+                    <pre class="text-gray-800"># Check Node.js version
+node --version
+
+# Check npm version
+npm --version
+
+# Check npx version
+npx --version</pre>
+                </div>
+
+                <h3 class="text-lg font-semibold mb-3">Creating Your First Node.js Application</h3>
+                <div class="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto">
+                    <div class="bg-gray-200 px-3 py-2 rounded-t font-sans font-semibold text-gray-700 mb-2">app.js - Hello World Server</div>
+                    <pre class="text-gray-800">const http = require('http');
+
+const server = http.createServer((req, res) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');
+    res.end('Hello World from Node.js!\n');
+});
+
+const port = 3000;
+server.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}/`);
+});</pre>
+                </div>
+
+                <div class="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto">
+                    <div class="bg-gray-200 px-3 py-2 rounded-t font-sans font-semibold text-gray-700 mb-2">Running the Application</div>
+                    <pre class="text-gray-800"># Run the server
+node app.js
+
+# Test the server (in another terminal)
+curl http://localhost:3000</pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="text-primary text-2xl font-semibold mb-4">📚 Modules and require()</h2>
+                <p class="text-gray-700 mb-4">In Node.js, code is organized into <strong>modules</strong>. Each file is treated as a separate module, and you use the <code>require()</code> function to import functionality from other modules.</p>
+
+                <h3 class="text-lg font-semibold mb-3">Built-in Modules</h3>
+                <div class="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto">
+                    <div class="bg-gray-200 px-3 py-2 rounded-t font-sans font-semibold text-gray-700 mb-2">Using Built-in Modules</div>
+                    <pre class="text-gray-800">// File system operations
+const fs = require('fs');
+
+// Path operations
+const path = require('path');
+
+// HTTP server
+const http = require('http');
+
+// Operating system information
+const os = require('os');
+
+// URL parsing
+const url = require('url');</pre>
+                </div>
+
+                <h3 class="text-lg font-semibold mb-3">Creating Custom Modules</h3>
+                <div class="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto">
+                    <div class="bg-gray-200 px-3 py-2 rounded-t font-sans font-semibold text-gray-700 mb-2">math.js - Custom Module</div>
+                    <pre class="text-gray-800">// math.js
+function add(a, b) {
+    return a + b;
+}
+
+function subtract(a, b) {
+    return a - b;
+}
+
+function multiply(a, b) {
+    return a + b;
+}
+
+function divide(a, b) {
+    if (b === 0) {
+        throw new Error('Division by zero');
+    }
+    return a / b;
+}
+
+module.exports = {
+    add,
+    subtract,
+    multiply,
+    divide
+};</pre>
+                </div>
+
+                <div class="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto">
+                    <div class="bg-gray-200 px-3 py-2 rounded-t font-sans font-semibold text-gray-700 mb-2">app.js - Using Custom Module</div>
+                    <pre class="text-gray-800">// app.js
+const math = require('./math');
+
+console.log('Addition:', math.add(5, 3));
+console.log('Subtraction:', math.subtract(10, 4));
+console.log('Multiplication:', math.multiply(6, 7));
+console.log('Division:', math.divide(20, 4));</pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="text-primary text-2xl font-semibold mb-4">🔄 Asynchronous Programming</h2>
+                <p class="text-gray-700 mb-4">Node.js is designed for asynchronous programming. Understanding callbacks, promises, and async/await is crucial for writing efficient Node.js applications.</p>
+
+                <h3 class="text-lg font-semibold mb-3">Callbacks</h3>
+                <div class="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto">
+                    <div class="bg-gray-200 px-3 py-2 rounded-t font-sans font-semibold text-gray-700 mb-2">File Reading with Callbacks</div>
+                    <pre class="text-gray-800">const fs = require('fs');
+
+fs.readFile('example.txt', 'utf8', (err, data) => {
+    if (err) {
+        console.error('Error reading file:', err);
+        return;
+    }
+    console.log('File content:', data);
+});
+
+console.log('This runs before the file is read!');</pre>
+                </div>
+
+                <h3 class="text-lg font-semibold mb-3">Promises</h3>
+                <div class="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto">
+                    <div class="bg-gray-200 px-3 py-2 rounded-t font-sans font-semibold text-gray-700 mb-2">File Reading with Promises</div>
+                    <pre class="text-gray-800">const fs = require('fs').promises;
+
+fs.readFile('example.txt', 'utf8')
+    .then(data => {
+        console.log('File content:', data);
+    })
+    .catch(err => {
+        console.error('Error reading file:', err);
+    });
+
+console.log('This runs before the file is read!');</pre>
+                </div>
+
+                <h3 class="text-lg font-semibold mb-3">Async/Await</h3>
+                <div class="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto">
+                    <div class="bg-gray-200 px-3 py-2 rounded-t font-sans font-semibold text-gray-700 mb-2">File Reading with Async/Await</div>
+                    <pre class="text-gray-800">const fs = require('fs').promises;
+
+async function readFile() {
+    try {
+        const data = await fs.readFile('example.txt', 'utf8');
+        console.log('File content:', data);
+    } catch (err) {
+        console.error('Error reading file:', err);
+    }
+}
+
+readFile();
+console.log('This runs before the file is read!');</pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="text-primary text-2xl font-semibold mb-4">📁 File System Operations</h2>
+                <p class="text-gray-700 mb-4">Node.js provides comprehensive file system operations through the <code>fs</code> module.</p>
+
+                <h3 class="text-lg font-semibold mb-3">Reading Files</h3>
+                <div class="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto">
+                    <div class="bg-gray-200 px-3 py-2 rounded-t font-sans font-semibold text-gray-700 mb-2">Reading Files Asynchronously</div>
+                    <pre class="text-gray-800">const fs = require('fs').promises;
+
+async function readExample() {
+    try {
+        // Read entire file
+        const data = await fs.readFile('example.txt', 'utf8');
+        console.log('File content:', data);
+
+        // Read file metadata
+        const stats = await fs.stat('example.txt');
+        console.log('File size:', stats.size, 'bytes');
+        console.log('Last modified:', stats.mtime);
+
+    } catch (err) {
+        console.error('Error:', err);
+    }
+}
+
+readExample();</pre>
+                </div>
+
+                <h3 class="text-lg font-semibold mb-3">Writing Files</h3>
+                <div class="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto">
+                    <div class="bg-gray-200 px-3 py-2 rounded-t font-sans font-semibold text-gray-700 mb-2">Writing Files</div>
+                    <pre class="text-gray-800">const fs = require('fs').promises;
+
+async function writeExample() {
+    try {
+        // Write to file (overwrites existing content)
+        await fs.writeFile('output.txt', 'Hello from Node.js!');
+
+        // Append to file
+        await fs.appendFile('output.txt', '\nAppended content');
+
+        console.log('File written successfully');
+
+    } catch (err) {
+        console.error('Error writing file:', err);
+    }
+}
+
+writeExample();</pre>
+                </div>
+
+                <h3 class="text-lg font-semibold mb-3">Directory Operations</h3>
+                <div class="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto">
+                    <div class="bg-gray-200 px-3 py-2 rounded-t font-sans font-semibold text-gray-700 mb-2">Directory Operations</div>
+                    <pre class="text-gray-800">const fs = require('fs').promises;
+const path = require('path');
+
+async function directoryExample() {
+    try {
+        // Create directory
+        await fs.mkdir('my-folder');
+
+        // List directory contents
+        const files = await fs.readdir('.');
+        console.log('Files in directory:', files);
+
+        // Check if path exists
+        const exists = await fs.access('my-folder').then(() => true).catch(() => false);
+        console.log('Directory exists:', exists);
+
+    } catch (err) {
+        console.error('Error:', err);
+    }
+}
+
+directoryExample();</pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="text-primary text-2xl font-semibold mb-4">🌐 HTTP Server and Routing</h2>
+                <p class="text-gray-700 mb-4">Building a basic HTTP server is fundamental to understanding Node.js backend development.</p>
+
+                <div class="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto">
+                    <div class="bg-gray-200 px-3 py-2 rounded-t font-sans font-semibold text-gray-700 mb-2">Basic HTTP Server with Routing</div>
+                    <pre class="text-gray-800">const http = require('http');
+const url = require('url');
+
+const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+    const path = parsedUrl.pathname;
+    const method = req.method;
+
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    // Basic routing
+    if (path === '/' && method === 'GET') {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end('<h1>Welcome to Node.js Server!</h1>');
+
+    } else if (path === '/api/users' && method === 'GET') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ users: ['Alice', 'Bob', 'Charlie'] }));
+
+    } else if (path === '/api/users' && method === 'POST') {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        req.on('end', () => {
+            const user = JSON.parse(body);
+            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'User created', user }));
+        });
+
+    } else {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('Not Found');
+    }
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});</pre>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 border-2 border-blue-300 rounded-xl p-8 mb-10">
+                <h3 class="text-blue-800 text-2xl font-bold mb-4">🛠️ Practice Exercise: Build a Simple API</h3>
+                <p class="text-gray-700 mb-6">Create a Node.js application that serves a simple REST API for managing a list of tasks. The API should support:</p>
+
+                <h4 class="text-blue-700 font-semibold mb-3">Requirements:</h4>
+                <ul class="text-gray-700 space-y-2 mb-6">
+                    <li>GET /tasks - Retrieve all tasks</li>
+                    <li>POST /tasks - Create a new task</li>
+                    <li>GET /tasks/:id - Retrieve a specific task</li>
+                    <li>PUT /tasks/:id - Update a task</li>
+                    <li>DELETE /tasks/:id - Delete a task</li>
+                </ul>
+
+                <h4 class="text-blue-700 font-semibold mb-3">Technical Requirements:</h4>
+                <ul class="text-gray-700 space-y-2">
+                    <li>Use built-in Node.js modules (no external dependencies)</li>
+                    <li>Store tasks in memory (no database needed)</li>
+                    <li>Handle JSON request/response properly</li>
+                    <li>Include proper error handling</li>
+                    <li>Add basic validation for task data</li>
+                </ul>
+            </div>
+
+            <div class="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-8 mb-10">
+                <h3 class="text-yellow-800 text-2xl font-bold mb-6">📝 Knowledge Check</h3>
+                <p class="text-gray-700 mb-6">Test your understanding of Node.js fundamentals.</p>
+
+                <ol class="text-gray-700 space-y-4">
+                    <li class="pb-4 border-b border-yellow-200">What is the primary difference between Node.js and traditional server-side languages?</li>
+                    <li class="pb-4 border-b border-yellow-200">Explain the concept of "non-blocking I/O" in Node.js.</li>
+                    <li class="pb-4 border-b border-yellow-200">What is the purpose of the <code>require()</code> function?</li>
+                    <li class="pb-4 border-b border-yellow-200">How do callbacks, promises, and async/await relate to each other?</li>
+                    <li class="pb-4 border-b border-yellow-200">What are the main advantages of using Node.js for backend development?</li>
+                    <li class="pb-4 border-b border-yellow-200">Explain the difference between <code>fs.readFile()</code> and <code>fs.readFileSync()</code>.</li>
+                    <li class="pb-4 border-b border-yellow-200">What is the purpose of the <code>module.exports</code> object?</li>
+                    <li>How does Node.js handle concurrent connections efficiently?</li>
+                </ol>
+            </div>
+
+            <div class="bg-gradient-to-r from-purple-50 to-purple-100 border-2 border-purple-300 rounded-xl p-8 mb-10">
+                <h3 class="text-purple-800 text-2xl font-bold mb-6">📚 Chapter Summary</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-primary">
+                        <h5 class="text-primary font-semibold mb-2">🚀 Node.js Runtime</h5>
+                        <p class="text-gray-700 text-sm">JavaScript runtime built on Chrome's V8 engine, enabling server-side JavaScript execution.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-primary">
+                        <h5 class="text-primary font-semibold mb-2">📦 Module System</h5>
+                        <p class="text-gray-700 text-sm">CommonJS module system using <code>require()</code> and <code>module.exports</code> for code organization.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-primary">
+                        <h5 class="text-primary font-semibold mb-2">🔄 Asynchronous Programming</h5>
+                        <p class="text-gray-700 text-sm">Event-driven, non-blocking I/O model using callbacks, promises, and async/await.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-primary">
+                        <h5 class="text-primary font-semibold mb-2">📁 File System Operations</h5>
+                        <p class="text-gray-700 text-sm">Comprehensive file and directory operations through the built-in <code>fs</code> module.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-primary">
+                        <h5 class="text-primary font-semibold mb-2">🌐 HTTP Server</h5>
+                        <p class="text-gray-700 text-sm">Built-in HTTP module for creating web servers and handling HTTP requests/responses.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-primary">
+                        <h5 class="text-primary font-semibold mb-2">⚡ Performance</h5>
+                        <p class="text-gray-700 text-sm">Single-threaded event loop handles thousands of concurrent connections efficiently.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-orange-50 to-orange-100 border-2 border-orange-300 rounded-xl p-8 mb-10 text-center">
+                <h3 class="text-orange-800 text-2xl font-bold mb-4">🎯 Ready for Chapter 2?</h3>
+                <p class="text-gray-700 mb-6">In the next chapter, we'll explore Express.js, the most popular web framework for Node.js, which will make building APIs much easier and more organized.</p>
+                <a href="nodejs2.html" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-block">Continue to Chapter 2: Express.js Framework →</a>
+            </div>
+
+            <div class="chapter-nav">
+                <a href="react6.html" class="nav-btn secondary">⬅️ React Chapter 6</a>
+                <a href="study-guide-progress.html" class="nav-btn">📊 Progress Dashboard</a>
+                <a href="nodejs2.html" class="nav-btn">🚀 Node.js Chapter 2 ➡️</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p class="text-center text-gray-600 py-4">© 2025 Node.js Study Guide - Chapter 1: Fundamentals | Created with ❤️ for learning</p>
+        </div>
+    </div>
+
+    <script>
+        // Text-to-Speech functionality
+        let ttsEnabled = false;
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+
+        function initTTS() {
+            const ttsToggle = document.getElementById('tts-toggle');
+            const ttsIcon = document.getElementById('tts-icon');
+            const ttsText = document.getElementById('tts-text');
+
+            ttsToggle.addEventListener('click', function() {
+                ttsEnabled = !ttsEnabled;
+
+                if (ttsEnabled) {
+                    ttsIcon.textContent = '🔇';
+                    ttsText.textContent = 'Disable TTS';
+                    ttsToggle.classList.remove('bg-purple-500', 'hover:bg-purple-600');
+                    ttsToggle.classList.add('bg-red-500', 'hover:bg-red-600');
+                    speakText('Text-to-speech enabled. Click on any paragraph to hear it read aloud.');
+                } else {
+                    ttsIcon.textContent = '🔊';
+                    ttsText.textContent = 'Enable TTS';
+                    ttsToggle.classList.remove('bg-red-500', 'hover:bg-red-600');
+                    ttsToggle.classList.add('bg-purple-500', 'hover:bg-purple-600');
+                    stopSpeaking();
+                }
+            });
+        }
+
+        function speakText(text) {
+            if (!ttsEnabled || !speechSynthesis) return;
+
+            // Stop any current speech
+            stopSpeaking();
+
+            // Create new utterance
+            currentUtterance = new SpeechSynthesisUtterance(text);
+
+            // Configure voice settings
+            currentUtterance.rate = 0.9; // Slightly slower for better comprehension
+            currentUtterance.pitch = 1;
+            currentUtterance.volume = 0.8;
+
+            // Set voice (prefer English voices)
+            const voices = speechSynthesis.getVoices();
+            const englishVoice = voices.find(voice =>
+                voice.lang.startsWith('en') && voice.name.includes('Female')
+            ) || voices.find(voice => voice.lang.startsWith('en'));
+
+            if (englishVoice) {
+                currentUtterance.voice = englishVoice;
+            }
+
+            // Speak the text
+            speechSynthesis.speak(currentUtterance);
+        }
+
+        function stopSpeaking() {
+            if (speechSynthesis) {
+                speechSynthesis.cancel();
+            }
+            currentUtterance = null;
+        }
+
+        function addTTSListeners() {
+            // Add click listeners to paragraphs and headings
+            const textElements = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li');
+            textElements.forEach(element => {
+                element.style.cursor = 'pointer';
+                element.addEventListener('click', function() {
+                    if (ttsEnabled) {
+                        speakText(this.textContent);
+                    }
+                });
+                element.addEventListener('mouseenter', function() {
+                    if (ttsEnabled) {
+                        this.style.backgroundColor = 'rgba(147, 51, 234, 0.1)';
+                    }
+                });
+                element.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+            });
+        }
+
+        // Chapter tracking functionality
+        function initChapterTracking() {
+            const chapterKey = 'nodejs1-progress';
+            const completedSections = JSON.parse(localStorage.getItem(chapterKey) || '[]');
+
+            // Mark sections as completed when clicked
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                const sectionId = `section-${index}`;
+
+                // Add completion button
+                const completeBtn = document.createElement('button');
+                completeBtn.className = 'bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm float-right transition-colors';
+                completeBtn.textContent = completedSections.includes(sectionId) ? '✅ Completed' : 'Mark Complete';
+                completeBtn.onclick = function() {
+                    if (completedSections.includes(sectionId)) {
+                        // Unmark as complete
+                        const index = completedSections.indexOf(sectionId);
+                        completedSections.splice(index, 1);
+                        this.textContent = 'Mark Complete';
+                        this.className = 'bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm float-right transition-colors';
+                    } else {
+                        // Mark as complete
+                        completedSections.push(sectionId);
+                        this.textContent = '✅ Completed';
+                        this.className = 'bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm float-right transition-colors';
+                    }
+                    localStorage.setItem(chapterKey, JSON.stringify(completedSections));
+                    updateProgress();
+                };
+
+                const header = section.querySelector('h2');
+                if (header) {
+                    header.appendChild(completeBtn);
+                }
+            });
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const chapterKey = 'nodejs1-progress';
+            const completedSections = JSON.parse(localStorage.getItem(chapterKey) || '[]');
+            const totalSections = document.querySelectorAll('.section').length;
+            const progressPercent = totalSections > 0 ? Math.round((completedSections.length / totalSections) * 100) : 0;
+
+            // Update progress display if it exists
+            const progressDisplay = document.getElementById('chapter-progress');
+            if (progressDisplay) {
+                progressDisplay.textContent = `Chapter Progress: ${progressPercent}% (${completedSections.length}/${totalSections} sections)`;
+            }
+
+            // Store overall progress
+            const overallProgress = JSON.parse(localStorage.getItem('study-guide-progress') || '{}');
+            overallProgress.nodejs1 = progressPercent;
+            localStorage.setItem('study-guide-progress', JSON.stringify(overallProgress));
+        }
+
+        // Add some interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize TTS
+            initTTS();
+            addTTSListeners();
+
+            // Initialize chapter tracking
+            initChapterTracking();
+
+            // Add click tracking for navigation
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    console.log(`Navigating to: ${this.textContent}`);
+                });
+            });
+
+            // Add hover effects for code blocks
+            const codeBlocks = document.querySelectorAll('pre');
+            codeBlocks.forEach(block => {
+                block.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.01)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                block.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

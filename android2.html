@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Development Study Guide - Chapter 2: Getting Started (Updated 2025)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        }
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="js/tts.js"></script>
+    <script src="js/progress-tracker.js"></script>
+    <script src="js/chapter.js"></script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #3b82f6 0%, #22c55e 100%);
+        }
+        .progress-fill {
+            width: 0%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <header class="hero-gradient text-white py-12 px-6 text-center mb-12 rounded-3xl shadow-xl">
+            <h1 class="text-3xl md:text-4xl font-light mb-6">Chapter 2: Getting Started</h1>
+            <div class="max-w-md mx-auto">
+                <div class="bg-white bg-opacity-20 rounded-full h-3 mb-3">
+                    <div class="progress-fill h-3 rounded-full transition-all duration-300" id="progressFill"></div>
+                </div>
+                <span class="text-white text-sm font-medium" id="progressText">0% Complete</span>
+            </div>
+        </header>
+
+        <main class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <section id="section-1" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h2 class="text-primary-600 text-3xl font-light mb-6">2.1 What You Need to Begin</h2>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Android applications run on the Android Runtime (ART), which supports modern development platforms. As of 2025, Android development is supported on:</p>
+                    <ul class="list-disc list-inside space-y-2 mb-6 text-gray-700">
+                        <li>Microsoft Windows (10 or later, 64-bit)</li>
+                        <li>macOS (10.14 or later)</li>
+                        <li>Linux (Ubuntu 18.04 or later, 64-bit)</li>
+                        <li>Chrome OS (with Linux support)</li>
+                    </ul>
+                    <p class="mb-6">To get started, you'll need to download and install:</p>
+                    <ul class="list-disc list-inside space-y-2 mb-6 text-gray-700">
+                        <li>Android Studio (the official IDE)</li>
+                        <li>Java Development Kit (JDK) 11 or higher (included with Android Studio)</li>
+                        <li>Android SDK (automatically managed by Android Studio)</li>
+                    </ul>
+                    <p class="mb-6">Android Studio includes everything you need for Android development, including the latest SDK tools, emulator, and build system. You can download it from the official Android Developer website at <code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">https://developer.android.com/studio</code></p>
+                    <p>The Android platform supports multiple programming languages, with Kotlin as the preferred language for new projects, though Java is still fully supported.</p>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <section id="section-2" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h2 class="text-primary-600 text-3xl font-light mb-6">2.2 Downloading and Installing Android Studio</h2>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Android Studio is Google's official IDE for Android development and is completely free. It includes the Android SDK, build tools, emulator, and all necessary components. You can download the latest version from:</p>
+                    <p class="mb-6"><code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">https://developer.android.com/studio</code></p>
+                    <p class="mb-6">As of 2025, the current stable version is Android Studio Jellyfish (2023.3.1) or later, with support for Android 15 (API level 35).</p>
+                    <p class="mb-6">The installation package includes:</p>
+                    <ul class="list-disc list-inside space-y-2 mb-6 text-gray-700">
+                        <li>Android SDK with the latest platform tools</li>
+                        <li>Android Emulator with hardware acceleration support</li>
+                        <li>Gradle build system for project compilation</li>
+                        <li>Integrated development environment with code completion, debugging, and profiling</li>
+                        <li>SDK Manager for downloading additional components</li>
+                        <li>AVD Manager for creating virtual devices</li>
+                    </ul>
+                    <p class="mb-6">After installation, Android Studio will automatically download the latest SDK components. You can also use any text editor or IDE you're comfortable with, but Android Studio provides the most integrated experience with features like:</p>
+                    <ul class="list-disc list-inside space-y-2 mb-6 text-gray-700">
+                        <li>Real-time code analysis and suggestions</li>
+                        <li>Built-in emulator with various device configurations</li>
+                        <li>Layout editor for UI design</li>
+                        <li>APK analyzer and profiler</li>
+                        <li>Version control integration (Git)</li>
+                    </ul>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <section id="section-3" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h2 class="text-primary-600 text-3xl font-light mb-6">2.3 Setting Up Android Studio</h2>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Android Studio provides a complete development environment optimized for Android development.</p>
+                    <p class="mb-6">After downloading and installing Android Studio from the official website, launch it to complete the setup:</p>
+                    <ol class="list-decimal list-inside space-y-2 mb-6 text-gray-700">
+                        <li>Android Studio will automatically download the latest Android SDK and build tools</li>
+                        <li>Configure the SDK location (usually in your user folder under Android/sdk)</li>
+                        <li>Install any additional SDK components you need (different API levels, system images)</li>
+                        <li>Create your first project using the New Project wizard</li>
+                    </ol>
+                    <p class="mb-6">Android Studio includes:</p>
+                    <ul class="list-disc list-inside space-y-2 mb-6 text-gray-700">
+                        <li>Intelligent code editor with Kotlin and Java support</li>
+                        <li>Visual layout editor for designing UIs</li>
+                        <li>Built-in terminal and version control</li>
+                        <li>Device Manager for creating and managing emulators</li>
+                        <li>Profiler for performance analysis</li>
+                        <li>APK Analyzer for inspecting app packages</li>
+                    </ul>
+                    <p>The IDE is based on IntelliJ IDEA and provides excellent support for Android-specific features like resource management, manifest editing, and debugging.</p>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <section id="section-4" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h2 class="text-primary-600 text-3xl font-light mb-6">2.4 Android Studio Features</h2>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Android Studio provides comprehensive tools for Android development, all integrated into a single IDE. Key features include:</p>
+                    <ul class="list-disc list-inside space-y-2 mb-6 text-gray-700">
+                        <li><strong class="text-primary-700">Project Templates:</strong> Pre-built templates for different app types (Empty Activity, Basic Activity, Navigation Drawer, etc.)</li>
+                        <li><strong class="text-primary-700">Layout Editor:</strong> Drag-and-drop UI designer with real-time preview on multiple device sizes</li>
+                        <li><strong class="text-primary-700">Code Editor:</strong> Advanced editing with code completion, refactoring, and real-time error detection for both Kotlin and Java</li>
+                        <li><strong class="text-primary-700">Emulator:</strong> High-performance Android Emulator with hardware acceleration and various device configurations</li>
+                        <li><strong class="text-primary-700">Device Manager:</strong> Create and manage virtual devices for testing</li>
+                        <li><strong class="text-primary-700">SDK Manager:</strong> Download and manage SDK components, platforms, and tools</li>
+                        <li><strong class="text-primary-700">Build System:</strong> Gradle-based build system with support for variants, flavors, and custom build configurations</li>
+                        <li><strong class="text-primary-700">Debugging:</strong> Advanced debugging with breakpoints, variable inspection, and device file access</li>
+                        <li><strong class="text-primary-700">Profiling:</strong> CPU, memory, and network profiling tools</li>
+                        <li><strong class="text-primary-700">Version Control:</strong> Integrated Git support with commit, push, and merge capabilities</li>
+                    </ul>
+                    <p>Android Studio also includes the Android Debug Bridge (ADB) for device communication and the Dalvik Debug Monitor Server (DDMS) for advanced debugging and monitoring.</p>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <section id="section-5">
+                <h2>2.5 Setting Up Your Development Environment</h2>
+                <div class="section-content">
+                    <p>Setting up Android Studio is straightforward:</p>
+                    <ol>
+                        <li><strong>Download and Install:</strong> Download Android Studio from <code>https://developer.android.com/studio</code> and run the installer</li>
+                        <li><strong>Initial Setup:</strong> Launch Android Studio and follow the setup wizard</li>
+                        <li><strong>SDK Installation:</strong> Android Studio will automatically download the latest Android SDK and build tools</li>
+                        <li><strong>Configure SDK:</strong> The SDK location is typically <code>~/Android/Sdk</code> on macOS/Linux or <code>C:\Users\[username]\AppData\Local\Android\Sdk</code> on Windows</li>
+                        <li><strong>Install Additional Components:</strong> Use the SDK Manager to download additional platforms, system images, and tools as needed</li>
+                        <li><strong>Create AVD:</strong> Use the Device Manager to create Android Virtual Devices for testing</li>
+                        <li><strong>Enable Hardware Acceleration:</strong> Install Intel HAXM or AMD Hypervisor for faster emulator performance</li>
+                    </ol>
+                    <p>Android Studio includes everything needed for development. The setup wizard will guide you through installing any missing components.</p>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section as complete">
+            </section>
+
+            <section id="section-6">
+                <h2>2.6 Creating Your First Android Project</h2>
+                <div class="section-content">
+                    <p>You've installed Android Studio and set up the SDK. You're now ready to create your first Android project.</p>
+                    
+                    <h3>Starting a New Android Project</h3>
+                    <p>To create a new Android project in Android Studio:</p>
+                    <ol>
+                        <li>Launch Android Studio</li>
+                        <li>Select "New Project" from the welcome screen or File → New → New Project</li>
+                        <li>Choose a project template (e.g., "Empty Activity" for a basic app)</li>
+                        <li>Configure your project:
+                            <ul>
+                                <li><strong>Name:</strong> Your app's name</li>
+                                <li><strong>Package name:</strong> Unique identifier (e.g., com.example.myapp)</li>
+                                <li><strong>Save location:</strong> Where to store the project</li>
+                                <li><strong>Language:</strong> Kotlin (recommended) or Java</li>
+                                <li><strong>Minimum SDK:</strong> The lowest Android version your app supports</li>
+                            </ul>
+                        </li>
+                        <li>Click "Finish" to create the project</li>
+                    </ol>
+                    <p>Android Studio will create a complete project structure with:</p>
+                    <ul>
+                        <li>Source code directories (java/kotlin for code, res for resources)</li>
+                        <li>Build configuration files (build.gradle)</li>
+                        <li>Android Manifest (AndroidManifest.xml)</li>
+                        <li>Default activity and layout files</li>
+                    </ul>
+                    <p>The default template creates a simple "Hello World" app that you can run immediately to test your setup.</p>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section as complete">
+            </section>
+
+            <section id="section-7">
+                <h2>2.7 Running and Debugging Your App</h2>
+                <div class="section-content">
+                    <p>Android Studio makes running and debugging your app straightforward. You can run your app on:</p>
+                    <ul>
+                        <li><strong>Android Emulator:</strong> Virtual devices that simulate various Android devices</li>
+                        <li><strong>Physical Devices:</strong> Connected Android phones/tablets via USB</li>
+                    </ul>
+                    
+                    <h3>Setting Up Run Configurations</h3>
+                    <p>To configure how your app runs:</p>
+                    <ol>
+                        <li>Select Run → Edit Configurations</li>
+                        <li>Choose your app module</li>
+                        <li>Configure options like:
+                            <ul>
+                                <li>Deployment target (emulator or connected device)</li>
+                                <li>Launch options (default activity, URL, etc.)</li>
+                                <li>Debugger settings</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <h3>Creating Virtual Devices</h3>
+                    <p>Use the Device Manager to create AVDs (Android Virtual Devices):</p>
+                    <ol>
+                        <li>Open Device Manager (Tools → Device Manager)</li>
+                        <li>Click "Create device"</li>
+                        <li>Choose a device definition (Pixel, Nexus, etc.)</li>
+                        <li>Select a system image (Android version)</li>
+                        <li>Configure hardware properties</li>
+                        <li>Click "Finish"</li>
+                    </ol>
+                    
+                    <p>Once configured, you can run your app by clicking the green "Run" button or pressing Shift+F10.</p>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section as complete">
+            </section>
+
+            <section id="section-8">
+                <h2>2.8 Building and Testing Your Android Applications</h2>
+                <div class="section-content">
+                    <p>Android Studio uses Gradle as its build system, which provides powerful build capabilities including:</p>
+                    <ul>
+                        <li>Automatic dependency management</li>
+                        <li>Build variants (debug/release)</li>
+                        <li>Product flavors for different app versions</li>
+                        <li>Custom build tasks</li>
+                    </ul>
+                    
+                    <h3>Running Your App</h3>
+                    <p>To run your app:</p>
+                    <ol>
+                        <li>Connect a physical device or start an emulator</li>
+                        <li>Click the "Run" button (green play icon) or press Shift+F10</li>
+                        <li>Select your target device</li>
+                        <li>Android Studio will:
+                            <ul>
+                                <li>Compile your code</li>
+                                <li>Build the APK</li>
+                                <li>Install it on the device/emulator</li>
+                                <li>Launch the app</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <h3>Debugging</h3>
+                    <p>Android Studio provides advanced debugging features:</p>
+                    <ul>
+                        <li>Set breakpoints by clicking in the gutter</li>
+                        <li>Use the Debug button (Shift+F9) to start debugging</li>
+                        <li>Inspect variables and expressions</li>
+                        <li>Step through code execution</li>
+                        <li>View device logs in Logcat</li>
+                        <li>Use the debugger for network inspection and database viewing</li>
+                    </ul>
+                    
+                    <p>The build process converts your Kotlin/Java code to DEX bytecode and packages everything into an APK file ready for distribution.</p>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section as complete">
+            </section>
+
+            <section id="section-9">
+                <h2>2.9 Understanding Your First Android App</h2>
+                <div class="section-content">
+                    <p>Let's examine the structure of your first Android application created by Android Studio.</p>
+                    
+                    <h3>Activity Structure</h3>
+                    <p>Activities are the building blocks of Android applications. Here's a modern Kotlin implementation:</p>
+                    
+                    <div class="code-block">
+                        <pre><code>package com.example.myfirstapp
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+    }
+}</code></pre>
+                    </div>
+
+                    <p>Key differences from the old Java version:</p>
+                    <ul>
+                        <li>Uses Kotlin syntax with null safety</li>
+                        <li>Extends AppCompatActivity for backward compatibility</li>
+                        <li>Uses modern AndroidX libraries</li>
+                        <li>onCreate parameter is nullable (Bundle?)</li>
+                    </ul>
+                    
+                    <h3>Layout Files</h3>
+                    <p>Modern Android uses ConstraintLayout for flexible UI design:</p>
+                    
+                    <div class="code-block">
+                        <pre><code>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"&gt;
+
+    &lt;TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello World!"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" /&gt;
+
+&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;</code></pre>
+                    </div>
+
+                    <p>Modern Android development emphasizes:</p>
+                    <ul>
+                        <li>Separation of concerns with ViewModels and LiveData</li>
+                        <li>Declarative UI with Jetpack Compose (optional)</li>
+                        <li>Material Design 3 components</li>
+                        <li>Modern app architecture patterns</li>
+                    </ul>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section as complete">
+            </section>
+
+            <section id="section-10">
+                <h2>2.10 Types of Android Applications</h2>
+                <div class="section-content">
+                    <p>Most of the applications you create in Android will fall into one of the following categories:</p>
+                    
+                    <h3>Foreground Activity</h3>
+                    <p>An application that's only useful when it's in the foreground and is effectively suspended when it's not visible. Games and map mashups are common examples.</p>
+                    
+                    <h3>Background Service</h3>
+                    <p>An application with limited interaction that, apart from when being configured, spends most of its lifetime hidden. Examples of this include call screening applications or SMS auto-responders.</p>
+                    
+                    <h3>Intermittent Activity</h3>
+                    <p>Expects some interactivity but does most of its work in the background. Often these applications will be set up and then run silently, notifying users when appropriate. A common example would be a media player.</p>
+                    
+                    <p>Complex applications are difficult to pigeonhole into a single category and include elements of all three. When creating your application, you need to consider how it's likely to be used and then design it accordingly.</p>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section as complete">
+            </section>
+
+            <section id="section-11">
+                <h2>2.11 Developing for Modern Android Devices</h2>
+                <div class="section-content">
+                    <p>Android development has evolved significantly since 2008. Modern Android devices include diverse form factors and capabilities that require careful consideration.</p>
+                    
+                    <h3>Modern Hardware Considerations</h3>
+                    <p>Today's Android devices offer:</p>
+                    <ul>
+                        <li>High-resolution displays (up to 4K)</li>
+                        <li>Foldable and dual-screen devices</li>
+                        <li>5G connectivity with low latency</li>
+                        <li>Advanced cameras and sensors</li>
+                        <li>Powerful processors with AI capabilities</li>
+                        <li>Large storage capacities</li>
+                        <li>Improved battery life and fast charging</li>
+                    </ul>
+                    
+                    <h3>Key Development Principles</h3>
+                    <p>Modern Android development emphasizes:</p>
+                    <ul>
+                        <li><strong>Responsive Design:</strong> Support for multiple screen sizes and orientations</li>
+                        <li><strong>Material Design:</strong> Consistent, beautiful UI following Material Design 3</li>
+                        <li><strong>Privacy-First:</strong> Respect user data with proper permissions and transparency</li>
+                        <li><strong>Performance:</strong> Optimize for battery life and smooth user experience</li>
+                        <li><strong>Accessibility:</strong> Make apps usable by everyone</li>
+                        <li><strong>Security:</strong> Use modern security best practices</li>
+                        <li><strong>Modularity:</strong> Build with reusable components and libraries</li>
+                    </ul>
+                    
+                    <h3>Architecture Patterns</h3>
+                    <p>Modern apps use:</p>
+                    <ul>
+                        <li>MVVM (Model-View-ViewModel) with LiveData and ViewModels</li>
+                        <li>Repository pattern for data management</li>
+                        <li>Dependency injection with Hilt or Dagger</li>
+                        <li>Coroutines for asynchronous programming</li>
+                        <li>Jetpack Compose for declarative UI (optional)</li>
+                    </ul>
+                    
+                    <p>Always test on a variety of devices and use tools like Firebase Test Lab for automated testing across device configurations.</p>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section as complete">
+            </section>
+
+            <section id="section-12">
+                <h2>2.12 Modern Android Development Tools</h2>
+                <div class="section-content">
+                    <p>Android Studio includes a comprehensive set of development tools. For detailed documentation, visit:</p>
+                    <p><code>https://developer.android.com/studio/intro</code></p>
+                    
+                    <p>Key tools available in Android Studio include:</p>
+                    <ul>
+                        <li><strong>Android Emulator:</strong> High-performance emulator with hardware acceleration</li>
+                        <li><strong>Device Manager:</strong> Create and manage virtual devices</li>
+                        <li><strong>SDK Manager:</strong> Download and manage SDK components</li>
+                        <li><strong>Android Debug Bridge (ADB):</strong> Command-line tool for device communication</li>
+                        <li><strong>Logcat:</strong> View device logs and debug messages</li>
+                        <li><strong>Layout Inspector:</strong> Inspect UI hierarchy at runtime</li>
+                        <li><strong>Profiler:</strong> Analyze CPU, memory, and network performance</li>
+                        <li><strong>APK Analyzer:</strong> Inspect APK contents and size</li>
+                        <li><strong>Database Inspector:</strong> View and modify app databases</li>
+                        <li><strong>Network Inspector:</strong> Monitor network traffic</li>
+                    </ul>
+                    
+                    <p>Additional command-line tools include:</p>
+                    <ul>
+                        <li><strong>bundletool:</strong> Build and test Android App Bundles</li>
+                        <li><strong>apkanalyzer:</strong> Analyze APK files</li>
+                        <li><strong>zipalign:</strong> Optimize APK files</li>
+                    </ul>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section as complete">
+            </section>
+        </main>
+
+        <div class="bg-white rounded-2xl shadow-xl p-6 mt-12">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <a href="index.html" class="text-primary-600 hover:text-primary-700 font-medium px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200">← Back to Chapters</a>
+                <a href="android3.html" class="text-primary-600 hover:text-primary-700 font-medium px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200">Chapter 3: Creating Applications and Activities →</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize progress tracking for this chapter
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeProgress('android2');
+        });
+    </script>
+</body>
+</html>

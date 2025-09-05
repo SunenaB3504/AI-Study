@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Design - Chapter 2: NoSQL Databases</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #0056b3;
+        }
+
+        .nav-btn.secondary {
+            background: #6c757d;
+        }
+
+        .nav-btn.secondary:hover {
+            background: #545b62;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4CAF50;
+        }
+
+        .section h3 {
+            color: #34495e;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+
+        .section h4 {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: "JavaScript";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #6c757d;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+
+        .code-block.mongo::before {
+            content: "MongoDB";
+        }
+
+        .code-block.redis::before {
+            content: "Redis";
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .comparison-table th {
+            background: #4CAF50;
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+
+        .practice-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .practice-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .practice-exercise {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .practice-exercise h4 {
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+
+        .quiz-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .quiz-section h3 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .quiz-question {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .quiz-question h4 {
+            margin-bottom: 10px;
+        }
+
+        .quiz-options {
+            margin: 10px 0;
+        }
+
+        .quiz-option {
+            display: block;
+            margin: 5px 0;
+            padding: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .comparison-table {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ Database Design</h1>
+            <div class="subtitle">Chapter 2: NoSQL Databases</div>
+        </div>
+
+        <div class="nav">
+            <div class="nav-links">
+                <a href="study-guide-progress.html" class="nav-btn">📊 Progress Dashboard</a>
+                <a href="database-design1.html" class="nav-btn">⬅️ SQL Fundamentals</a>
+                <a href="database-design3.html" class="nav-btn secondary">Next: Design Patterns →</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>🎯 Chapter Overview</h2>
+                <p>Welcome to Chapter 2 of Database Design! This chapter explores the world of NoSQL databases, which offer flexible alternatives to traditional relational databases. By the end of this chapter, you'll understand:</p>
+                <ul>
+                    <li>What NoSQL databases are and why they're important</li>
+                    <li>Different types of NoSQL databases and their use cases</li>
+                    <li>MongoDB fundamentals and document-based operations</li>
+                    <li>Redis and key-value store patterns</li>
+                    <li>When to choose SQL vs NoSQL for your projects</li>
+                    <li>Schema design considerations for NoSQL databases</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>🔍 What is NoSQL?</h2>
+                <p><strong>NoSQL</strong> (Not Only SQL) databases are designed to handle large volumes of unstructured or semi-structured data. Unlike traditional relational databases, NoSQL databases offer:</p>
+
+                <div class="info-box">
+                    <h4>🚀 Key Advantages:</h4>
+                    <ul>
+                        <li><strong>Scalability:</strong> Horizontal scaling across multiple servers</li>
+                        <li><strong>Flexibility:</strong> Dynamic schemas that can evolve with your application</li>
+                        <li><strong>Performance:</strong> Optimized for specific data patterns</li>
+                        <li><strong>Cost-effective:</strong> Can be cheaper for certain workloads</li>
+                    </ul>
+                </div>
+
+                <h3>📊 SQL vs NoSQL Comparison</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>SQL Databases</th>
+                            <th>NoSQL Databases</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Data Structure</strong></td>
+                            <td>Structured tables with fixed schemas</td>
+                            <td>Flexible documents, key-value pairs, graphs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Schema</strong></td>
+                            <td>Predefined schema (DDL)</td>
+                            <td>Dynamic schema (schema-less)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scaling</strong></td>
+                            <td>Vertical scaling (bigger servers)</td>
+                            <td>Horizontal scaling (more servers)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ACID Compliance</strong></td>
+                            <td>Full ACID support</td>
+                            <td>Varies by database type</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Cases</strong></td>
+                            <td>Complex queries, transactions, structured data</td>
+                            <td>Big data, real-time apps, unstructured data</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Examples</strong></td>
+                            <td>MySQL, PostgreSQL, Oracle</td>
+                            <td>MongoDB, Redis, Cassandra, Neo4j</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>📂 Types of NoSQL Databases</h2>
+
+                <h3>📄 Document Stores</h3>
+                <p>Store data as documents (typically JSON-like structures). Best for:</p>
+                <ul>
+                    <li>Content management systems</li>
+                    <li>User profiles and preferences</li>
+                    <li>Product catalogs</li>
+                    <li>Blog posts and articles</li>
+                </ul>
+
+                <h3>🔑 Key-Value Stores</h3>
+                <p>Simple key-value pairs for fast lookups. Best for:</p>
+                <ul>
+                    <li>Caching layers</li>
+                    <li>Session storage</li>
+                    <li>Real-time analytics</li>
+                    <li>Configuration data</li>
+                </ul>
+
+                <h3>📊 Column-Family Stores</h3>
+                <p>Store data in columns rather than rows. Best for:</p>
+                <ul>
+                    <li>Time-series data</li>
+                    <li>IoT sensor data</li>
+                    <li>Analytics and reporting</li>
+                    <li>Distributed systems</li>
+                </ul>
+
+                <h3>🔗 Graph Databases</h3>
+                <p>Store data as nodes and relationships. Best for:</p>
+                <ul>
+                    <li>Social networks</li>
+                    <li>Recommendation engines</li>
+                    <li>Fraud detection</li>
+                    <li>Knowledge graphs</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>🍃 MongoDB: Document Store</h2>
+                <p>MongoDB is the most popular document database, storing data as BSON (Binary JSON) documents.</p>
+
+                <h3>📝 Basic Operations</h3>
+
+                <h4>🔌 Connecting to MongoDB</h4>
+                <div class="code-block">
+// Using MongoDB Node.js driver
+const { MongoClient } = require('mongodb');
+
+async function connectToMongoDB() {
+    const uri = 'mongodb://localhost:27017';
+    const client = new MongoClient(uri);
+
+    try {
+        await client.connect();
+        console.log('Connected to MongoDB');
+        return client;
+    } catch (error) {
+        console.error('Connection failed:', error);
+    }
+}
+                </div>
+
+                <h4>📥 Inserting Documents</h4>
+                <div class="code-block mongo">
+// Insert a single document
+db.users.insertOne({
+    name: "John Doe",
+    email: "john@example.com",
+    age: 30,
+    hobbies: ["reading", "coding", "gaming"],
+    address: {
+        street: "123 Main St",
+        city: "New York",
+        zipCode: "10001"
+    },
+    createdAt: new Date()
+});
+
+// Insert multiple documents
+db.users.insertMany([
+    { name: "Jane Smith", email: "jane@example.com", age: 25 },
+    { name: "Bob Johnson", email: "bob@example.com", age: 35 }
+]);
+                </div>
+
+                <h4>🔍 Querying Documents</h4>
+                <div class="code-block mongo">
+// Find all users
+db.users.find();
+
+// Find users older than 25
+db.users.find({ age: { $gt: 25 } });
+
+// Find user by email
+db.users.findOne({ email: "john@example.com" });
+
+// Find users with specific hobby
+db.users.find({ hobbies: "coding" });
+
+// Complex query with multiple conditions
+db.users.find({
+    age: { $gte: 20, $lte: 40 },
+    "address.city": "New York"
+});
+                </div>
+
+                <h4>🔄 Updating Documents</h4>
+                <div class="code-block mongo">
+// Update a single field
+db.users.updateOne(
+    { email: "john@example.com" },
+    { $set: { age: 31 } }
+);
+
+// Add new field to all documents
+db.users.updateMany(
+    {},
+    { $set: { lastLogin: new Date() } }
+);
+
+// Increment a value
+db.users.updateOne(
+    { email: "john@example.com" },
+    { $inc: { loginCount: 1 } }
+);
+
+// Add item to array
+db.users.updateOne(
+    { email: "john@example.com" },
+    { $push: { hobbies: "photography" } }
+);
+                </div>
+
+                <h4>🗑️ Deleting Documents</h4>
+                <div class="code-block mongo">
+// Delete one document
+db.users.deleteOne({ email: "john@example.com" });
+
+// Delete multiple documents
+db.users.deleteMany({ age: { $lt: 18 } });
+
+// Delete all documents
+db.users.deleteMany({});
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>⚡ Redis: Key-Value Store</h2>
+                <p>Redis is an in-memory data structure store, often used as a cache or session store.</p>
+
+                <h3>🔑 Redis Data Types</h3>
+
+                <h4>📝 Strings</h4>
+                <div class="code-block redis">
+// Basic string operations
+SET user:123:name "John Doe"
+GET user:123:name
+DEL user:123:name
+
+// Numeric operations
+SET counter 0
+INCR counter
+INCRBY counter 5
+DECR counter
+                </div>
+
+                <h4>📋 Lists</h4>
+                <div class="code-block redis">
+// List operations
+LPUSH mylist "item1"
+LPUSH mylist "item2"
+RPUSH mylist "item3"
+
+LRANGE mylist 0 -1  // Get all items
+LPOP mylist         // Remove and return first item
+RPOP mylist         // Remove and return last item
+LLEN mylist         // Get list length
+                </div>
+
+                <h4>🔗 Sets</h4>
+                <div class="code-block redis">
+// Set operations
+SADD myset "member1"
+SADD myset "member2"
+SADD myset "member3"
+
+SMEMBERS myset      // Get all members
+SISMEMBER myset "member1"  // Check membership
+SCARD myset         // Get set size
+
+// Set operations
+SADD set1 "a" "b" "c"
+SADD set2 "c" "d" "e"
+SUNION set1 set2    // Union: ["a", "b", "c", "d", "e"]
+SINTER set1 set2    // Intersection: ["c"]
+SDIFF set1 set2     // Difference: ["a", "b"]
+                </div>
+
+                <h4>📊 Hashes</h4>
+                <div class="code-block redis">
+// Hash operations
+HSET user:123 name "John" email "john@example.com" age "30"
+HGET user:123 name
+HGETALL user:123
+HKEYS user:123      // Get all field names
+HVALS user:123      // Get all field values
+HLEN user:123       // Get number of fields
+
+// Increment hash field
+HINCRBY user:123 age 1
+                </div>
+
+                <h4>📈 Sorted Sets</h4>
+                <div class="code-block redis">
+// Sorted set operations
+ZADD leaderboard 100 "player1"
+ZADD leaderboard 150 "player2"
+ZADD leaderboard 75 "player3"
+
+ZRANGE leaderboard 0 -1 WITHSCORES  // Get all with scores
+ZREVRANGE leaderboard 0 2           // Top 3 players
+ZRANK leaderboard "player1"         // Get rank of player
+ZSCORE leaderboard "player1"        // Get score of player
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🎨 Schema Design in NoSQL</h2>
+
+                <h3>📋 Embedding vs Referencing</h3>
+
+                <h4>🔗 Embedding (Denormalization)</h4>
+                <div class="code-block mongo">
+// Embedded approach - store related data together
+{
+    _id: ObjectId("..."),
+    title: "Introduction to MongoDB",
+    author: {
+        name: "John Doe",
+        email: "john@example.com",
+        bio: "Database expert"
+    },
+    content: "MongoDB is a document database...",
+    tags: ["mongodb", "nosql", "database"],
+    comments: [
+        {
+            user: "Jane Smith",
+            text: "Great article!",
+            createdAt: new Date()
+        }
+    ],
+    createdAt: new Date(),
+    updatedAt: new Date()
+}
+                </div>
+
+                <h4>🔗 Referencing (Normalization)</h4>
+                <div class="code-block mongo">
+// Referenced approach - store data separately
+// Authors collection
+{
+    _id: ObjectId("..."),
+    name: "John Doe",
+    email: "john@example.com",
+    bio: "Database expert"
+}
+
+// Posts collection
+{
+    _id: ObjectId("..."),
+    title: "Introduction to MongoDB",
+    authorId: ObjectId("..."),  // Reference to author
+    content: "MongoDB is a document database...",
+    tags: ["mongodb", "nosql", "database"],
+    createdAt: new Date(),
+    updatedAt: new Date()
+}
+
+// Comments collection
+{
+    _id: ObjectId("..."),
+    postId: ObjectId("..."),    // Reference to post
+    userId: ObjectId("..."),    // Reference to user
+    text: "Great article!",
+    createdAt: new Date()
+}
+                </div>
+
+                <div class="info-box">
+                    <h4>💡 When to Embed vs Reference:</h4>
+                    <strong>Embed when:</strong>
+                    <ul>
+                        <li>Data is frequently accessed together</li>
+                        <li>Child documents are bounded in size</li>
+                        <li>You need atomic operations on related data</li>
+                        <li>One-to-one or one-to-few relationships</li>
+                    </ul>
+                    <strong>Reference when:</strong>
+                    <ul>
+                        <li>Data grows unbounded</li>
+                        <li>You need to query data independently</li>
+                        <li>Many-to-many relationships</li>
+                        <li>Data is accessed separately most of the time</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 Aggregation Framework (MongoDB)</h2>
+                <p>MongoDB's aggregation framework allows complex data processing and analysis.</p>
+
+                <div class="code-block mongo">
+// Basic aggregation pipeline
+db.orders.aggregate([
+    // Stage 1: Filter documents
+    {
+        $match: {
+            status: "completed",
+            createdAt: { $gte: new Date("2024-01-01") }
+        }
+    },
+    // Stage 2: Group by customer and calculate totals
+    {
+        $group: {
+            _id: "$customerId",
+            totalOrders: { $sum: 1 },
+            totalAmount: { $sum: "$amount" },
+            averageAmount: { $avg: "$amount" }
+        }
+    },
+    // Stage 3: Sort by total amount
+    {
+        $sort: { totalAmount: -1 }
+    },
+    // Stage 4: Limit results
+    {
+        $limit: 10
+    }
+]);
+
+// Lookup for joining collections
+db.posts.aggregate([
+    {
+        $lookup: {
+            from: "authors",
+            localField: "authorId",
+            foreignField: "_id",
+            as: "author"
+        }
+    },
+    {
+        $unwind: "$author"
+    },
+    {
+        $project: {
+            title: 1,
+            content: 1,
+            "author.name": 1,
+            "author.email": 1,
+            createdAt: 1
+        }
+    }
+]);
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>⚖️ Choosing the Right Database</h2>
+
+                <h3>🎯 Decision Factors</h3>
+                <div class="success-box">
+                    <h4>🔍 Key Considerations:</h4>
+                    <ul>
+                        <li><strong>Data Structure:</strong> How structured is your data?</li>
+                        <li><strong>Query Patterns:</strong> What kind of queries do you need?</li>
+                        <li><strong>Scalability:</strong> How much data and what growth rate?</li>
+                        <li><strong>Consistency:</strong> How important is ACID compliance?</li>
+                        <li><strong>Performance:</strong> What are your latency requirements?</li>
+                        <li><strong>Development Speed:</strong> How fast do you need to iterate?</li>
+                        <li><strong>Cost:</strong> What's your budget for infrastructure?</li>
+                    </ul>
+                </div>
+
+                <h3>📊 Database Selection Guide</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Use Case</th>
+                            <th>Recommended Database</th>
+                            <th>Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>User profiles, content management</td>
+                            <td>MongoDB</td>
+                            <td>Flexible schemas, document structure</td>
+                        </tr>
+                        <tr>
+                            <td>Caching, sessions, real-time data</td>
+                            <td>Redis</td>
+                            <td>High performance, in-memory storage</td>
+                        </tr>
+                        <tr>
+                            <td>Time-series data, IoT</td>
+                            <td>Cassandra/InfluxDB</td>
+                            <td>High write throughput, distributed</td>
+                        </tr>
+                        <tr>
+                            <td>Social networks, recommendations</td>
+                            <td>Neo4j</td>
+                            <td>Relationship modeling, graph queries</td>
+                        </tr>
+                        <tr>
+                            <td>E-commerce, financial transactions</td>
+                            <td>PostgreSQL/MySQL</td>
+                            <td>ACID compliance, complex queries</td>
+                        </tr>
+                        <tr>
+                            <td>Analytics, data warehousing</td>
+                            <td>ClickHouse/Redshift</td>
+                            <td>Fast analytical queries, columnar storage</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="practice-section">
+                <h3>💪 Practice Exercises</h3>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 1: MongoDB CRUD Operations</h4>
+                    <p>Create a MongoDB collection for a blog application with the following requirements:</p>
+                    <ol>
+                        <li>Insert 5 blog posts with authors, tags, and comments</li>
+                        <li>Query posts by specific author or tag</li>
+                        <li>Update post content and add new comments</li>
+                        <li>Delete posts older than 1 year</li>
+                    </ol>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 2: Redis Data Structures</h4>
+                    <p>Implement a simple e-commerce shopping cart using Redis:</p>
+                    <ol>
+                        <li>Use hashes to store product information</li>
+                        <li>Use sets to track user wishlists</li>
+                        <li>Use sorted sets for product ratings</li>
+                        <li>Use strings for session management</li>
+                    </ol>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 3: Schema Design</h4>
+                    <p>Design a NoSQL schema for a social media application:</p>
+                    <ul>
+                        <li>Users with profiles, posts, and followers</li>
+                        <li>Posts with likes, comments, and hashtags</li>
+                        <li>Decide between embedding and referencing</li>
+                        <li>Consider query patterns and performance</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <h3>🧠 Knowledge Check</h3>
+
+                <div class="quiz-question">
+                    <h4>Question 1: Which NoSQL type is best for caching and session storage?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">Document Store</div>
+                        <div class="quiz-option">Key-Value Store</div>
+                        <div class="quiz-option">Column-Family Store</div>
+                        <div class="quiz-option">Graph Database</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 2: In MongoDB, when should you embed documents instead of referencing them?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">When data is accessed independently</div>
+                        <div class="quiz-option">When data is frequently accessed together</div>
+                        <div class="quiz-option">When relationships are many-to-many</div>
+                        <div class="quiz-option">When data grows unbounded</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 3: Which Redis data type is best for implementing a leaderboard?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">String</div>
+                        <div class="quiz-option">List</div>
+                        <div class="quiz-option">Set</div>
+                        <div class="quiz-option">Sorted Set</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 Best Practices for NoSQL</h2>
+
+                <div class="success-box">
+                    <h4>💡 NoSQL Development Best Practices:</h4>
+                    <ul>
+                        <li><strong>Understand your data access patterns</strong> before choosing a database</li>
+                        <li><strong>Design for your query patterns</strong> - optimize for how you read data</li>
+                        <li><strong>Consider data consistency requirements</strong> - not all NoSQL databases are ACID compliant</li>
+                        <li><strong>Plan for horizontal scaling</strong> from the beginning</li>
+                        <li><strong>Use appropriate indexing</strong> to maintain query performance</li>
+                        <li><strong>Implement proper error handling</strong> and connection pooling</li>
+                        <li><strong>Monitor performance metrics</strong> and query execution times</li>
+                        <li><strong>Backup and disaster recovery</strong> are still critical</li>
+                        <li><strong>Consider migration strategies</strong> if you need to change databases later</li>
+                    </ul>
+                </div>
+
+                <h3>🔒 Security Considerations</h3>
+                <div class="warning-box">
+                    <strong>⚠️ Security Best Practices:</strong>
+                    <ul>
+                        <li>Enable authentication and authorization</li>
+                        <li>Use encrypted connections (SSL/TLS)</li>
+                        <li>Implement proper access controls</li>
+                        <li>Regular security updates and patches</li>
+                        <li>Monitor for unusual activity</li>
+                        <li>Secure sensitive data appropriately</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📚 Chapter Summary</h2>
+                <p>In this chapter, we've explored the world of NoSQL databases and their alternatives to traditional relational databases:</p>
+
+                <ul>
+                    <li><strong>NoSQL Overview:</strong> Scalability, flexibility, and performance advantages</li>
+                    <li><strong>Database Types:</strong> Document stores, key-value stores, column-family, and graph databases</li>
+                    <li><strong>MongoDB:</strong> Document-based operations, CRUD, aggregation framework</li>
+                    <li><strong>Redis:</strong> In-memory data structures, caching patterns, various data types</li>
+                    <li><strong>Schema Design:</strong> Embedding vs referencing, data modeling considerations</li>
+                    <li><strong>Decision Factors:</strong> Choosing the right database for your use case</li>
+                    <li><strong>Best Practices:</strong> Performance, security, and development guidelines</li>
+                </ul>
+
+                <div class="info-box">
+                    <strong>🎯 Next Steps:</strong> In the next chapter, we'll dive into database design patterns, indexing strategies, and schema optimization techniques that apply to both SQL and NoSQL databases.
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Study Guide Collection | <a href="study-guide-progress.html">View Progress Dashboard</a> | <a href="database-design1.html">Previous Chapter ←</a> | <a href="database-design3.html">Next Chapter →</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Quiz functionality
+            const quizOptions = document.querySelectorAll('.quiz-option');
+            const correctAnswers = [
+                'Key-Value Store',
+                'When data is frequently accessed together',
+                'Sorted Set'
+            ];
+
+            quizOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionIndex = Array.from(this.parentElement.parentElement.parentElement.children).indexOf(this.parentElement.parentElement);
+                    const isCorrect = this.textContent === correctAnswers[questionIndex];
+
+                    // Remove previous styling
+                    this.parentElement.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.style.background = '';
+                        opt.style.color = '';
+                    });
+
+                    if (isCorrect) {
+                        this.style.background = '#4CAF50';
+                        this.style.color = 'white';
+                        alert('✅ Correct!');
+                    } else {
+                        this.style.background = '#f44336';
+                        this.style.color = 'white';
+                        alert('❌ Incorrect. Try again!');
+                    }
+                });
+            });
+
+            // Code block copy functionality
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = '📋 Copy';
+                copyBtn.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 60px;
+                    background: #4CAF50;
+                    color: white;
+                    border: none;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.8em;
+                `;
+
+                copyBtn.addEventListener('click', function() {
+                    const code = block.textContent.replace(/^(JavaScript|MongoDB|Redis)$/m, '').trim();
+                    navigator.clipboard.writeText(code).then(() => {
+                        this.textContent = '✅ Copied!';
+                        setTimeout(() => this.textContent = '📋 Copy', 2000);
+                    });
+                });
+
+                block.style.position = 'relative';
+                block.appendChild(copyBtn);
+            });
+        });
+    </script>
+</body>
+</html>

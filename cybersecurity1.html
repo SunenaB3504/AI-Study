@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity - Chapter 1: Web Security Basics</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            color: #4285f4;
+            border-bottom: 3px solid #4285f4;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .section h3 {
+            color: #34a853;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .important {
+            background: #f8d7da;
+            padding: 15px;
+            border-left: 4px solid #dc3545;
+            margin: 20px 0;
+        }
+        .vulnerability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .vulnerability-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-left: 4px solid #dc3545;
+        }
+        .vulnerability-card h4 {
+            color: #dc3545;
+            margin: 0 0 10px 0;
+        }
+        .vulnerability-card p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .security-headers {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .header-item {
+            background: white;
+            border: 1px solid #bbdefb;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .header-item h5 {
+            color: #1976d2;
+            margin: 0 0 8px 0;
+        }
+        .header-item p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .quiz-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        .quiz-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .quiz-question {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .quiz-question h4 {
+            color: #4285f4;
+            margin: 0 0 15px 0;
+        }
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .quiz-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .quiz-option:hover {
+            background: #e3f2fd;
+            border-color: #4285f4;
+        }
+        .quiz-option.correct {
+            background: #e8f5e9;
+            border-color: #34a853;
+        }
+        .quiz-option.incorrect {
+            background: #ffebee;
+            border-color: #dc3545;
+        }
+        .quiz-result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+        }
+        .quiz-result.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .quiz-result.incorrect {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .navigation {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffcc02 100%);
+            border: 2px solid #ff9800;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        .nav-btn:hover {
+            background: #3367d6;
+        }
+        .nav-btn.secondary {
+            background: #34a853;
+        }
+        .nav-btn.secondary:hover {
+            background: #2e7d32;
+        }
+        .practice-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .practice-section h4 {
+            color: #4285f4;
+            margin: 0 0 15px 0;
+        }
+        .practice-list {
+            list-style: none;
+            padding: 0;
+        }
+        .practice-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .practice-list li:before {
+            content: "🔒 ";
+            margin-right: 8px;
+        }
+        .attack-flow {
+            background: #ffebee;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .attack-flow h4 {
+            color: #c62828;
+            margin: 0 0 15px 0;
+        }
+        .attack-step {
+            background: white;
+            border: 1px solid #ffcdd2;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        .defense-strategy {
+            background: #e8f5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .defense-strategy h4 {
+            color: #2e7d32;
+            margin: 0 0 15px 0;
+        }
+        .defense-item {
+            background: white;
+            border: 1px solid #c8e6c9;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 Cybersecurity</h1>
+            <div class="subtitle">Chapter 1: Web Security Basics</div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>🛡️ Why Web Security Matters</h2>
+                <p>Web security is crucial in today's digital landscape. With cyber attacks becoming increasingly sophisticated, understanding fundamental security principles is essential for any web developer or application owner.</p>
+
+                <div class="highlight">
+                    <strong>Security Impact:</strong>
+                    <ul>
+                        <li><strong>Data Protection</strong> - Safeguard user data and privacy</li>
+                        <li><strong>Trust Building</strong> - Maintain user confidence in your application</li>
+                        <li><strong>Legal Compliance</strong> - Meet regulatory requirements (GDPR, HIPAA, etc.)</li>
+                        <li><strong>Business Continuity</strong> - Prevent costly security breaches</li>
+                        <li><strong>Reputation Management</strong> - Protect brand integrity</li>
+                    </ul>
+                </div>
+
+                <div class="important">
+                    <strong>Security is Everyone's Responsibility:</strong>
+                    <p>Security is not just for security professionals. Every developer, from frontend to backend, plays a crucial role in building secure applications. Security should be integrated into every phase of development, not treated as an afterthought.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔓 Common Web Vulnerabilities</h2>
+
+                <div class="vulnerability-grid">
+                    <div class="vulnerability-card">
+                        <h4>Cross-Site Scripting (XSS)</h4>
+                        <p>Attackers inject malicious scripts into web pages viewed by other users. Occurs when user input is not properly sanitized before being displayed.</p>
+                    </div>
+
+                    <div class="vulnerability-card">
+                        <h4>SQL Injection</h4>
+                        <p>Attackers manipulate SQL queries by injecting malicious SQL code through user input. Occurs when user input is directly concatenated into SQL statements.</p>
+                    </div>
+
+                    <div class="vulnerability-card">
+                        <h4>Cross-Site Request Forgery (CSRF)</h4>
+                        <p>Attackers trick users into performing unwanted actions on a web application where they're authenticated. Exploits the trust a site has in a user's browser.</p>
+                    </div>
+
+                    <div class="vulnerability-card">
+                        <h4>Broken Authentication</h4>
+                        <p>Flaws in session management, password recovery, or authentication mechanisms that allow attackers to compromise user accounts.</p>
+                    </div>
+
+                    <div class="vulnerability-card">
+                        <h4>Sensitive Data Exposure</h4>
+                        <p>Failure to properly protect sensitive data like passwords, credit cards, or personal information, often due to weak encryption or improper storage.</p>
+                    </div>
+
+                    <div class="vulnerability-card">
+                        <h4>Security Misconfiguration</h4>
+                        <p>Common security settings not properly configured, such as default passwords, unnecessary services enabled, or misconfigured permissions.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>💉 Cross-Site Scripting (XSS) Deep Dive</h2>
+
+                <h3>Types of XSS Attacks</h3>
+
+                <div class="attack-flow">
+                    <h4>Stored XSS (Persistent)</h4>
+                    <div class="attack-step">1. Attacker submits malicious script to server (e.g., comment field)</div>
+                    <div class="attack-step">2. Server stores the script in database without sanitization</div>
+                    <div class="attack-step">3. Server sends script to other users when they view the page</div>
+                    <div class="attack-step">4. Victim's browser executes the malicious script</div>
+                </div>
+
+                <div class="code-block">
+                    <pre><code>// Vulnerable PHP code (Stored XSS)
+$name = $_POST['name']; // User input
+$sql = "INSERT INTO comments (name, message) VALUES ('$name', '$message')";
+mysql_query($sql);
+
+// Later, displaying comments
+while($row = mysql_fetch_array($result)) {
+    echo "&lt;div&gt;" . $row['name'] . ": " . $row['message'] . "&lt;/div&gt;";
+}
+
+// Attacker input: &lt;script&gt;alert('XSS');&lt;/script&gt;</code></pre>
+                </div>
+
+                <div class="defense-strategy">
+                    <h4>Defending Against XSS</h4>
+                    <div class="defense-item">✅ Sanitize user input on both client and server side</div>
+                    <div class="defense-item">✅ Use Content Security Policy (CSP) headers</div>
+                    <div class="defense-item">✅ Escape output when displaying user data</div>
+                    <div class="defense-item">✅ Use frameworks with built-in XSS protection</div>
+                    <div class="defense-item">✅ Validate input on the client side for better UX</div>
+                </div>
+
+                <h3>XSS Prevention in Practice</h3>
+                <div class="code-block">
+                    <pre><code>// PHP - Using htmlspecialchars for output escaping
+$name = htmlspecialchars($_POST['name'], ENT_QUOTES, 'UTF-8');
+$message = htmlspecialchars($_POST['message'], ENT_QUOTES, 'UTF-8');
+
+echo "&lt;div&gt;" . $name . ": " . $message . "&lt;/div&gt;";
+
+// JavaScript - Using textContent instead of innerHTML
+const userComment = document.createElement('div');
+userComment.textContent = userInput; // Safe
+// userComment.innerHTML = userInput; // Dangerous!
+
+// React - Automatic escaping
+function Comment({ author, text }) {
+    return (
+        &lt;div&gt;
+            &lt;h3&gt;{author}&lt;/h3&gt; // Automatically escaped
+            &lt;p&gt;{text}&lt;/p&gt;
+        &lt;/div&gt;
+    );
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔐 HTTPS and SSL/TLS</h2>
+
+                <h3>Why HTTPS Matters</h3>
+                <div class="highlight">
+                    <strong>HTTPS Benefits:</strong>
+                    <ul>
+                        <li><strong>Encryption</strong> - Protects data in transit from eavesdropping</li>
+                        <li><strong>Authentication</strong> - Verifies server identity</li>
+                        <li><strong>Data Integrity</strong> - Ensures data isn't modified during transmission</li>
+                        <li><strong>SEO Benefits</strong> - Search engines favor HTTPS sites</li>
+                        <li><strong>Trust Indicators</strong> - Browser shows secure connection</li>
+                        <li><strong>Modern Web Standards</strong> - Many APIs require HTTPS</li>
+                    </ul>
+                </div>
+
+                <h3>SSL/TLS Certificate Types</h3>
+                <div class="code-block">
+                    <pre><code>// Let's Encrypt - Free SSL certificates
+# Install certbot
+sudo apt-get install certbot
+
+# Get certificate for your domain
+sudo certbot certonly --webroot -w /var/www/html -d example.com
+
+# Automatic renewal (add to crontab)
+0 12 * * * /usr/bin/certbot renew --quiet
+
+// Node.js HTTPS server setup
+const https = require('https');
+const fs = require('fs');
+
+const options = {
+    key: fs.readFileSync('private-key.pem'),
+    cert: fs.readFileSync('certificate.pem')
+};
+
+https.createServer(options, (req, res) => {
+    res.writeHead(200);
+    res.end('Hello, secure world!');
+}).listen(443);</code></pre>
+                </div>
+
+                <div class="important">
+                    <strong>HTTP Security Headers:</strong>
+                    <p>Security headers provide additional layers of protection beyond HTTPS. They instruct browsers how to behave when handling your site's content.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🛡️ Security Headers</h2>
+
+                <div class="security-headers">
+                    <h4>Essential Security Headers</h4>
+
+                    <div class="header-item">
+                        <h5>Content Security Policy (CSP)</h5>
+                        <p>Prevents XSS attacks by controlling which resources can be loaded and executed.</p>
+                    </div>
+
+                    <div class="header-item">
+                        <h5>X-Frame-Options</h5>
+                        <p>Prevents clickjacking attacks by controlling whether your site can be embedded in frames.</p>
+                    </div>
+
+                    <div class="header-item">
+                        <h5>X-Content-Type-Options</h5>
+                        <p>Prevents MIME type sniffing attacks by telling browsers not to guess content types.</p>
+                    </div>
+
+                    <div class="header-item">
+                        <h5>Strict-Transport-Security (HSTS)</h5>
+                        <p>Forces browsers to use HTTPS connections for all requests to your domain.</p>
+                    </div>
+
+                    <div class="header-item">
+                        <h5>Referrer-Policy</h5>
+                        <p>Controls how much referrer information is included in requests.</p>
+                    </div>
+
+                    <div class="header-item">
+                        <h5>Permissions-Policy</h5>
+                        <p>Controls which browser features and APIs can be used on your site.</p>
+                    </div>
+                </div>
+
+                <h3>Implementing Security Headers</h3>
+                <div class="code-block">
+                    <pre><code>// Apache .htaccess
+&lt;IfModule mod_headers.c&gt;
+    # Content Security Policy
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+
+    # Prevent clickjacking
+    Header always set X-Frame-Options DENY
+
+    # Prevent MIME sniffing
+    Header set X-Content-Type-Options nosniff
+
+    # Force HTTPS
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # Referrer policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+&lt;/IfModule&gt;
+
+// Node.js Express
+const express = require('express');
+const helmet = require('helmet');
+
+const app = express();
+
+// Use Helmet for automatic security headers
+app.use(helmet());
+
+// Custom CSP
+app.use(helmet.contentSecurityPolicy({
+    directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+    },
+}));
+
+// Custom headers
+app.use((req, res, next) => {
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    next();
+});</code></pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔍 Input Validation and Sanitization</h2>
+
+                <h3>Client-Side vs Server-Side Validation</h3>
+                <div class="highlight">
+                    <strong>Defense in Depth:</strong>
+                    <ul>
+                        <li><strong>Client-Side</strong> - Provides immediate feedback, improves UX</li>
+                        <li><strong>Server-Side</strong> - Essential security layer, cannot be bypassed</li>
+                        <li><strong>Database Level</strong> - Additional validation at data storage layer</li>
+                    </ul>
+                </div>
+
+                <div class="code-block">
+                    <pre><code>// Client-side validation (JavaScript)
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function validateInput(input) {
+    // Remove potentially dangerous characters
+    const sanitized = input.replace(/[&lt;&gt;"']/g, '');
+
+    // Check length
+    if (sanitized.length &gt; 100) {
+        return false;
+    }
+
+    return sanitized;
+}
+
+// Server-side validation (Node.js)
+const validator = require('validator');
+
+function validateUserInput(req, res, next) {
+    const { email, username, password } = req.body;
+
+    // Validate email
+    if (!validator.isEmail(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    // Validate username (alphanumeric, 3-20 chars)
+    if (!validator.isAlphanumeric(username) || !validator.isLength(username, { min: 3, max: 20 })) {
+        return res.status(400).json({ error: 'Invalid username' });
+    }
+
+    // Validate password strength
+    if (!validator.isStrongPassword(password, {
+        minLength: 8,
+        minLowercase: 1,
+        minUppercase: 1,
+        minNumbers: 1,
+        minSymbols: 1
+    })) {
+        return res.status(400).json({ error: 'Password too weak' });
+    }
+
+    next();
+}</code></pre>
+                </div>
+
+                <h3>SQL Injection Prevention</h3>
+                <div class="code-block">
+                    <pre><code>// Vulnerable to SQL injection
+const userId = req.params.id;
+const query = `SELECT * FROM users WHERE id = ${userId}`;
+
+// Safe with parameterized queries
+const query = 'SELECT * FROM users WHERE id = ?';
+connection.execute(query, [userId], (err, results) => {
+    // Handle results
+});
+
+// Using an ORM (even safer)
+const user = await User.findByPk(userId);
+
+// Input validation for dynamic queries
+function sanitizeForSQL(input) {
+    // Remove SQL keywords and special characters
+    return input.replace(/['";\\]/g, '');
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔐 Authentication Security</h2>
+
+                <h3>Password Security Best Practices</h3>
+                <div class="code-block">
+                    <pre><code>// Secure password hashing (Node.js with bcrypt)
+const bcrypt = require('bcrypt');
+
+async function hashPassword(password) {
+    const saltRounds = 12; // Higher = more secure but slower
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    return hashedPassword;
+}
+
+async function verifyPassword(password, hashedPassword) {
+    const isValid = await bcrypt.compare(password, hashedPassword);
+    return isValid;
+}
+
+// Secure session management
+const session = require('express-session');
+
+app.use(session({
+    secret: process.env.SESSION_SECRET, // Strong, random secret
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: true, // HTTPS only
+        httpOnly: true, // Prevent XSS access
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+
+// CSRF protection
+const csrf = require('csurf');
+app.use(csrf({ cookie: true }));
+
+// Add CSRF token to all forms
+app.use((req, res, next) => {
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});</code></pre>
+                </div>
+
+                <h3>Multi-Factor Authentication (MFA)</h3>
+                <div class="highlight">
+                    <strong>MFA Benefits:</strong>
+                    <ul>
+                        <li><strong>Additional Security Layer</strong> - Requires multiple verification methods</li>
+                        <li><strong>Phishing Protection</strong> - Even if password is stolen, account remains secure</li>
+                        <li><strong>Compliance</strong> - Required by many security standards</li>
+                        <li><strong>User Trust</strong> - Shows commitment to security</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🛠️ Security Testing and Monitoring</h2>
+
+                <div class="practice-section">
+                    <h4>🧪 Security Testing Checklist</h4>
+                    <ul class="practice-list">
+                        <li>Conduct regular security audits and penetration testing</li>
+                        <li>Use automated security scanners (OWASP ZAP, Burp Suite)</li>
+                        <li>Implement logging and monitoring for suspicious activities</li>
+                        <li>Regular dependency updates and vulnerability scanning</li>
+                        <li>Conduct code reviews with security focus</li>
+                        <li>Test for common vulnerabilities (OWASP Top 10)</li>
+                        <li>Implement security headers and validate their effectiveness</li>
+                        <li>Monitor for security breaches and have incident response plans</li>
+                    </ul>
+                </div>
+
+                <div class="important">
+                    <strong>OWASP Top 10:</strong>
+                    <ol>
+                        <li>Broken Access Control</li>
+                        <li>Cryptographic Failures</li>
+                        <li>Injection</li>
+                        <li>Insecure Design</li>
+                        <li>Security Misconfiguration</li>
+                        <li>Vulnerable Components</li>
+                        <li>Identification & Authentication Failures</li>
+                        <li>Software & Data Integrity Failures</li>
+                        <li>Security Logging & Monitoring Failures</li>
+                        <li>Server-Side Request Forgery (SSRF)</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <h3>📝 Knowledge Check</h3>
+
+                <div class="quiz-question">
+                    <h4>1. Which of the following is the most effective way to prevent XSS attacks?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="false">Client-side input validation only</div>
+                        <div class="quiz-option" data-correct="true">Output escaping and Content Security Policy</div>
+                        <div class="quiz-option" data-correct="false">Using HTTPS</div>
+                        <div class="quiz-option" data-correct="false">Input sanitization only</div>
+                    </div>
+                    <div class="quiz-result" id="result1"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>2. What is the primary purpose of the Content Security Policy (CSP) header?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="false">To encrypt data in transit</div>
+                        <div class="quiz-option" data-correct="true">To prevent XSS by controlling resource loading</div>
+                        <div class="quiz-option" data-correct="false">To manage user sessions</div>
+                        <div class="quiz-option" data-correct="false">To validate user input</div>
+                    </div>
+                    <div class="quiz-result" id="result2"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>3. Which security header prevents clickjacking attacks?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="false">Strict-Transport-Security</div>
+                        <div class="quiz-option" data-correct="false">X-Content-Type-Options</div>
+                        <div class="quiz-option" data-correct="true">X-Frame-Options</div>
+                        <div class="quiz-option" data-correct="false">Referrer-Policy</div>
+                    </div>
+                    <div class="quiz-result" id="result3"></div>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <h3>📚 Chapter Navigation</h3>
+                <p>Continue your cybersecurity learning journey:</p>
+
+                <div class="nav-buttons">
+                    <a href="pwa4.html" class="nav-btn secondary">⬅️ PWA Offline Functionality</a>
+                    <a href="cybersecurity2.html" class="nav-btn">Authentication & Authorization ➡️</a>
+                    <a href="study-guide-progress.html" class="nav-btn secondary">📊 Progress Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const quizOptions = document.querySelectorAll('.quiz-option');
+
+            quizOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const question = this.parentElement.parentElement;
+                    const options = question.querySelectorAll('.quiz-option');
+                    const resultDiv = question.querySelector('.quiz-result');
+                    const questionNumber = question.querySelector('h4').textContent.split('.')[0];
+
+                    // Remove previous selections
+                    options.forEach(opt => {
+                        opt.classList.remove('correct', 'incorrect');
+                    });
+
+                    // Check answer
+                    const isCorrect = this.getAttribute('data-correct') === 'true';
+
+                    if (isCorrect) {
+                        this.classList.add('correct');
+                        resultDiv.textContent = '✅ Correct! Well done.';
+                        resultDiv.className = 'quiz-result correct';
+                    } else {
+                        this.classList.add('incorrect');
+                        resultDiv.textContent = '❌ Incorrect. Try again!';
+                        resultDiv.className = 'quiz-result incorrect';
+                    }
+
+                    resultDiv.style.display = 'block';
+                });
+            });
+        });
+    </script>
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\Admin\Sunil\Study\cybersecurity1.html

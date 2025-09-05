@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full-Stack Web Development: Chapter 2 - HTML Fundamentals</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-container">
+                <h1>Full-Stack Web Development Study Guide</h1>
+                <ul class="nav-menu">
+                    <li><a href="fullstack1.html">Chapter 1</a></li>
+                    <li><a href="fullstack2.html" class="active">Chapter 2</a></li>
+                    <li><a href="fullstack3.html">Chapter 3</a></li>
+                    <li><a href="fullstack4.html">Chapter 4</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <article class="chapter-content">
+            <header class="chapter-header">
+                <h1>Chapter 2: HTML Fundamentals</h1>
+                <p class="chapter-subtitle">Building the Structure of Web Pages</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </header>
+
+            <section id="introduction">
+                <h2>2.1 Introduction to HTML</h2>
+                <p>HTML (HyperText Markup Language) is the backbone of every web page. As a markup language, HTML defines the structure and semantics of web content using elements that tell browsers how to display information.</p>
+
+                <div class="key-concept">
+                    <h3>Key Concept: Markup Language</h3>
+                    <p>HTML is not a programming language but a markup language that uses tags to annotate text, images, and other content for display in web browsers.</p>
+                </div>
+
+                <h3>HTML5: The Modern Standard</h3>
+                <p>HTML5, released in 2014 and continuously evolving, introduced semantic elements, multimedia support, and enhanced APIs for modern web development.</p>
+
+                <div class="code-example">
+                    <h4>Basic HTML5 Document Structure</h4>
+                    <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;My Web Page&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Hello World&lt;/h1&gt;
+    &lt;p&gt;This is my first web page.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                </div>
+            </section>
+
+            <section id="document-structure">
+                <h2>2.2 HTML Document Structure</h2>
+                <p>Every HTML document follows a standard structure with required and optional elements.</p>
+
+                <h3>Essential Elements</h3>
+                <ul>
+                    <li><code>&lt;!DOCTYPE html&gt;</code> - Document type declaration</li>
+                    <li><code>&lt;html&gt;</code> - Root element</li>
+                    <li><code>&lt;head&gt;</code> - Document metadata</li>
+                    <li><code>&lt;body&gt;</code> - Document content</li>
+                </ul>
+
+                <h3>Semantic HTML5 Elements</h3>
+                <p>HTML5 introduced semantic elements that provide meaning to content:</p>
+                <div class="semantic-elements">
+                    <div class="element-group">
+                        <h4>Document Structure</h4>
+                        <ul>
+                            <li><code>&lt;header&gt;</code> - Page or section header</li>
+                            <li><code>&lt;nav&gt;</code> - Navigation links</li>
+                            <li><code>&lt;main&gt;</code> - Main content</li>
+                            <li><code>&lt;article&gt;</code> - Self-contained content</li>
+                            <li><code>&lt;section&gt;</code> - Thematic grouping</li>
+                            <li><code>&lt;aside&gt;</code> - Sidebar content</li>
+                            <li><code>&lt;footer&gt;</code> - Page or section footer</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="text-elements">
+                <h2>2.3 Text Formatting Elements</h2>
+                <p>HTML provides various elements for structuring and formatting text content.</p>
+
+                <h3>Headings</h3>
+                <p>HTML provides six levels of headings, from most important (h1) to least important (h6):</p>
+                <div class="code-example">
+                    <pre><code>&lt;h1&gt;Main Heading (Page Title)&lt;/h1&gt;
+&lt;h2&gt;Section Heading&lt;/h2&gt;
+&lt;h3&gt;Subsection Heading&lt;/h3&gt;
+&lt;h4&gt;Sub-subsection Heading&lt;/h4&gt;
+&lt;h5&gt;Minor Heading&lt;/h5&gt;
+&lt;h6&gt;Least Important Heading&lt;/h6&gt;</code></pre>
+                </div>
+
+                <h3>Paragraphs and Text Structure</h3>
+                <div class="code-example">
+                    <pre><code>&lt;p&gt;This is a paragraph of text.&lt;/p&gt;
+
+&lt;p&gt;You can create &lt;strong&gt;bold text&lt;/strong&gt; and &lt;em&gt;emphasized text&lt;/em&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+    &lt;p&gt;This is a blockquote for longer quotations.&lt;/p&gt;
+&lt;/blockquote&gt;</code></pre>
+                </div>
+
+                <h3>Text-Level Semantics</h3>
+                <table class="element-table">
+                    <thead>
+                        <tr>
+                            <th>Element</th>
+                            <th>Purpose</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>&lt;strong&gt;</code></td>
+                            <td>Strong importance</td>
+                            <td><strong>Bold text</strong></td>
+                        </tr>
+                        <tr>
+                            <td><code>&lt;em&gt;</code></td>
+                            <td>Emphasis</td>
+                            <td><em>Italic text</em></td>
+                        </tr>
+                        <tr>
+                            <td><code>&lt;mark&gt;</code></td>
+                            <td>Highlighted text</td>
+                            <td><mark>Marked text</mark></td>
+                        </tr>
+                        <tr>
+                            <td><code>&lt;small&gt;</code></td>
+                            <td>Small print</td>
+                            <td><small>Fine print</small></td>
+                        </tr>
+                        <tr>
+                            <td><code>&lt;cite&gt;</code></td>
+                            <td>Title of work</td>
+                            <td><cite>Book Title</cite></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="links-images">
+                <h2>2.4 Links and Images</h2>
+
+                <h3>Hyperlinks</h3>
+                <p>Links connect web pages and resources. The <code>&lt;a&gt;</code> element creates hyperlinks:</p>
+                <div class="code-example">
+                    <pre><code>&lt;!-- External link --&gt;
+&lt;a href="https://www.example.com"&gt;Visit Example&lt;/a&gt;
+
+&lt;!-- Internal link --&gt;
+&lt;a href="about.html"&gt;About Us&lt;/a&gt;
+
+&lt;!-- Link with target --&gt;
+&lt;a href="document.pdf" target="_blank"&gt;Download PDF&lt;/a&gt;
+
+&lt;!-- Email link --&gt;
+&lt;a href="mailto:contact@example.com"&gt;Email Us&lt;/a&gt;</code></pre>
+                </div>
+
+                <h3>Images</h3>
+                <p>The <code>&lt;img&gt;</code> element embeds images. Always include alt text for accessibility:</p>
+                <div class="code-example">
+                    <pre><code>&lt;!-- Basic image --&gt;
+&lt;img src="image.jpg" alt="Description of image"&gt;
+
+&lt;!-- Image with dimensions --&gt;
+&lt;img src="photo.jpg" alt="Scenic landscape" width="400" height="300"&gt;
+
+&lt;!-- Responsive image --&gt;
+&lt;img src="responsive.jpg" alt="Responsive design" style="max-width: 100%;"&gt;</code></pre>
+                </div>
+
+                <div class="accessibility-note">
+                    <h4>Accessibility Best Practice</h4>
+                    <p>Always provide meaningful alt text for images. For decorative images, use <code>alt=""</code> or CSS background images instead.</p>
+                </div>
+            </section>
+
+            <section id="lists">
+                <h2>2.5 Lists</h2>
+                <p>HTML provides three types of lists for organizing content.</p>
+
+                <h3>Unordered Lists</h3>
+                <p>Use <code>&lt;ul&gt;</code> for lists where order doesn't matter:</p>
+                <div class="code-example">
+                    <pre><code>&lt;ul&gt;
+    &lt;li&gt;HTML&lt;/li&gt;
+    &lt;li&gt;CSS&lt;/li&gt;
+    &lt;li&gt;JavaScript&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+                </div>
+
+                <h3>Ordered Lists</h3>
+                <p>Use <code>&lt;ol&gt;</code> for numbered lists where order matters:</p>
+                <div class="code-example">
+                    <pre><code>&lt;ol&gt;
+    &lt;li&gt;First step&lt;/li&gt;
+    &lt;li&gt;Second step&lt;/li&gt;
+    &lt;li&gt;Third step&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+                </div>
+
+                <h3>Description Lists</h3>
+                <p>Use <code>&lt;dl&gt;</code> for term-definition pairs:</p>
+                <div class="code-example">
+                    <pre><code>&lt;dl&gt;
+    &lt;dt&gt;HTML&lt;/dt&gt;
+    &lt;dd&gt;HyperText Markup Language&lt;/dd&gt;
+    &lt;dt&gt;CSS&lt;/dt&gt;
+    &lt;dd&gt;Cascading Style Sheets&lt;/dd&gt;
+&lt;/dl&gt;</code></pre>
+                </div>
+            </section>
+
+            <section id="tables">
+                <h2>2.6 Tables</h2>
+                <p>Tables organize data into rows and columns. Use semantic markup for proper accessibility.</p>
+
+                <h3>Basic Table Structure</h3>
+                <div class="code-example">
+                    <pre><code>&lt;table&gt;
+    &lt;caption&gt;Web Development Technologies&lt;/caption&gt;
+    &lt;thead&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Technology&lt;/th&gt;
+            &lt;th&gt;Purpose&lt;/th&gt;
+            &lt;th&gt;Difficulty&lt;/th&gt;
+        &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+        &lt;tr&gt;
+            &lt;td&gt;HTML&lt;/td&gt;
+            &lt;td&gt;Structure&lt;/td&gt;
+            &lt;td&gt;Beginner&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;CSS&lt;/td&gt;
+            &lt;td&gt;Styling&lt;/td&gt;
+            &lt;td&gt;Intermediate&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;JavaScript&lt;/td&gt;
+            &lt;td&gt;Interactivity&lt;/td&gt;
+            &lt;td&gt;Advanced&lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+                </div>
+
+                <h3>Table Elements</h3>
+                <ul>
+                    <li><code>&lt;table&gt;</code> - Table container</li>
+                    <li><code>&lt;caption&gt;</code> - Table title</li>
+                    <li><code>&lt;thead&gt;</code> - Table header</li>
+                    <li><code>&lt;tbody&gt;</code> - Table body</li>
+                    <li><code>&lt;tfoot&gt;</code> - Table footer</li>
+                    <li><code>&lt;tr&gt;</code> - Table row</li>
+                    <li><code>&lt;th&gt;</code> - Header cell</li>
+                    <li><code>&lt;td&gt;</code> - Data cell</li>
+                </ul>
+            </section>
+
+            <section id="forms">
+                <h2>2.7 Forms</h2>
+                <p>Forms collect user input and send it to servers for processing.</p>
+
+                <h3>Basic Form Structure</h3>
+                <div class="code-example">
+                    <pre><code>&lt;form action="/submit" method="post"&gt;
+    &lt;label for="name"&gt;Name:&lt;/label&gt;
+    &lt;input type="text" id="name" name="name" required&gt;
+
+    &lt;label for="email"&gt;Email:&lt;/label&gt;
+    &lt;input type="email" id="email" name="email" required&gt;
+
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+                </div>
+
+                <h3>Common Input Types</h3>
+                <table class="element-table">
+                    <thead>
+                        <tr>
+                            <th>Input Type</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>text</code></td>
+                            <td>Single line text</td>
+                            <td><code>&lt;input type="text"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>email</code></td>
+                            <td>Email address</td>
+                            <td><code>&lt;input type="email"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>password</code></td>
+                            <td>Password field</td>
+                            <td><code>&lt;input type="password"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>number</code></td>
+                            <td>Numeric input</td>
+                            <td><code>&lt;input type="number"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>date</code></td>
+                            <td>Date picker</td>
+                            <td><code>&lt;input type="date"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>checkbox</code></td>
+                            <td>Multiple choice</td>
+                            <td><code>&lt;input type="checkbox"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>radio</code></td>
+                            <td>Single choice</td>
+                            <td><code>&lt;input type="radio"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>submit</code></td>
+                            <td>Form submission</td>
+                            <td><code>&lt;input type="submit"&gt;</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="attributes">
+                <h2>2.8 HTML Attributes</h2>
+                <p>Attributes provide additional information about HTML elements.</p>
+
+                <h3>Common Attributes</h3>
+                <ul>
+                    <li><code>id</code> - Unique identifier for an element</li>
+                    <li><code>class</code> - Class name for styling and JavaScript</li>
+                    <li><code>style</code> - Inline CSS styles</li>
+                    <li><code>title</code> - Tooltip text</li>
+                    <li><code>lang</code> - Language of the element</li>
+                    <li><code>dir</code> - Text direction (ltr/rtl)</li>
+                </ul>
+
+                <div class="code-example">
+                    <pre><code>&lt;div id="main-content" class="container" lang="en"&gt;
+    &lt;h1 title="Welcome Message"&gt;Hello World&lt;/h1&gt;
+    &lt;p class="introduction"&gt;This is a sample paragraph.&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+            </section>
+
+            <section id="best-practices">
+                <h2>2.9 Best Practices</h2>
+
+                <h3>Semantic HTML</h3>
+                <p>Use semantic elements to provide meaning and improve accessibility:</p>
+                <div class="best-practice">
+                    <h4>❌ Avoid:</h4>
+                    <pre><code>&lt;div class="header"&gt;...&lt;/div&gt;
+&lt;div class="nav"&gt;...&lt;/div&gt;
+&lt;div class="main"&gt;...&lt;/div&gt;</code></pre>
+                </div>
+
+                <div class="best-practice">
+                    <h4>✅ Use:</h4>
+                    <pre><code>&lt;header&gt;...&lt;/header&gt;
+&lt;nav&gt;...&lt;/nav&gt;
+&lt;main&gt;...&lt;/main&gt;</code></pre>
+                </div>
+
+                <h3>Accessibility</h3>
+                <ul>
+                    <li>Always use alt text for images</li>
+                    <li>Provide labels for form inputs</li>
+                    <li>Use semantic headings (h1-h6)</li>
+                    <li>Ensure sufficient color contrast</li>
+                    <li>Make interactive elements keyboard accessible</li>
+                </ul>
+
+                <h3>Performance</h3>
+                <ul>
+                    <li>Use appropriate image formats and compression</li>
+                    <li>Specify image dimensions</li>
+                    <li>Minimize DOM depth</li>
+                    <li>Use semantic HTML for better SEO</li>
+                </ul>
+            </section>
+
+            <section id="summary">
+                <h2>2.10 Summary</h2>
+                <p>In this chapter, we covered the fundamentals of HTML:</p>
+
+                <div class="key-takeaways">
+                    <h3>Key Takeaways</h3>
+                    <ul>
+                        <li>HTML provides the structure and semantics of web pages</li>
+                        <li>HTML5 introduced semantic elements and enhanced multimedia support</li>
+                        <li>Proper document structure is essential for accessibility and SEO</li>
+                        <li>Semantic HTML improves code maintainability and accessibility</li>
+                        <li>Forms collect user input with various input types</li>
+                        <li>Attributes provide additional information about elements</li>
+                        <li>Best practices ensure accessible, performant, and maintainable code</li>
+                    </ul>
+                </div>
+
+                <div class="practice-exercises">
+                    <h3>Practice Exercises</h3>
+                    <ol>
+                        <li>Create a complete HTML5 document with proper structure</li>
+                        <li>Build a navigation menu using semantic HTML</li>
+                        <li>Create a contact form with various input types</li>
+                        <li>Design a data table with proper semantic markup</li>
+                        <li>Implement an image gallery with accessibility features</li>
+                    </ol>
+                </div>
+            </section>
+        </article>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 Full-Stack Web Development Study Guide</p>
+            <div class="footer-links">
+                <a href="fullstack1.html">Previous: Chapter 1</a>
+                <a href="fullstack3.html">Next: Chapter 3</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

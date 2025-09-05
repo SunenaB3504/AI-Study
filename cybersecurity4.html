@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity - Chapter 4: Security Best Practices</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            color: #4285f4;
+            border-bottom: 3px solid #4285f4;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .section h3 {
+            color: #34a853;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .important {
+            background: #f8d7da;
+            padding: 15px;
+            border-left: 4px solid #dc3545;
+            margin: 20px 0;
+        }
+        .security-framework {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .framework-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-left: 4px solid #4285f4;
+        }
+        .framework-card h4 {
+            color: #4285f4;
+            margin: 0 0 10px 0;
+        }
+        .framework-card p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .testing-methodology {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .testing-phases {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .testing-phase {
+            background: white;
+            border: 1px solid #bbdefb;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+        .testing-phase h5 {
+            color: #1976d2;
+            margin: 0 0 8px 0;
+        }
+        .testing-phase p {
+            margin: 0;
+            color: #666;
+            font-size: 0.85em;
+        }
+        .incident-response {
+            background: #e8f5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .response-phases {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .response-phase {
+            background: white;
+            border: 1px solid #c8e6c9;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .response-phase h5 {
+            color: #2e7d32;
+            margin: 0 0 8px 0;
+        }
+        .response-phase p {
+            margin: 0;
+            color: #666;
+            font-size: 0.85em;
+        }
+        .devsecops {
+            background: #fff3e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .devsecops-practices {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .devsecops-practice {
+            background: white;
+            border: 1px solid #ffcc02;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .devsecops-practice h5 {
+            color: #e65100;
+            margin: 0 0 8px 0;
+        }
+        .devsecops-practice p {
+            margin: 0;
+            color: #666;
+            font-size: 0.85em;
+        }
+        .compliance-frameworks {
+            background: #f3e5f5;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .frameworks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .framework-item {
+            background: white;
+            border: 1px solid #ce93d8;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .framework-item h5 {
+            color: #7b1fa2;
+            margin: 0 0 8px 0;
+        }
+        .framework-item p {
+            margin: 0;
+            color: #666;
+            font-size: 0.85em;
+        }
+        .monitoring-tools {
+            background: #fce4ec;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .tool-item {
+            background: white;
+            border: 1px solid #f8bbd9;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .tool-item h5 {
+            color: #c2185b;
+            margin: 0 0 8px 0;
+        }
+        .tool-item p {
+            margin: 0;
+            color: #666;
+            font-size: 0.85em;
+        }
+        .quiz-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        .quiz-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .quiz-question {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .quiz-question h4 {
+            color: #4285f4;
+            margin: 0 0 15px 0;
+        }
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .quiz-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .quiz-option:hover {
+            background: #e3f2fd;
+            border-color: #4285f4;
+        }
+        .quiz-option.correct {
+            background: #e8f5e9;
+            border-color: #34a853;
+        }
+        .quiz-option.incorrect {
+            background: #ffebee;
+            border-color: #dc3545;
+        }
+        .quiz-result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+        }
+        .quiz-result.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .quiz-result.incorrect {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .navigation {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffcc02 100%);
+            border: 2px solid #ff9800;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        .nav-btn:hover {
+            background: #3367d6;
+        }
+        .nav-btn.secondary {
+            background: #34a853;
+        }
+        .nav-btn.secondary:hover {
+            background: #2e7d32;
+        }
+        .checklist {
+            background: #e8f5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .checklist h4 {
+            color: #2e7d32;
+            margin: 0 0 15px 0;
+        }
+        .checklist-item {
+            background: white;
+            border: 1px solid #c8e6c9;
+            border-radius: 6px;
+            padding: 12px;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+        .checklist-item:before {
+            content: "✅ ";
+            color: #34a853;
+            font-weight: bold;
+        }
+        .metrics-dashboard {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .metric-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+        .metric-item h5 {
+            color: #4285f4;
+            margin: 0 0 8px 0;
+        }
+        .metric-item .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #34a853;
+            margin: 5px 0;
+        }
+        .curriculum-list {
+            text-align: left;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Cybersecurity</h1>
+            <div class="subtitle">Chapter 4: Security Best Practices</div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>🛡️ Security Frameworks & Standards</h2>
+
+                <div class="security-framework">
+                    <div class="framework-card">
+                        <h4>OWASP Top 10</h4>
+                        <p>Most critical web application security risks. Updated regularly to reflect current threat landscape. Essential for web developers.</p>
+                    </div>
+
+                    <div class="framework-card">
+                        <h4>NIST Cybersecurity Framework</h4>
+                        <p>Comprehensive framework for improving cybersecurity. Covers identification, protection, detection, response, and recovery.</p>
+                    </div>
+
+                    <div class="framework-card">
+                        <h4>ISO 27001</h4>
+                        <p>International standard for information security management systems. Provides systematic approach to managing sensitive information.</p>
+                    </div>
+
+                    <div class="framework-card">
+                        <h4>Zero Trust Architecture</h4>
+                        <p>Security model that assumes no user or device is trusted by default. Requires continuous verification and least privilege access.</p>
+                    </div>
+                </div>
+
+                <div class="compliance-frameworks">
+                    <h4>Compliance Frameworks</h4>
+                    <div class="frameworks-grid">
+                        <div class="framework-item">
+                            <h5>GDPR</h5>
+                            <p>EU General Data Protection Regulation. Focuses on personal data protection and privacy rights.</p>
+                        </div>
+
+                        <div class="framework-item">
+                            <h5>HIPAA</h5>
+                            <p>Health Insurance Portability and Accountability Act. Protects patient health information.</p>
+                        </div>
+
+                        <div class="framework-item">
+                            <h5>PCI DSS</h5>
+                            <p>Payment Card Industry Data Security Standard. Secures credit card transactions and data.</p>
+                        </div>
+
+                        <div class="framework-item">
+                            <h5>SOX</h5>
+                            <p>Sarbanes-Oxley Act. Ensures financial data accuracy and prevents fraud.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🧪 Security Testing & Vulnerability Assessment</h2>
+
+                <div class="testing-methodology">
+                    <h4>Security Testing Phases</h4>
+                    <div class="testing-phases">
+                        <div class="testing-phase">
+                            <h5>Planning</h5>
+                            <p>Define scope, objectives, and testing methodology. Identify systems and data to be tested.</p>
+                        </div>
+
+                        <div class="testing-phase">
+                            <h5>Discovery</h5>
+                            <p>Map applications, identify entry points, and gather information about the target systems.</p>
+                        </div>
+
+                        <div class="testing-phase">
+                            <h5>Assessment</h5>
+                            <p>Execute security tests, identify vulnerabilities, and assess their severity and impact.</p>
+                        </div>
+
+                        <div class="testing-phase">
+                            <h5>Reporting</h5>
+                            <p>Document findings, provide remediation recommendations, and create executive summary.</p>
+                        </div>
+
+                        <div class="testing-phase">
+                            <h5>Remediation</h5>
+                            <p>Fix identified vulnerabilities and retest to ensure proper resolution.</p>
+                        </div>
+
+                        <div class="testing-phase">
+                            <h5>Monitoring</h5>
+                            <p>Continuous monitoring and periodic retesting to maintain security posture.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Automated Security Testing</h3>
+                <div class="code-block">
+                    <pre><code>// Security testing with OWASP ZAP API
+const axios = require('axios');
+
+class SecurityScanner {
+    constructor(zapUrl = 'http://localhost:8080') {
+        this.zapUrl = zapUrl;
+        this.apiKey = process.env.ZAP_API_KEY;
+    }
+
+    async startScan(targetUrl) {
+        try {
+            // Start active scan
+            const response = await axios.get(`${this.zapUrl}/JSON/ascan/action/scan/`, {
+                params: {
+                    url: targetUrl,
+                    recurse: true,
+                    inScopeOnly: true,
+                    apikey: this.apiKey
+                }
+            });
+
+            const scanId = response.data.scan;
+            console.log(`Started security scan with ID: ${scanId}`);
+
+            return scanId;
+        } catch (error) {
+            console.error('Failed to start security scan:', error.message);
+            throw error;
+        }
+    }
+
+    async getScanStatus(scanId) {
+        try {
+            const response = await axios.get(`${this.zapUrl}/JSON/ascan/view/status/`, {
+                params: {
+                    scanId: scanId,
+                    apikey: this.apiKey
+                }
+            });
+
+            return parseInt(response.data.status);
+        } catch (error) {
+            console.error('Failed to get scan status:', error.message);
+            return 0;
+        }
+    }
+
+    async getScanResults(scanId) {
+        try {
+            const response = await axios.get(`${this.zapUrl}/JSON/ascan/view/scanProgress/`, {
+                params: {
+                    scanId: scanId,
+                    apikey: this.apiKey
+                }
+            });
+
+            return response.data.scanProgress;
+        } catch (error) {
+            console.error('Failed to get scan results:', error.message);
+            return [];
+        }
+    }
+
+    async getAlerts() {
+        try {
+            const response = await axios.get(`${this.zapUrl}/JSON/core/view/alerts/`, {
+                params: {
+                    baseurl: '',
+                    apikey: this.apiKey
+                }
+            });
+
+            return response.data.alerts;
+        } catch (error) {
+            console.error('Failed to get alerts:', error.message);
+            return [];
+        }
+    }
+
+    async generateReport() {
+        try {
+            const response = await axios.get(`${this.zapUrl}/JSON/reports/action/generate/`, {
+                params: {
+                    title: 'Security Scan Report',
+                    template: 'traditional-html',
+                    apikey: this.apiKey
+                }
+            });
+
+            return response.data;
+        } catch (error) {
+            console.error('Failed to generate report:', error.message);
+            throw error;
+        }
+    }
+}
+
+// SAST (Static Application Security Testing)
+class SASTScanner {
+    static async scanCodebase(codebasePath) {
+        const findings = [];
+
+        // Scan for common vulnerabilities
+        const patterns = {
+            sqlInjection: /SELECT.*\+.*WHERE|INSERT.*\+.*VALUES|UPDATE.*\+.*SET/gi,
+            xss: /innerHTML|outerHTML|document\.write/gi,
+            weakCrypto: /MD5|SHA1|DES|RC4/gi,
+            hardcodedSecrets: /password.*=.*['"][^'"]*['"]|api_key.*=.*['"][^'"]*['"]/gi
+        };
+
+        // Implementation would scan files for these patterns
+        // This is a simplified example
+
+        return findings;
+    }
+
+    static async scanDependencies(packageJsonPath) {
+        // Check for vulnerable dependencies using npm audit
+        const { exec } = require('child_process');
+        const { promisify } = require('util');
+        const execAsync = promisify(exec);
+
+        try {
+            const { stdout } = await execAsync('npm audit --json', {
+                cwd: require('path').dirname(packageJsonPath)
+            });
+
+            const auditResult = JSON.parse(stdout);
+            return auditResult.vulnerabilities || {};
+        } catch (error) {
+            console.error('Failed to scan dependencies:', error.message);
+            return {};
+        }
+    }
+}
+
+// Usage example
+async function performSecurityAssessment(targetUrl, codebasePath) {
+    console.log('Starting comprehensive security assessment...');
+
+    // Dynamic Application Security Testing (DAST)
+    const scanner = new SecurityScanner();
+    const scanId = await scanner.startScan(targetUrl);
+
+    // Wait for scan to complete
+    let status = 0;
+    do {
+        status = await scanner.getScanStatus(scanId);
+        console.log(`Scan progress: ${status}%`);
+        await new Promise(resolve => setTimeout(resolve, 5000));
+    } while (status < 100);
+
+    // Get results
+    const alerts = await scanner.getAlerts();
+    console.log(`Found ${alerts.length} security alerts`);
+
+    // Static Application Security Testing (SAST)
+    const sastFindings = await SASTScanner.scanCodebase(codebasePath);
+    console.log(`Found ${sastFindings.length} SAST findings`);
+
+    // Dependency scanning
+    const vulnerabilities = await SASTScanner.scanDependencies(codebasePath);
+    console.log(`Found ${Object.keys(vulnerabilities).length} vulnerable dependencies`);
+
+    // Generate comprehensive report
+    const report = {
+        timestamp: new Date().toISOString(),
+        target: targetUrl,
+        dast: {
+            alerts: alerts.length,
+            highRisk: alerts.filter(a => a.risk === 'High').length,
+            mediumRisk: alerts.filter(a => a.risk === 'Medium').length
+        },
+        sast: {
+            findings: sastFindings.length
+        },
+        dependencies: {
+            vulnerabilities: Object.keys(vulnerabilities).length
+        },
+        recommendations: generateRecommendations(alerts, sastFindings, vulnerabilities)
+    };
+
+    return report;
+}
+
+function generateRecommendations(alerts, sastFindings, vulnerabilities) {
+    const recommendations = [];
+
+    if (alerts.some(a => a.name.includes('SQL Injection'))) {
+        recommendations.push('Implement parameterized queries and input validation');
+    }
+
+    if (alerts.some(a => a.name.includes('XSS'))) {
+        recommendations.push('Implement Content Security Policy and output encoding');
+    }
+
+    if (Object.keys(vulnerabilities).length > 0) {
+        recommendations.push('Update vulnerable dependencies to latest secure versions');
+    }
+
+    return recommendations;
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚨 Incident Response & Recovery</h2>
+
+                <div class="incident-response">
+                    <h4>Incident Response Process (NIST SP 800-61)</h4>
+                    <div class="response-phases">
+                        <div class="response-phase">
+                            <h5>Preparation</h5>
+                            <p>Establish incident response team, develop policies, and prepare tools and resources.</p>
+                        </div>
+
+                        <div class="response-phase">
+                            <h5>Identification</h5>
+                            <p>Detect and assess potential security incidents. Determine scope and impact.</p>
+                        </div>
+
+                        <div class="response-phase">
+                            <h5>Containment</h5>
+                            <p>Stop the incident from spreading. Implement short-term and long-term containment strategies.</p>
+                        </div>
+
+                        <div class="response-phase">
+                            <h5>Eradication</h5>
+                            <p>Remove root cause and prevent recurrence. Clean up affected systems.</p>
+                        </div>
+
+                        <div class="response-phase">
+                            <h5>Recovery</h5>
+                            <p>Restore systems to normal operation. Monitor for any remaining issues.</p>
+                        </div>
+
+                        <div class="response-phase">
+                            <h5>Lessons Learned</h5>
+                            <p>Document incident, analyze response effectiveness, and update procedures.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Incident Response Plan Template</h3>
+                <div class="code-block">
+                    <pre><code>// Incident Response Plan Template
+class IncidentResponsePlan {
+    constructor() {
+        this.incidentTypes = {
+            MALWARE: 'Malware Infection',
+            DDOS: 'Distributed Denial of Service',
+            BREACH: 'Data Breach',
+            INSIDER: 'Insider Threat',
+            PHISHING: 'Phishing Attack'
+        };
+
+        this.severityLevels = {
+            CRITICAL: { responseTime: 'Immediate (< 1 hour)', escalation: 'Executive + Legal' },
+            HIGH: { responseTime: '< 4 hours', escalation: 'Security Team Lead' },
+            MEDIUM: { responseTime: '< 24 hours', escalation: 'Department Head' },
+            LOW: { responseTime: '< 72 hours', escalation: 'Team Lead' }
+        };
+    }
+
+    assessSeverity(incident) {
+        let severity = 'LOW';
+
+        // Critical indicators
+        if (incident.dataBreach || incident.customerImpact === 'HIGH') {
+            severity = 'CRITICAL';
+        }
+        // High indicators
+        else if (incident.systemDown || incident.financialImpact > 50000) {
+            severity = 'HIGH';
+        }
+        // Medium indicators
+        else if (incident.userImpact > 100 || incident.reputationRisk === 'MODERATE') {
+            severity = 'MEDIUM';
+        }
+
+        return severity;
+    }
+
+    getResponseActions(incidentType, severity) {
+        const actions = {
+            MALWARE: {
+                CRITICAL: [
+                    'Isolate affected systems immediately',
+                    'Engage forensic team',
+                    'Notify executive leadership',
+                    'Consider legal notification requirements'
+                ],
+                HIGH: [
+                    'Quarantine affected systems',
+                    'Run malware scans on network',
+                    'Change all admin passwords',
+                    'Monitor for lateral movement'
+                ]
+            },
+            BREACH: {
+                CRITICAL: [
+                    'Stop data exfiltration',
+                    'Assess breach scope and data types',
+                    'Notify affected individuals',
+                    'Engage legal counsel and PR team'
+                ]
+            }
+        };
+
+        return actions[incidentType]?.[severity] || ['Investigate incident', 'Document findings'];
+    }
+
+    generateIncidentReport(incident) {
+        return {
+            incidentId: `INC-${Date.now()}`,
+            timestamp: new Date().toISOString(),
+            type: incident.type,
+            severity: this.assessSeverity(incident),
+            description: incident.description,
+            affectedSystems: incident.affectedSystems,
+            impact: {
+                users: incident.affectedUsers,
+                financial: incident.financialImpact,
+                operational: incident.systemsDown
+            },
+            response: {
+                actions: this.getResponseActions(incident.type, this.assessSeverity(incident)),
+                timeline: incident.responseTimeline,
+                responsible: incident.assignedTeam
+            },
+            lessonsLearned: incident.lessonsLearned || []
+        };
+    }
+}
+
+// Automated Incident Detection
+class IncidentDetector {
+    constructor() {
+        this.thresholds = {
+            failedLogins: 10, // per minute
+            unusualTraffic: 1000, // requests per minute
+            errorRate: 0.05, // 5% error rate
+            cpuUsage: 0.90 // 90% CPU usage
+        };
+
+        this.alerts = [];
+    }
+
+    monitorMetrics(metrics) {
+        const alerts = [];
+
+        // Check login failures
+        if (metrics.failedLogins > this.thresholds.failedLogins) {
+            alerts.push({
+                type: 'BRUTE_FORCE',
+                severity: 'HIGH',
+                message: `High number of failed logins: ${metrics.failedLogins}/min`,
+                timestamp: new Date()
+            });
+        }
+
+        // Check traffic anomalies
+        if (metrics.requestsPerMinute > this.thresholds.unusualTraffic) {
+            alerts.push({
+                type: 'DOS_ATTACK',
+                severity: 'CRITICAL',
+                message: `Unusual traffic spike: ${metrics.requestsPerMinute} req/min`,
+                timestamp: new Date()
+            });
+        }
+
+        // Check error rates
+        if (metrics.errorRate > this.thresholds.errorRate) {
+            alerts.push({
+                type: 'SYSTEM_ERROR',
+                severity: 'MEDIUM',
+                message: `High error rate: ${(metrics.errorRate * 100).toFixed(1)}%`,
+                timestamp: new Date()
+            });
+        }
+
+        // Check system resources
+        if (metrics.cpuUsage > this.thresholds.cpuUsage) {
+            alerts.push({
+                type: 'RESOURCE_EXHAUSTION',
+                severity: 'HIGH',
+                message: `High CPU usage: ${(metrics.cpuUsage * 100).toFixed(1)}%`,
+                timestamp: new Date()
+            });
+        }
+
+        this.alerts.push(...alerts);
+        return alerts;
+    }
+
+    getActiveAlerts() {
+        return this.alerts.filter(alert =>
+            (new Date() - alert.timestamp) < (24 * 60 * 60 * 1000) // Last 24 hours
+        );
+    }
+
+    escalateAlert(alert) {
+        // Implement escalation logic
+        console.log(`Escalating ${alert.severity} alert: ${alert.message}`);
+
+        // Send notifications, create tickets, etc.
+        // This would integrate with your incident management system
+    }
+}
+
+// Usage example
+async function handleSecurityIncident(incidentData) {
+    const irp = new IncidentResponsePlan();
+    const detector = new IncidentDetector();
+
+    // Assess incident
+    const severity = irp.assessSeverity(incidentData);
+    const actions = irp.getResponseActions(incidentData.type, severity);
+
+    console.log(`Incident detected: ${incidentData.type} (Severity: ${severity})`);
+    console.log('Recommended actions:', actions);
+
+    // Generate incident report
+    const report = irp.generateIncidentReport(incidentData);
+
+    // Log incident
+    await logIncident(report);
+
+    // Notify response team
+    await notifyResponseTeam(report);
+
+    return report;
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔄 DevSecOps: Integrating Security into Development</h2>
+
+                <div class="devsecops">
+                    <h4>DevSecOps Best Practices</h4>
+                    <div class="devsecops-practices">
+                        <div class="devsecops-practice">
+                            <h5>Shift Left Security</h5>
+                            <p>Integrate security early in the development lifecycle. Perform security testing during development, not just at the end.</p>
+                        </div>
+
+                        <div class="devsecops-practice">
+                            <h5>Automated Security Testing</h5>
+                            <p>Implement automated security scans in CI/CD pipelines. Include SAST, DAST, dependency scanning, and container security.</p>
+                        </div>
+
+                        <div class="devsecops-practice">
+                            <h5>Infrastructure as Code Security</h5>
+                            <p>Apply security principles to infrastructure code. Use tools like Terraform scanners and CloudFormation security checks.</p>
+                        </div>
+
+                        <div class="devsecops-practice">
+                            <h5>Security Training</h5>
+                            <p>Provide ongoing security training for development teams. Include secure coding practices and threat awareness.</p>
+                        </div>
+
+                        <div class="devsecops-practice">
+                            <h5>Continuous Monitoring</h5>
+                            <p>Implement continuous security monitoring and alerting. Use SIEM systems and security dashboards.</p>
+                        </div>
+
+                        <div class="devsecops-practice">
+                            <h5>Compliance Automation</h5>
+                            <p>Automate compliance checks and reporting. Use policy-as-code tools to enforce security standards.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>CI/CD Security Pipeline</h3>
+                <div class="code-block">
+                    <pre><code"># GitHub Actions Security Pipeline
+name: Security Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Run SAST (Static Application Security Testing)
+      uses: github/super-linter/slim@v4
+      env:
+        DEFAULT_BRANCH: main
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Dependency vulnerability scan
+      run: |
+        npm audit --audit-level=moderate
+        pip-audit --format json | jq .
+
+    - name: Container security scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+    - name: Run DAST (Dynamic Application Security Testing)
+      run: |
+        # Start application
+        npm start &
+        sleep 10
+
+        # Run OWASP ZAP scan
+        docker run --rm -v $(pwd):/zap/wrk:rw \
+          owasp/zap2docker-stable zap-baseline.py \
+          -t http://host.docker.internal:3000 \
+          -r zap-report.html
+
+    - name: Security tests
+      run: |
+        npm run test:security
+
+    - name: Compliance check
+      run: |
+        # Check for secrets in code
+        docker run --rm -v $(pwd):/src zricethezav/gitleaks:latest detect --verbose
+
+        # Check license compliance
+        npm run license-check
+
+  deploy:
+    needs: security-scan
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+    - name: Deploy to staging
+      run: |
+        echo "Deploying to staging environment"
+        # Add your deployment commands here
+
+    - name: Run integration tests
+      run: |
+        npm run test:integration
+
+    - name: Security monitoring
+      run: |
+        # Enable security monitoring
+        curl -X POST https://api.datadoghq.com/api/v1/monitor \
+          -H "DD-API-KEY: ${{ secrets.DD_API_KEY }}" \
+          -d '{
+            "name": "Security Alert Monitor",
+            "type": "metric alert",
+            "query": "avg(last_5m):avg:aws.ec2.cpuutilization{environment:production} > 80",
+            "message": "High CPU usage detected - potential security incident"
+          }'</code></pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📊 Security Monitoring & Metrics</h2>
+
+                <div class="metrics-dashboard">
+                    <h4>Key Security Metrics</h4>
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <h5>MTTD</h5>
+                            <p>Mean Time to Detect</p>
+                            <div class="metric-value">2.3h</div>
+                            <p>Time to detect security incidents</p>
+                        </div>
+
+                        <div class="metric-item">
+                            <h5>MTTR</h5>
+                            <p>Mean Time to Respond</p>
+                            <div class="metric-value">4.1h</div>
+                            <p>Time to respond to incidents</p>
+                        </div>
+
+                        <div class="metric-item">
+                            <h5>Vulnerability Density</h5>
+                            <p>Per 1000 lines of code</p>
+                            <div class="metric-value">1.2</div>
+                            <p>Security issues in codebase</p>
+                        </div>
+
+                        <div class="metric-item">
+                            <h5>Compliance Score</h5>
+                            <p>Percentage</p>
+                            <div class="metric-value">94%</div>
+                            <p>Regulatory compliance level</p>
+                        </div>
+
+                        <div class="metric-item">
+                            <h5>Security Training</h5>
+                            <p>Completion Rate</p>
+                            <div class="metric-value">87%</div>
+                            <p>Team security training completion</p>
+                        </div>
+
+                        <div class="metric-item">
+                            <h5>Incident Rate</h5>
+                            <p>Per Month</p>
+                            <div class="metric-value">0.8</div>
+                            <p>Security incidents per month</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="monitoring-tools">
+                    <h4>Security Monitoring Tools</h4>
+                    <div class="tools-grid">
+                        <div class="tool-item">
+                            <h5>SIEM Systems</h5>
+                            <p>Splunk, ELK Stack, IBM QRadar. Centralize security event logging and analysis.</p>
+                        </div>
+
+                        <div class="tool-item">
+                            <h5>IDS/IPS</h5>
+                            <p>Snort, Suricata, Palo Alto. Detect and prevent network-based attacks.</p>
+                        </div>
+
+                        <div class="tool-item">
+                            <h5>Endpoint Detection</h5>
+                            <p>CrowdStrike, Carbon Black, Microsoft Defender. Monitor and protect endpoints.</p>
+                        </div>
+
+                        <div class="tool-item">
+                            <h5>Log Analysis</h5>
+                            <p>Graylog, Sumo Logic, Papertrail. Analyze system and application logs.</p>
+                        </div>
+
+                        <div class="tool-item">
+                            <h5>Threat Intelligence</h5>
+                            <p>MISP, Recorded Future, ThreatConnect. Gather and analyze threat data.</p>
+                        </div>
+
+                        <div class="tool-item">
+                            <h5>Compliance Monitoring</h5>
+                            <p>OpenSCAP, Chef InSpec, Puppet Compliance. Automate compliance checks.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>✅ Security Checklist</h2>
+
+                <div class="checklist">
+                    <h4>Development Security Checklist</h4>
+                    <div class="checklist-item">Implement secure coding practices and input validation</div>
+                    <div class="checklist-item">Use parameterized queries to prevent SQL injection</div>
+                    <div class="checklist-item">Implement proper authentication and authorization</div>
+                    <div class="checklist-item">Encrypt sensitive data at rest and in transit</div>
+                    <div class="checklist-item">Regularly update and patch dependencies</div>
+                    <div class="checklist-item">Implement logging and monitoring</div>
+                    <div class="checklist-item">Conduct regular security testing and code reviews</div>
+                    <div class="checklist-item">Follow principle of least privilege</div>
+                    <div class="checklist-item">Implement proper error handling without information leakage</div>
+                    <div class="checklist-item">Use secure session management</div>
+                </div>
+
+                <div class="checklist">
+                    <h4>Operations Security Checklist</h4>
+                    <div class="checklist-item">Implement network segmentation and firewalls</div>
+                    <div class="checklist-item">Use intrusion detection and prevention systems</div>
+                    <div class="checklist-item">Regular backup and disaster recovery testing</div>
+                    <div class="checklist-item">Implement access controls and monitoring</div>
+                    <div class="checklist-item">Regular security audits and compliance checks</div>
+                    <div class="checklist-item">Employee security training and awareness</div>
+                    <div class="checklist-item">Incident response plan development and testing</div>
+                    <div class="checklist-item">Vendor security assessment</div>
+                    <div class="checklist-item">Physical security measures</div>
+                    <div class="checklist-item">Regular security updates and patches</div>
+                </div>
+
+                <div class="highlight">
+                    <strong>Remember:</strong>
+                    <p>Security is not a one-time implementation but an ongoing process. Regular assessment, updates, and improvement are essential for maintaining a strong security posture.</p>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <h3>📝 Knowledge Check</h3>
+
+                <div class="quiz-question">
+                    <h4>1. What is the primary goal of DevSecOps?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="false">To replace developers with security experts</div>
+                        <div class="quiz-option" data-correct="true">To integrate security practices into the development lifecycle</div>
+                        <div class="quiz-option" data-correct="false">To slow down the development process</div>
+                        <div class="quiz-option" data-correct="false">To eliminate the need for manual testing</div>
+                    </div>
+                    <div class="quiz-result" id="result1"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>2. Which incident response phase involves stopping the incident from spreading?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="false">Identification</div>
+                        <div class="quiz-option" data-correct="true">Containment</div>
+                        <div class="quiz-option" data-correct="false">Recovery</div>
+                        <div class="quiz-option" data-correct="false">Lessons Learned</div>
+                    </div>
+                    <div class="quiz-result" id="result2"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>3. What does MTTD stand for in security metrics?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="false">Mean Time To Deploy</div>
+                        <div class="quiz-option" data-correct="true">Mean Time To Detect</div>
+                        <div class="quiz-option" data-correct="false">Mean Time To Debug</div>
+                        <div class="quiz-option" data-correct="false">Mean Time To Delete</div>
+                    </div>
+                    <div class="quiz-result" id="result3"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>4. Which of the following is NOT a key principle of Zero Trust Architecture?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-correct="false">Never trust, always verify</div>
+                        <div class="quiz-option" data-correct="false">Least privilege access</div>
+                        <div class="quiz-option" data-correct="true">Single sign-on for all applications</div>
+                        <div class="quiz-option" data-correct="false">Micro-segmentation</div>
+                    </div>
+                    <div class="quiz-result" id="result4"></div>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <h3>🎓 Cybersecurity Curriculum Complete!</h3>
+                <p>Congratulations! You've completed the comprehensive Cybersecurity study guide covering:</p>
+                <ul class="curriculum-list">
+                    <li>🔒 Web Security Basics</li>
+                    <li>🔐 Authentication & Authorization</li>
+                    <li>🛡️ Data Protection & Encryption</li>
+                    <li>✅ Security Best Practices</li>
+                </ul>
+
+                <div class="nav-buttons">
+                    <a href="cybersecurity3.html" class="nav-btn secondary">⬅️ Data Protection & Encryption</a>
+                    <a href="study-guide-progress.html" class="nav-btn">📊 View Progress Dashboard</a>
+                    <a href="fullstack1.html" class="nav-btn secondary">🌐 Continue Learning</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const quizOptions = document.querySelectorAll('.quiz-option');
+
+            quizOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const question = this.parentElement.parentElement;
+                    const options = question.querySelectorAll('.quiz-option');
+                    const resultDiv = question.querySelector('.quiz-result');
+                    const questionNumber = question.querySelector('h4').textContent.split('.')[0];
+
+                    // Remove previous selections
+                    options.forEach(opt => {
+                        opt.classList.remove('correct', 'incorrect');
+                    });
+
+                    // Check answer
+                    const isCorrect = this.getAttribute('data-correct') === 'true';
+
+                    if (isCorrect) {
+                        this.classList.add('correct');
+                        resultDiv.textContent = '✅ Correct! Well done.';
+                        resultDiv.className = 'quiz-result correct';
+                    } else {
+                        this.classList.add('incorrect');
+                        resultDiv.textContent = '❌ Incorrect. Try again!';
+                        resultDiv.className = 'quiz-result incorrect';
+                    }
+
+                    resultDiv.style.display = 'block';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud & DevOps - Chapter 4: Cloud Platforms</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #0056b3;
+        }
+
+        .nav-btn.secondary {
+            background: #6c757d;
+        }
+
+        .nav-btn.secondary:hover {
+            background: #545b62;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #FF6B35;
+        }
+
+        .section h3 {
+            color: #34495e;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+
+        .section h4 {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: "Terminal";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #FF6B35;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+
+        .code-block.aws::before {
+            content: "AWS CLI";
+        }
+
+        .code-block.gcp::before {
+            content: "GCP CLI";
+        }
+
+        .code-block.azure::before {
+            content: "Azure CLI";
+        }
+
+        .code-block.terraform::before {
+            content: "Terraform";
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .cloud-provider-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .cloud-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .cloud-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .cloud-card.aws {
+            border-color: #FF9900;
+        }
+
+        .cloud-card.gcp {
+            border-color: #4285F4;
+        }
+
+        .cloud-card.azure {
+            border-color: #0078D4;
+        }
+
+        .cloud-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .service-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #FF6B35;
+        }
+
+        .service-item h4 {
+            color: #34495e;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .comparison-table th {
+            background: #FF6B35;
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+
+        .architecture-diagram {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .practice-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .practice-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .practice-exercise {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #FF6B35;
+        }
+
+        .practice-exercise h4 {
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+
+        .quiz-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .quiz-section h3 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .quiz-question {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .quiz-question h4 {
+            margin-bottom: 10px;
+        }
+
+        .quiz-options {
+            margin: 10px 0;
+        }
+
+        .quiz-option {
+            display: block;
+            margin: 5px 0;
+            padding: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: #FF6B35;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .cloud-provider-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .service-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>☁️ Cloud & DevOps</h1>
+            <div class="subtitle">Chapter 4: Cloud Platforms</div>
+        </div>
+
+        <div class="nav">
+            <div class="nav-links">
+                <a href="study-guide-progress.html" class="nav-btn">📊 Progress Dashboard</a>
+                <a href="cloud-devops3.html" class="nav-btn">⬅️ Docker & Containers</a>
+                <a href="cloud-devops5.html" class="nav-btn">Deployment Strategies →</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>🎯 Chapter Overview</h2>
+                <p>Welcome to the world of cloud computing! This chapter explores the three major cloud platforms - AWS, Google Cloud Platform, and Microsoft Azure. By the end of this comprehensive guide, you'll understand:</p>
+                <ul>
+                    <li>Core services and architecture of each major cloud platform</li>
+                    <li>Compute, storage, and networking services</li>
+                    <li>Serverless computing and managed services</li>
+                    <li>Cloud security and compliance</li>
+                    <li>Cost optimization strategies</li>
+                    <li>Multi-cloud and hybrid cloud approaches</li>
+                    <li>Migration strategies and best practices</li>
+                    <li>Infrastructure as Code with Terraform</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>🏗️ Cloud Computing Fundamentals</h2>
+
+                <h3>🔍 Cloud Service Models</h3>
+                <div class="info-box">
+                    <h4>🏢 Infrastructure as a Service (IaaS)</h4>
+                    <p>Provides virtualized computing resources over the internet. You manage applications, data, runtime, middleware, and OS.</p>
+
+                    <h4>⚙️ Platform as a Service (PaaS)</h4>
+                    <p>Provides a platform allowing customers to develop, run, and manage applications without dealing with infrastructure.</p>
+
+                    <h4>📱 Software as a Service (SaaS)</h4>
+                    <p>Software that's hosted and managed by the provider. Users access it via web browsers or APIs.</p>
+                </div>
+
+                <h3>🌐 Cloud Deployment Models</h3>
+
+                <h4>🏢 Public Cloud</h4>
+                <p>Services offered by third-party providers over the public internet. Resources are shared among multiple organizations.</p>
+
+                <h4>🏠 Private Cloud</h4>
+                <p>Cloud infrastructure operated solely for a single organization. Can be managed internally or by a third party.</p>
+
+                <h4>🔄 Hybrid Cloud</h4>
+                <p>Combination of public and private clouds, allowing data and applications to be shared between them.</p>
+
+                <h4>☁️ Multi-Cloud</h4>
+                <p>Using multiple cloud providers to avoid vendor lock-in and optimize costs and performance.</p>
+            </div>
+
+            <div class="section">
+                <h2>🔥 Amazon Web Services (AWS)</h2>
+
+                <div class="cloud-provider-grid">
+                    <div class="cloud-card aws">
+                        <h3>🟠 AWS Core Services</h3>
+                        <p>AWS offers over 200 services across compute, storage, database, analytics, machine learning, and more.</p>
+                    </div>
+                </div>
+
+                <h3>⚡ Compute Services</h3>
+
+                <h4>🖥️ Amazon EC2 (Elastic Compute Cloud)</h4>
+                <div class="code-block aws">
+# Launch an EC2 instance
+aws ec2 run-instances \
+  --image-id ami-12345678 \
+  --count 1 \
+  --instance-type t3.micro \
+  --key-name my-key-pair \
+  --security-group-ids sg-12345678 \
+  --subnet-id subnet-12345678
+
+# List running instances
+aws ec2 describe-instances --filters "Name=instance-state-name,Values=running"
+
+# Create security group
+aws ec2 create-security-group \
+  --group-name my-security-group \
+  --description "My security group"
+
+# Add inbound rule
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-12345678 \
+  --protocol tcp \
+  --port 80 \
+  --cidr 0.0.0.0/0
+                </div>
+
+                <h4>⚡ AWS Lambda (Serverless Functions)</h4>
+                <div class="code-block aws">
+# Create Lambda function
+aws lambda create-function \
+  --function-name my-function \
+  --runtime nodejs18.x \
+  --role arn:aws:iam::123456789012:role/lambda-role \
+  --handler index.handler \
+  --zip-file fileb://function.zip
+
+# Invoke Lambda function
+aws lambda invoke \
+  --function-name my-function \
+  --payload '{"key": "value"}' \
+  output.json
+
+# List Lambda functions
+aws lambda list-functions
+
+# Update function code
+aws lambda update-function-code \
+  --function-name my-function \
+  --zip-file fileb://function.zip
+                </div>
+
+                <h3>💾 Storage Services</h3>
+
+                <h4>📦 Amazon S3 (Simple Storage Service)</h4>
+                <div class="code-block aws">
+# Create S3 bucket
+aws s3 mb s3://my-bucket-name
+
+# Upload file to S3
+aws s3 cp my-file.txt s3://my-bucket-name/
+
+# List bucket contents
+aws s3 ls s3://my-bucket-name/
+
+# Set bucket policy for public read
+aws s3api put-bucket-policy \
+  --bucket my-bucket-name \
+  --policy '{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "PublicReadGetObject",
+        "Effect": "Allow",
+        "Principal": "*",
+        "Action": "s3:GetObject",
+        "Resource": "arn:aws:s3:::my-bucket-name/*"
+      }
+    ]
+  }'
+
+# Enable static website hosting
+aws s3 website s3://my-bucket-name/ \
+  --index-document index.html \
+  --error-document error.html
+                </div>
+
+                <h4>🗄️ Amazon RDS (Relational Database Service)</h4>
+                <div class="code-block aws">
+# Create RDS instance
+aws rds create-db-instance \
+  --db-instance-identifier mydb \
+  --db-instance-class db.t3.micro \
+  --engine mysql \
+  --master-username admin \
+  --master-user-password mypassword \
+  --allocated-storage 20
+
+# Describe DB instances
+aws rds describe-db-instances
+
+# Create DB snapshot
+aws rds create-db-snapshot \
+  --db-instance-identifier mydb \
+  --db-snapshot-identifier mydb-snapshot
+
+# Modify DB instance
+aws rds modify-db-instance \
+  --db-instance-identifier mydb \
+  --apply-immediately \
+  --backup-retention-period 7
+                </div>
+
+                <h3>🔐 AWS Security & Identity</h3>
+
+                <h4>👤 AWS IAM (Identity and Access Management)</h4>
+                <div class="code-block aws">
+# Create IAM user
+aws iam create-user --user-name my-user
+
+# Create access key for user
+aws iam create-access-key --user-name my-user
+
+# Attach managed policy
+aws iam attach-user-policy \
+  --user-name my-user \
+  --policy-arn arn:aws:iam::aws:policy/ReadOnlyAccess
+
+# Create custom policy
+aws iam create-policy \
+  --policy-name MyCustomPolicy \
+  --policy-document '{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "s3:GetObject",
+        "Resource": "*"
+      }
+    ]
+  }'
+
+# List IAM users
+aws iam list-users
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔵 Google Cloud Platform (GCP)</h2>
+
+                <div class="cloud-provider-grid">
+                    <div class="cloud-card gcp">
+                        <h3>🔵 GCP Core Services</h3>
+                        <p>Google Cloud offers a comprehensive suite of services with strong AI/ML capabilities and global infrastructure.</p>
+                    </div>
+                </div>
+
+                <h3>⚡ Compute Services</h3>
+
+                <h4>🖥️ Google Compute Engine</h4>
+                <div class="code-block gcp">
+# Create VM instance
+gcloud compute instances create my-instance \
+  --zone=us-central1-a \
+  --machine-type=e2-micro \
+  --image-family=debian-11 \
+  --image-project=debian-cloud
+
+# List instances
+gcloud compute instances list
+
+# SSH into instance
+gcloud compute ssh my-instance --zone=us-central1-a
+
+# Create firewall rule
+gcloud compute firewall-rules create allow-http \
+  --allow tcp:80 \
+  --description "Allow HTTP traffic" \
+  --direction=INGRESS
+
+# Create instance template
+gcloud compute instance-templates create my-template \
+  --machine-type=e2-micro \
+  --image-family=debian-11 \
+  --image-project=debian-cloud
+                </div>
+
+                <h4>⚡ Google Cloud Functions</h4>
+                <div class="code-block gcp">
+# Deploy Cloud Function
+gcloud functions deploy my-function \
+  --runtime=nodejs18 \
+  --trigger-http \
+  --allow-unauthenticated \
+  --source=. \
+  --entry-point=helloWorld
+
+# List functions
+gcloud functions list
+
+# Call function
+curl $(gcloud functions describe my-function --format="value(httpsTrigger.url)")
+
+# Update function
+gcloud functions deploy my-function \
+  --runtime=nodejs18 \
+  --update-source
+
+# View function logs
+gcloud functions logs read my-function
+                </div>
+
+                <h3>💾 Storage Services</h3>
+
+                <h4>📦 Google Cloud Storage</h4>
+                <div class="code-block gcp">
+# Create bucket
+gsutil mb gs://my-bucket-name/
+
+# Upload file
+gsutil cp my-file.txt gs://my-bucket-name/
+
+# List bucket contents
+gsutil ls gs://my-bucket-name/
+
+# Make bucket public
+gsutil iam ch allUsers:objectViewer gs://my-bucket-name
+
+# Set lifecycle policy
+gsutil lifecycle set lifecycle.json gs://my-bucket-name/
+
+# lifecycle.json
+{
+  "rule": [
+    {
+      "action": {"type": "Delete"},
+      "condition": {
+        "age": 365
+      }
+    }
+  ]
+}
+                </div>
+
+                <h4>🗄️ Google Cloud SQL</h4>
+                <div class="code-block gcp">
+# Create Cloud SQL instance
+gcloud sql instances create my-instance \
+  --database-version=MYSQL_8_0 \
+  --tier=db-f1-micro \
+  --region=us-central1
+
+# Create database
+gcloud sql databases create my-database \
+  --instance=my-instance
+
+# Set root password
+gcloud sql users set-password root \
+  --instance=my-instance \
+  --password=mypassword
+
+# Create backup
+gcloud sql backups create my-backup \
+  --instance=my-instance
+
+# List instances
+gcloud sql instances list
+                </div>
+
+                <h3>🤖 AI/ML Services</h3>
+
+                <h4>🧠 Google AI Platform</h4>
+                <div class="code-block gcp">
+# Create AI Platform model
+gcloud ai-platform models create my-model \
+  --regions=us-central1
+
+# Deploy model version
+gcloud ai-platform versions create v1 \
+  --model=my-model \
+  --origin=gs://my-bucket-name/model/ \
+  --runtime-version=2.11 \
+  --python-version=3.7
+
+# Make prediction
+gcloud ai-platform predict \
+  --model=my-model \
+  --version=v1 \
+  --json-instances=input.json
+
+# List models
+gcloud ai-platform models list
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔷 Microsoft Azure</h2>
+
+                <div class="cloud-provider-grid">
+                    <div class="cloud-card azure">
+                        <h3>🔷 Azure Core Services</h3>
+                        <p>Azure offers enterprise-grade services with strong integration with Microsoft tools and Windows environments.</p>
+                    </div>
+                </div>
+
+                <h3>⚡ Compute Services</h3>
+
+                <h4>🖥️ Azure Virtual Machines</h4>
+                <div class="code-block azure">
+# Create resource group
+az group create --name myResourceGroup --location eastus
+
+# Create VM
+az vm create \
+  --resource-group myResourceGroup \
+  --name myVM \
+  --image Ubuntu2204 \
+  --admin-username azureuser \
+  --generate-ssh-keys \
+  --size Standard_B1s
+
+# List VMs
+az vm list --resource-group myResourceGroup
+
+# Start VM
+az vm start --resource-group myResourceGroup --name myVM
+
+# Create VM scale set
+az vmss create \
+  --resource-group myResourceGroup \
+  --name myScaleSet \
+  --image Ubuntu2204 \
+  --admin-username azureuser \
+  --generate-ssh-keys \
+  --instance-count 2
+                </div>
+
+                <h4>⚡ Azure Functions</h4>
+                <div class="code-block azure">
+# Create function app
+az functionapp create \
+  --resource-group myResourceGroup \
+  --consumption-plan-location eastus \
+  --runtime node \
+  --runtime-version 18 \
+  --functions-version 4 \
+  --name myFunctionApp \
+  --storage-account myStorageAccount
+
+# Deploy function
+az functionapp deployment source config \
+  --name myFunctionApp \
+  --resource-group myResourceGroup \
+  --repo-url https://github.com/myorg/myrepo \
+  --branch main \
+  --manual-integration
+
+# List function apps
+az functionapp list --resource-group myResourceGroup
+
+# Get function URL
+az functionapp function show \
+  --name myFunctionApp \
+  --resource-group myResourceGroup \
+  --function-name myFunction \
+  --query "invokeUrlTemplate"
+                </div>
+
+                <h3>💾 Storage Services</h3>
+
+                <h4>📦 Azure Blob Storage</h4>
+                <div class="code-block azure">
+# Create storage account
+az storage account create \
+  --name mystorageaccount \
+  --resource-group myResourceGroup \
+  --location eastus \
+  --sku Standard_LRS \
+  --kind StorageV2
+
+# Create container
+az storage container create \
+  --name mycontainer \
+  --account-name mystorageaccount
+
+# Upload blob
+az storage blob upload \
+  --account-name mystorageaccount \
+  --container-name mycontainer \
+  --name myblob \
+  --file myfile.txt
+
+# List blobs
+az storage blob list \
+  --account-name mystorageaccount \
+  --container-name mycontainer
+
+# Set container public access
+az storage container set-permission \
+  --name mycontainer \
+  --account-name mystorageaccount \
+  --public-access blob
+                </div>
+
+                <h4>🗄️ Azure Database Services</h4>
+                <div class="code-block azure">
+# Create Azure SQL Database
+az sql server create \
+  --name myserver \
+  --resource-group myResourceGroup \
+  --location eastus \
+  --admin-user myadmin \
+  --admin-password mypassword
+
+az sql db create \
+  --server myserver \
+  --name mydatabase \
+  --service-objective Basic
+
+# Create Azure Database for PostgreSQL
+az postgres server create \
+  --name mypostgres \
+  --resource-group myResourceGroup \
+  --location eastus \
+  --admin-user myadmin \
+  --admin-password mypassword \
+  --sku-name B_Gen5_1
+
+# List databases
+az sql db list --server myserver --resource-group myResourceGroup
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔄 Multi-Cloud Strategies</h2>
+
+                <h3>🌐 Multi-Cloud Benefits</h3>
+                <div class="info-box">
+                    <h4>💪 Advantages of Multi-Cloud:</h4>
+                    <ul>
+                        <li><strong>Avoid Vendor Lock-in:</strong> Not dependent on a single provider</li>
+                        <li><strong>Cost Optimization:</strong> Choose best pricing for each service</li>
+                        <li><strong>Disaster Recovery:</strong> Geographic redundancy across providers</li>
+                        <li><strong>Best-of-Breed Services:</strong> Use strongest service from each provider</li>
+                        <li><strong>Risk Mitigation:</strong> Reduce impact of provider outages</li>
+                        <li><strong>Compliance:</strong> Meet regulatory requirements across regions</li>
+                    </ul>
+                </div>
+
+                <h3>🏗️ Infrastructure as Code</h3>
+
+                <h4>🔧 Terraform Multi-Cloud</h4>
+                <div class="code-block terraform">
+# Multi-cloud infrastructure with Terraform
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 4.0"
+    }
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.0"
+    }
+  }
+}
+
+# AWS Provider
+provider "aws" {
+  region = "us-east-1"
+}
+
+# GCP Provider
+provider "google" {
+  project = "my-gcp-project"
+  region  = "us-central1"
+}
+
+# Azure Provider
+provider "azurerm" {
+  features {}
+}
+
+# Multi-cloud resources
+resource "aws_instance" "web" {
+  ami           = "ami-12345678"
+  instance_type = "t3.micro"
+}
+
+resource "google_compute_instance" "web" {
+  name         = "web-instance"
+  machine_type = "e2-micro"
+  zone         = "us-central1-a"
+}
+
+resource "azurerm_linux_virtual_machine" "web" {
+  name                = "web-vm"
+  resource_group_name = azurerm_resource_group.example.name
+  location            = azurerm_resource_group.example.location
+  size                = "Standard_B1s"
+}
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>💰 Cost Optimization</h2>
+
+                <h3>🔍 Cost Management Strategies</h3>
+
+                <h4>📊 AWS Cost Optimization</h4>
+                <div class="code-block aws">
+# Get cost and usage report
+aws ce get-cost-and-usage \
+  --time-period Start=2024-01-01,End=2024-01-31 \
+  --granularity MONTHLY \
+  --metrics "BlendedCost" "UnblendedCost"
+
+# Get reserved instance recommendations
+aws ce get-reservation-purchase-recommendation \
+  --service "Amazon Elastic Compute Cloud - Compute"
+
+# List unused resources
+aws ec2 describe-instances \
+  --filters "Name=instance-state-name,Values=stopped"
+
+# Get S3 storage costs
+aws s3 ls s3://my-bucket-name/ --recursive --summarize
+                </div>
+
+                <h4>📊 GCP Cost Optimization</h4>
+                <div class="code-block gcp">
+# View billing information
+gcloud billing accounts list
+
+# Get cost breakdown
+gcloud billing export create \
+  --name=my-export \
+  --description="Export billing data" \
+  --billing-account=123456-789012-345678 \
+  --export-bucket=gs://my-billing-bucket
+
+# List unused disks
+gcloud compute disks list --filter="-users:*"
+
+# Get recommendations
+gcloud recommender recommendations list \
+  --project=my-project \
+  --location=global \
+  --recommender=google.compute.instance.MachineTypeRecommender
+                </div>
+
+                <h4>📊 Azure Cost Optimization</h4>
+                <div class="code-block azure">
+# View cost analysis
+az costmanagement query \
+  --type "ActualCost" \
+  --dataset-granularity "Monthly" \
+  --dataset-aggregation '{"totalCost":{"name":"PreTaxCost","function":"Sum"}}'
+
+# Get reservations
+az reservations catalog show --subscription-id my-subscription
+
+# List unused resources
+az vm list --resource-group myResourceGroup \
+  --query "[?powerState=='VM deallocated']"
+
+# Get cost recommendations
+az advisor recommendation list \
+  --category "Cost" \
+  --resource-group myResourceGroup
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔒 Cloud Security</h2>
+
+                <h3>🛡️ Security Best Practices</h3>
+
+                <h4>🔐 Identity & Access Management</h4>
+                <div class="warning-box">
+                    <h4>🛡️ Security Principles:</h4>
+                    <ul>
+                        <li><strong>Least Privilege:</strong> Grant minimum required permissions</li>
+                        <li><strong>Multi-Factor Authentication:</strong> Enable MFA for all accounts</li>
+                        <li><strong>Role-Based Access Control:</strong> Use RBAC for granular permissions</li>
+                        <li><strong>Service Accounts:</strong> Use service accounts for applications</li>
+                        <li><strong>Regular Audits:</strong> Review permissions and access logs</li>
+                        <li><strong>Key Management:</strong> Use managed key services for encryption</li>
+                    </ul>
+                </div>
+
+                <h4>🔐 AWS Security Services</h4>
+                <div class="code-block aws">
+# Enable CloudTrail for audit logging
+aws cloudtrail create-trail \
+  --name my-trail \
+  --s3-bucket-name my-cloudtrail-bucket \
+  --is-multi-region-trail
+
+# Create KMS key
+aws kms create-key \
+  --description "My encryption key"
+
+# Enable encryption for S3 bucket
+aws s3api put-bucket-encryption \
+  --bucket my-bucket \
+  --server-side-encryption-configuration '{
+    "Rules": [
+      {
+        "ApplyServerSideEncryptionByDefault": {
+          "SSEAlgorithm": "AES256"
+        }
+      }
+    ]
+  }'
+
+# Set up AWS Config for compliance
+aws configservice put-configuration-recorder \
+  --configuration-recorder name=my-recorder,roleARN=arn:aws:iam::123456789012:role/ConfigRole
+                </div>
+
+                <h4>🔐 GCP Security Services</h4>
+                <div class="code-block gcp">
+# Enable Cloud Audit Logs
+gcloud logging sinks create my-sink \
+  storage.googleapis.com/my-bucket \
+  --log-filter='resource.type="gce_instance"'
+
+# Create service account
+gcloud iam service-accounts create my-service-account \
+  --description="My service account" \
+  --display-name="My Service Account"
+
+# Grant permissions
+gcloud projects add-iam-policy-binding my-project \
+  --member="serviceAccount:my-service-account@my-project.iam.gserviceaccount.com" \
+  --role="roles/storage.objectViewer"
+
+# Enable VPC Service Controls
+gcloud access-context-manager policies create \
+  --title="My Policy" \
+  --organization=123456789012
+
+# Set up Cloud Security Scanner
+gcloud services enable securitycenter.googleapis.com
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 Migration Strategies</h2>
+
+                <h3>📋 Migration Approaches</h3>
+
+                <h4>🏗️ 6R Migration Strategy</h4>
+                <div class="info-box">
+                    <h4>🔄 Migration Options:</h4>
+                    <ul>
+                        <li><strong>Rehost:</strong> Lift and shift - Move applications as-is</li>
+                        <li><strong>Replatform:</strong> Make minimal changes for cloud optimization</li>
+                        <li><strong>Refactor:</strong> Modernize applications for cloud-native features</li>
+                        <li><strong>Rearchitect:</strong> Rebuild applications for cloud scalability</li>
+                        <li><strong>Rebuild:</strong> Complete rewrite using cloud-native services</li>
+                        <li><strong>Retire:</strong> Decommission applications no longer needed</li>
+                    </ul>
+                </div>
+
+                <h4>📊 Migration Assessment</h4>
+                <div class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Application Type</th>
+                            <th>Recommended Strategy</th>
+                            <th>Effort Level</th>
+                            <th>Benefits</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Legacy Monolith</td>
+                            <td>Rehost → Replatform</td>
+                            <td>Medium</td>
+                            <td>Quick migration, cost savings</td>
+                        </tr>
+                        <tr>
+                            <td>Microservices</td>
+                            <td>Refactor</td>
+                            <td>High</td>
+                            <td>Full cloud benefits, scalability</td>
+                        </tr>
+                        <tr>
+                            <td>Modern Web App</td>
+                            <td>Replatform</td>
+                            <td>Low</td>
+                            <td>Easy migration, optimization</td>
+                        </tr>
+                        <tr>
+                            <td>Database</td>
+                            <td>Rehost → Managed Service</td>
+                            <td>Medium</td>
+                            <td>Reduced maintenance, HA</td>
+                        </tr>
+                    </tbody>
+                </div>
+            </div>
+
+            <div class="practice-section">
+                <h3>💪 Practice Exercises</h3>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 1: AWS Fundamentals</h4>
+                    <p>Practice basic AWS operations:</p>
+                    <ol>
+                        <li>Create an EC2 instance with security group</li>
+                        <li>Set up an S3 bucket and upload files</li>
+                        <li>Create an RDS database instance</li>
+                        <li>Configure IAM user with appropriate permissions</li>
+                        <li>Set up CloudWatch monitoring</li>
+                    </ol>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 2: Multi-Cloud Setup</h4>
+                    <p>Create a multi-cloud application:</p>
+                    <ol>
+                        <li>Deploy web app on AWS EC2</li>
+                        <li>Set up database on Google Cloud SQL</li>
+                        <li>Configure storage on Azure Blob Storage</li>
+                        <li>Implement load balancing across providers</li>
+                        <li>Set up monitoring and alerting</li>
+                    </ol>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 3: Infrastructure as Code</h4>
+                    <p>Use Terraform for multi-cloud deployment:</p>
+                    <ol>
+                        <li>Write Terraform configuration for all three clouds</li>
+                        <li>Implement resource dependencies</li>
+                        <li>Add variables and outputs</li>
+                        <li>Create modules for reusability</li>
+                        <li>Plan and apply infrastructure changes</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <h3>🧠 Knowledge Check</h3>
+
+                <div class="quiz-question">
+                    <h4>Question 1: Which AWS service provides serverless compute capabilities?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">Amazon EC2</div>
+                        <div class="quiz-option">AWS Lambda</div>
+                        <div class="quiz-option">Amazon S3</div>
+                        <div class="quiz-option">Amazon RDS</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 2: What is the main benefit of a multi-cloud strategy?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">Lower costs only</div>
+                        <div class="quiz-option">Avoid vendor lock-in</div>
+                        <div class="quiz-option">Better performance only</div>
+                        <div class="quiz-option">Easier management</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 3: Which migration strategy involves minimal changes to the application?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">Rehost</div>
+                        <div class="quiz-option">Refactor</div>
+                        <div class="quiz-option">Rebuild</div>
+                        <div class="quiz-option">Rearchitect</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📋 Cloud Platform Best Practices</h2>
+
+                <div class="success-box">
+                    <h4>💡 Essential Best Practices:</h4>
+                    <ul>
+                        <li><strong>Design for Failure:</strong> Implement redundancy and failover mechanisms</li>
+                        <li><strong>Security First:</strong> Apply security at every layer (network, application, data)</li>
+                        <li><strong>Cost Monitoring:</strong> Regularly review and optimize cloud spending</li>
+                        <li><strong>Performance Optimization:</strong> Use appropriate instance types and configurations</li>
+                        <li><strong>Backup & Recovery:</strong> Implement comprehensive backup strategies</li>
+                        <li><strong>Monitoring & Logging:</strong> Set up comprehensive observability</li>
+                        <li><strong>Compliance:</strong> Ensure compliance with regulatory requirements</li>
+                        <li><strong>Documentation:</strong> Maintain detailed architecture and configuration docs</li>
+                        <li><strong>Automation:</strong> Use IaC and CI/CD for consistent deployments</li>
+                        <li><strong>Training:</strong> Keep team skills updated with cloud technologies</li>
+                    </ul>
+                </div>
+
+                <h3>🔧 Essential Tools & Resources</h3>
+                <div class="info-box">
+                    <h4>🔧 Recommended Tools:</h4>
+                    <ul>
+                        <li><strong>AWS CLI:</strong> Command-line interface for AWS services</li>
+                        <li><strong>Google Cloud SDK:</strong> CLI tools for GCP services</li>
+                        <li><strong>Azure CLI:</strong> Command-line interface for Azure services</li>
+                        <li><strong>Terraform:</strong> Infrastructure as Code tool</li>
+                        <li><strong>CloudFormation:</strong> AWS infrastructure templating</li>
+                        <li><strong>Deployment Manager:</strong> GCP infrastructure management</li>
+                        <li><strong>Azure Resource Manager:</strong> Azure infrastructure templates</li>
+                        <li><strong>CloudWatch:</strong> AWS monitoring and logging</li>
+                        <li><strong>Cloud Monitoring:</strong> GCP observability platform</li>
+                        <li><strong>Azure Monitor:</strong> Azure monitoring solution</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 Chapter Summary</h2>
+                <p>This comprehensive chapter has equipped you with essential cloud platform knowledge and skills:</p>
+
+                <ul>
+                    <li><strong>AWS Services:</strong> EC2, Lambda, S3, RDS, IAM, and security services</li>
+                    <li><strong>GCP Services:</strong> Compute Engine, Cloud Functions, Cloud Storage, Cloud SQL</li>
+                    <li><strong>Azure Services:</strong> VMs, Functions, Blob Storage, Azure SQL Database</li>
+                    <li><strong>Multi-Cloud Strategies:</strong> Benefits, implementation, and management</li>
+                    <li><strong>Cost Optimization:</strong> Monitoring, rightsizing, and cost management</li>
+                    <li><strong>Security:</strong> IAM, encryption, compliance, and best practices</li>
+                    <li><strong>Migration:</strong> 6R strategy, assessment, and execution</li>
+                    <li><strong>Infrastructure as Code:</strong> Terraform for multi-cloud deployments</li>
+                    <li><strong>Best Practices:</strong> Architecture, monitoring, automation</li>
+                    <li><strong>Tools & Resources:</strong> CLI tools, monitoring, and management platforms</li>
+                </ul>
+
+                <div class="success-box">
+                    <strong>🎉 Congratulations!</strong> You now have a solid foundation in cloud platforms and multi-cloud strategies. These skills are essential for modern cloud-native application development and deployment.
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Study Guide Collection | <a href="study-guide-progress.html">View Progress Dashboard</a> | <a href="cloud-devops3.html">Docker & Containers ←</a> | <a href="cloud-devops5.html">Deployment Strategies →</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Quiz functionality
+            const quizOptions = document.querySelectorAll('.quiz-option');
+            const correctAnswers = [
+                'AWS Lambda',
+                'Avoid vendor lock-in',
+                'Rehost'
+            ];
+
+            quizOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionIndex = Array.from(this.parentElement.parentElement.parentElement.children).indexOf(this.parentElement.parentElement);
+                    const isCorrect = this.textContent === correctAnswers[questionIndex];
+
+                    // Remove previous styling
+                    this.parentElement.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.style.background = '';
+                        opt.style.color = '';
+                    });
+
+                    if (isCorrect) {
+                        this.style.background = '#4CAF50';
+                        this.style.color = 'white';
+                        alert('✅ Correct!');
+                    } else {
+                        this.style.background = '#f44336';
+                        this.style.color = 'white';
+                        alert('❌ Incorrect. Try again!');
+                    }
+                });
+            });
+
+            // Code block copy functionality
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = '📋 Copy';
+                copyBtn.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 60px;
+                    background: #FF6B35;
+                    color: white;
+                    border: none;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.8em;
+                `;
+
+                copyBtn.addEventListener('click', function() {
+                    const code = block.textContent.replace(/^(Terminal|AWS CLI|GCP CLI|Azure CLI|Terraform)$/m, '').trim();
+                    navigator.clipboard.writeText(code).then(() => {
+                        this.textContent = '✅ Copied!';
+                        setTimeout(() => this.textContent = '📋 Copy', 2000);
+                    });
+                });
+
+                block.style.position = 'relative';
+                block.appendChild(copyBtn);
+            });
+        });
+    </script>
+</body>
+</html>

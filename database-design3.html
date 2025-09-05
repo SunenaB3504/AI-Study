@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Design - Chapter 3: Design Patterns</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #0056b3;
+        }
+
+        .nav-btn.secondary {
+            background: #6c757d;
+        }
+
+        .nav-btn.secondary:hover {
+            background: #545b62;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4CAF50;
+        }
+
+        .section h3 {
+            color: #34495e;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+
+        .section h4 {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: "SQL";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #6c757d;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+
+        .code-block.mongo::before {
+            content: "MongoDB";
+        }
+
+        .code-block.redis::before {
+            content: "Redis";
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .pattern-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .pattern-card h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .pattern-card .pros,
+        .pattern-card .cons {
+            margin: 10px 0;
+        }
+
+        .pattern-card .pros {
+            color: #2e7d32;
+        }
+
+        .pattern-card .cons {
+            color: #c62828;
+        }
+
+        .index-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .index-table th,
+        .index-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .index-table th {
+            background: #4CAF50;
+            color: white;
+            font-weight: 600;
+        }
+
+        .index-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .index-table tr:hover {
+            background: #e3f2fd;
+        }
+
+        .practice-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .practice-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .practice-exercise {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .practice-exercise h4 {
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+
+        .quiz-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .quiz-section h3 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .quiz-question {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .quiz-question h4 {
+            margin-bottom: 10px;
+        }
+
+        .quiz-options {
+            margin: 10px 0;
+        }
+
+        .quiz-option {
+            display: block;
+            margin: 5px 0;
+            padding: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .index-table {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ Database Design</h1>
+            <div class="subtitle">Chapter 3: Design Patterns</div>
+        </div>
+
+        <div class="nav">
+            <div class="nav-links">
+                <a href="study-guide-progress.html" class="nav-btn">📊 Progress Dashboard</a>
+                <a href="database-design2.html" class="nav-btn">⬅️ NoSQL Databases</a>
+                <a href="database-design4.html" class="nav-btn secondary">Next: Performance Optimization →</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>🎯 Chapter Overview</h2>
+                <p>Welcome to Chapter 3 of Database Design! This chapter focuses on proven design patterns and optimization strategies that apply to both SQL and NoSQL databases. By the end of this chapter, you'll understand:</p>
+                <ul>
+                    <li>Essential database design patterns and anti-patterns</li>
+                    <li>Indexing strategies for optimal query performance</li>
+                    <li>Schema optimization techniques</li>
+                    <li>Data modeling best practices</li>
+                    <li>Common design mistakes and how to avoid them</li>
+                    <li>Database refactoring and migration patterns</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>🏗️ Database Design Patterns</h2>
+
+                <h3>📋 Single Table Inheritance</h3>
+                <div class="pattern-card">
+                    <h4>Single Table Inheritance (STI)</h4>
+                    <p>Store all related entities in one table with a discriminator column to identify the type.</p>
+
+                    <div class="code-block">
+-- Single table for different vehicle types
+CREATE TABLE vehicles (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    type VARCHAR(50) NOT NULL,  -- 'car', 'truck', 'motorcycle'
+    make VARCHAR(100),
+    model VARCHAR(100),
+    year INT,
+    -- Car-specific fields
+    doors INT,
+    -- Truck-specific fields
+    payload_capacity DECIMAL(10,2),
+    -- Motorcycle-specific fields
+    engine_cc INT
+);
+                    </div>
+
+                    <div class="pros">
+                        <strong>✅ Pros:</strong> Simple queries, no joins, easy to implement
+                    </div>
+                    <div class="cons">
+                        <strong>❌ Cons:</strong> Many NULL values, complex constraints, limited scalability
+                    </div>
+                </div>
+
+                <h3>📚 Class Table Inheritance</h3>
+                <div class="pattern-card">
+                    <h4>Class Table Inheritance (CTI)</h4>
+                    <p>Create separate tables for each entity type with shared fields in a base table.</p>
+
+                    <div class="code-block">
+-- Base table for common fields
+CREATE TABLE vehicles (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    make VARCHAR(100),
+    model VARCHAR(100),
+    year INT
+);
+
+-- Specific tables for each type
+CREATE TABLE cars (
+    vehicle_id INT PRIMARY KEY,
+    doors INT,
+    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id)
+);
+
+CREATE TABLE trucks (
+    vehicle_id INT PRIMARY KEY,
+    payload_capacity DECIMAL(10,2),
+    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id)
+);
+                    </div>
+
+                    <div class="pros">
+                        <strong>✅ Pros:</strong> Normalized, no NULL values, clear constraints
+                    </div>
+                    <div class="cons">
+                        <strong>❌ Cons:</strong> Complex queries with joins, harder to maintain
+                    </div>
+                </div>
+
+                <h3>🔗 Concrete Table Inheritance</h3>
+                <div class="pattern-card">
+                    <h4>Concrete Table Inheritance (CTI)</h4>
+                    <p>Each entity type has its own complete table with all fields.</p>
+
+                    <div class="code-block">
+-- Separate complete tables for each type
+CREATE TABLE cars (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    make VARCHAR(100),
+    model VARCHAR(100),
+    year INT,
+    doors INT
+);
+
+CREATE TABLE trucks (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    make VARCHAR(100),
+    model VARCHAR(100),
+    year INT,
+    payload_capacity DECIMAL(10,2)
+);
+                    </div>
+
+                    <div class="pros">
+                        <strong>✅ Pros:</strong> Simple queries per type, optimal performance
+                    </div>
+                    <div class="cons">
+                        <strong>❌ Cons:</strong> Code duplication, harder to query across types
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔍 Indexing Strategies</h2>
+
+                <h3>📊 Index Types and Usage</h3>
+                <table class="index-table">
+                    <thead>
+                        <tr>
+                            <th>Index Type</th>
+                            <th>Use Case</th>
+                            <th>SQL Example</th>
+                            <th>MongoDB Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Primary Key</strong></td>
+                            <td>Unique record identification</td>
+                            <td><code>PRIMARY KEY (id)</code></td>
+                            <td><code>{ _id: 1 }</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Unique Index</strong></td>
+                            <td>Ensure column uniqueness</td>
+                            <td><code>UNIQUE (email)</code></td>
+                            <td><code>{ email: 1 }, { unique: true }</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Composite Index</strong></td>
+                            <td>Multi-column queries</td>
+                            <td><code>INDEX (last_name, first_name)</code></td>
+                            <td><code>{ last_name: 1, first_name: 1 }</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Full-text Index</strong></td>
+                            <td>Text search queries</td>
+                            <td><code>FULLTEXT (content)</code></td>
+                            <td><code>{ content: "text" }</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Spatial Index</strong></td>
+                            <td>Location-based queries</td>
+                            <td><code>SPATIAL (location)</code></td>
+                            <td><code>{ location: "2dsphere" }</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Partial Index</strong></td>
+                            <td>Index subset of data</td>
+                            <td><code>WHERE active = true</code></td>
+                            <td><code>{ active: 1 }, { partialFilterExpression: { active: true } }</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>🎯 Index Best Practices</h3>
+                <div class="success-box">
+                    <h4>💡 Index Optimization Guidelines:</h4>
+                    <ul>
+                        <li><strong>Index selective columns</strong> - Choose columns with high cardinality</li>
+                        <li><strong>Consider query patterns</strong> - Index columns used in WHERE, JOIN, ORDER BY</li>
+                        <li><strong>Use composite indexes wisely</strong> - Order matters (equality first, then range)</li>
+                        <li><strong>Monitor index usage</strong> - Remove unused indexes to save space</li>
+                        <li><strong>Balance read vs write performance</strong> - Indexes speed reads but slow writes</li>
+                        <li><strong>Use covering indexes</strong> - Include all queried columns in the index</li>
+                        <li><strong>Consider index maintenance</strong> - Rebuild indexes when fragmentation is high</li>
+                    </ul>
+                </div>
+
+                <h4>🔧 Creating Effective Indexes</h4>
+                <div class="code-block">
+-- Index for user lookup by email
+CREATE INDEX idx_users_email ON users (email);
+
+-- Composite index for user search
+CREATE INDEX idx_users_name ON users (last_name, first_name);
+
+-- Partial index for active users only
+CREATE INDEX idx_active_users ON users (last_name, first_name) WHERE active = true;
+
+-- Index for range queries
+CREATE INDEX idx_orders_date_amount ON orders (order_date, total_amount);
+
+-- Covering index (includes all queried columns)
+CREATE INDEX idx_posts_covering ON posts (author_id, created_at, title);
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📈 Schema Optimization</h2>
+
+                <h3>🔄 Normalization vs Denormalization</h3>
+
+                <h4>📊 Normalized Schema (3NF)</h4>
+                <div class="code-block">
+-- Normalized approach
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100)
+);
+
+CREATE TABLE products (
+    product_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    price DECIMAL(10,2),
+    category_id INT,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+CREATE TABLE order_items (
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    unit_price DECIMAL(10,2),
+    PRIMARY KEY (order_id, product_id),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+                </div>
+
+                <h4>📊 Denormalized Schema</h4>
+                <div class="code-block">
+-- Denormalized approach for read performance
+CREATE TABLE order_summary (
+    order_id INT PRIMARY KEY,
+    customer_name VARCHAR(101),  -- Denormalized: first + last name
+    customer_email VARCHAR(100), -- Denormalized: customer email
+    order_date DATE,
+    total_amount DECIMAL(10,2),  -- Pre-calculated
+    item_count INT,             -- Pre-calculated
+    -- Embedded order items (JSON or separate columns)
+    items JSON
+);
+                </div>
+
+                <div class="info-box">
+                    <h4>⚖️ When to Normalize vs Denormalize:</h4>
+                    <strong>Normalize when:</strong>
+                    <ul>
+                        <li>Data integrity is critical</li>
+                        <li>Write operations are frequent</li>
+                        <li>Storage space is not a concern</li>
+                        <li>You need flexible querying</li>
+                    </ul>
+                    <strong>Denormalize when:</strong>
+                    <ul>
+                        <li>Read performance is critical</li>
+                        <li>Write operations are infrequent</li>
+                        <li>You have complex analytical queries</li>
+                        <li>You want to simplify application code</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚫 Common Anti-Patterns</h2>
+
+                <h3>🕳️ God Table Anti-Pattern</h3>
+                <div class="warning-box">
+                    <h4>❌ Problem:</h4>
+                    <p>A single table trying to serve multiple purposes with lots of NULL values and complex logic.</p>
+
+                    <div class="code-block">
+-- Anti-pattern: God table
+CREATE TABLE entity (
+    id INT PRIMARY KEY,
+    entity_type VARCHAR(50),  -- 'user', 'product', 'order'
+    -- User fields
+    username VARCHAR(50),
+    email VARCHAR(100),
+    -- Product fields
+    product_name VARCHAR(100),
+    price DECIMAL(10,2),
+    -- Order fields
+    order_date DATE,
+    total_amount DECIMAL(10,2)
+    -- Many NULL values and complex application logic
+);
+                    </div>
+
+                    <h4>✅ Solution:</h4>
+                    <p>Use proper inheritance patterns or separate tables for different entity types.</p>
+                </div>
+
+                <h3>🔗 Over-Joining Anti-Pattern</h3>
+                <div class="warning-box">
+                    <h4>❌ Problem:</h4>
+                    <p>Excessive table joins leading to complex, slow queries.</p>
+
+                    <div class="code-block">
+-- Anti-pattern: Too many joins
+SELECT u.name, p.title, c.content, t.name, a.name
+FROM users u
+JOIN posts p ON u.id = p.user_id
+JOIN comments c ON p.id = c.post_id
+JOIN tags t ON p.id = t.post_id
+JOIN attachments a ON p.id = a.post_id
+WHERE u.active = true;
+                    </div>
+
+                    <h4>✅ Solution:</h4>
+                    <p>Use denormalization, caching, or restructure data for common query patterns.</p>
+                </div>
+
+                <h3>📏 String Primary Keys Anti-Pattern</h3>
+                <div class="warning-box">
+                    <h4>❌ Problem:</h4>
+                    <p>Using long strings (UUIDs, emails) as primary keys everywhere.</p>
+
+                    <div class="code-block">
+-- Anti-pattern: String primary keys
+CREATE TABLE users (
+    email VARCHAR(100) PRIMARY KEY,  -- Email as PK
+    name VARCHAR(100)
+);
+
+CREATE TABLE posts (
+    id VARCHAR(36) PRIMARY KEY,      -- UUID as PK
+    user_email VARCHAR(100),
+    FOREIGN KEY (user_email) REFERENCES users(email)
+);
+                    </div>
+
+                    <h4>✅ Solution:</h4>
+                    <p>Use surrogate integer keys for performance and add unique constraints for business keys.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔄 Database Refactoring Patterns</h2>
+
+                <h3>📊 Schema Migration Strategies</h3>
+
+                <h4>🔄 Online Schema Changes</h4>
+                <div class="code-block">
+-- Add column with default value (non-blocking)
+ALTER TABLE users ADD COLUMN last_login TIMESTAMP NULL;
+
+-- Rename column using views (for complex changes)
+CREATE VIEW users_v AS SELECT id, name, email_address AS email FROM users;
+-- Then gradually migrate application to use the view
+
+-- Use triggers for complex transformations
+CREATE TRIGGER update_user_email
+    AFTER UPDATE ON users
+    FOR EACH ROW
+BEGIN
+    IF OLD.email != NEW.email THEN
+        INSERT INTO email_changes (user_id, old_email, new_email, changed_at)
+        VALUES (NEW.id, OLD.email, NEW.email, NOW());
+    END IF;
+END;
+                </div>
+
+                <h4>🏗️ Blue-Green Deployment</h4>
+                <div class="info-box">
+                    <h4>🔄 Process:</h4>
+                    <ol>
+                        <li>Create new schema (green) alongside existing (blue)</li>
+                        <li>Migrate data from blue to green</li>
+                        <li>Test green environment thoroughly</li>
+                        <li>Switch traffic from blue to green</li>
+                        <li>Keep blue as rollback option</li>
+                        <li>Remove blue after successful deployment</li>
+                    </ol>
+                </div>
+
+                <h3>📈 Data Migration Patterns</h3>
+
+                <h4>🔄 Backfilling Data</h4>
+                <div class="code-block">
+-- Pattern 1: Batch processing
+UPDATE users
+SET last_login = (
+    SELECT MAX(login_time)
+    FROM user_sessions
+    WHERE user_sessions.user_id = users.id
+)
+WHERE last_login IS NULL
+  AND id BETWEEN @batch_start AND @batch_end;
+
+-- Pattern 2: Incremental updates
+CREATE TRIGGER maintain_last_login
+    AFTER INSERT ON user_sessions
+    FOR EACH ROW
+BEGIN
+    UPDATE users
+    SET last_login = NEW.login_time
+    WHERE id = NEW.user_id
+      AND (last_login IS NULL OR last_login < NEW.login_time);
+END;
+                </div>
+
+                <h4>🗂️ Data Archiving</h4>
+                <div class="code-block">
+-- Archive old data
+INSERT INTO orders_archive
+SELECT * FROM orders
+WHERE order_date < '2020-01-01';
+
+-- Remove archived data
+DELETE FROM orders WHERE order_date < '2020-01-01';
+
+-- Partitioning for automatic archiving
+CREATE TABLE orders (
+    id INT,
+    order_date DATE,
+    -- other columns
+) PARTITION BY RANGE (YEAR(order_date)) (
+    PARTITION p2020 VALUES LESS THAN (2021),
+    PARTITION p2021 VALUES LESS THAN (2022),
+    PARTITION p2022 VALUES LESS THAN (2023),
+    PARTITION p_future VALUES LESS THAN MAXVALUE
+);
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>⚡ Performance Optimization Patterns</h2>
+
+                <h3>📊 Query Optimization</h3>
+
+                <h4>🔍 Query Execution Analysis</h4>
+                <div class="code-block">
+-- Analyze query execution plan
+EXPLAIN SELECT u.name, COUNT(o.id) as order_count
+FROM users u
+LEFT JOIN orders o ON u.id = o.user_id
+WHERE u.created_at > '2024-01-01'
+GROUP BY u.id, u.name;
+
+-- MongoDB equivalent
+db.users.explain().aggregate([
+    { $match: { created_at: { $gt: new Date('2024-01-01') } } },
+    {
+        $lookup: {
+            from: "orders",
+            localField: "_id",
+            foreignField: "user_id",
+            as: "user_orders"
+        }
+    },
+    {
+        $project: {
+            name: 1,
+            order_count: { $size: "$user_orders" }
+        }
+    }
+]);
+                </div>
+
+                <h4>🚀 Common Optimization Techniques</h4>
+                <div class="success-box">
+                    <h4>⚡ Performance Optimization Strategies:</h4>
+                    <ul>
+                        <li><strong>Query rewriting:</strong> Use EXISTS instead of IN for better performance</li>
+                        <li><strong>Index optimization:</strong> Ensure proper index coverage for query patterns</li>
+                        <li><strong>Denormalization:</strong> Pre-compute expensive calculations</li>
+                        <li><strong>Caching:</strong> Cache frequently accessed data</li>
+                        <li><strong>Partitioning:</strong> Split large tables for better performance</li>
+                        <li><strong>Connection pooling:</strong> Reuse database connections</li>
+                        <li><strong>Read replicas:</strong> Offload read queries to replica databases</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="practice-section">
+                <h3>💪 Practice Exercises</h3>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 1: Index Design</h4>
+                    <p>Design optimal indexes for a social media application with these query patterns:</p>
+                    <ol>
+                        <li>Find posts by user and date range</li>
+                        <li>Search posts by hashtags</li>
+                        <li>Get user feed (posts from followed users)</li>
+                        <li>Count likes and comments per post</li>
+                    </ol>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 2: Schema Refactoring</h4>
+                    <p>Refactor this poorly designed schema:</p>
+                    <div class="code-block">
+CREATE TABLE user_data (
+    id INT PRIMARY KEY,
+    type VARCHAR(50),  -- 'profile', 'post', 'comment'
+    user_id INT,
+    title VARCHAR(200),
+    content TEXT,
+    created_at TIMESTAMP,
+    metadata JSON  -- Mixed data for different types
+);
+                    </div>
+                    <p>Into a properly normalized schema with appropriate indexes.</p>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 3: Performance Optimization</h4>
+                    <p>Optimize this slow query:</p>
+                    <div class="code-block">
+SELECT u.name, p.title, COUNT(c.id) as comment_count
+FROM users u
+JOIN posts p ON u.id = p.user_id
+LEFT JOIN comments c ON p.id = c.post_id
+WHERE u.active = true
+  AND p.created_at > '2024-01-01'
+GROUP BY u.id, u.name, p.id, p.title
+ORDER BY comment_count DESC
+LIMIT 20;
+                    </div>
+                    <p>Add appropriate indexes and suggest query improvements.</p>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <h3>🧠 Knowledge Check</h3>
+
+                <div class="quiz-question">
+                    <h4>Question 1: Which inheritance pattern eliminates NULL values but requires JOINs?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">Single Table Inheritance</div>
+                        <div class="quiz-option">Class Table Inheritance</div>
+                        <div class="quiz-option">Concrete Table Inheritance</div>
+                        <div class="quiz-option">Table Per Hierarchy</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 2: What type of index should you use for full-text search?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">Primary Key Index</div>
+                        <div class="quiz-option">Unique Index</div>
+                        <div class="quiz-option">Full-text Index</div>
+                        <div class="quiz-option">Spatial Index</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 3: When should you denormalize your database schema?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">When data integrity is critical</div>
+                        <div class="quiz-option">When read performance is critical</div>
+                        <div class="quiz-option">When storage space is limited</div>
+                        <div class="quiz-option">When you have simple queries</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 Best Practices Summary</h2>
+
+                <div class="success-box">
+                    <h4>💡 Database Design Best Practices:</h4>
+                    <ul>
+                        <li><strong>Choose the right inheritance pattern</strong> based on your query patterns and data access needs</li>
+                        <li><strong>Design indexes for your actual queries</strong> - not just for potential queries</li>
+                        <li><strong>Balance normalization and denormalization</strong> based on read vs write patterns</li>
+                        <li><strong>Avoid anti-patterns</strong> like god tables and excessive joins</li>
+                        <li><strong>Plan for schema evolution</strong> from the beginning</li>
+                        <li><strong>Use migration scripts</strong> for version-controlled schema changes</li>
+                        <li><strong>Monitor query performance</strong> and adjust indexes as needed</li>
+                        <li><strong>Consider partitioning</strong> for large tables with time-based data</li>
+                        <li><strong>Document your design decisions</strong> for future maintainers</li>
+                        <li><strong>Test with realistic data volumes</strong> before going to production</li>
+                    </ul>
+                </div>
+
+                <h3>🔧 Tools for Database Design</h3>
+                <div class="info-box">
+                    <h4>🛠️ Recommended Tools:</h4>
+                    <ul>
+                        <li><strong>Schema Design:</strong> dbdiagram.io, Lucidchart, Draw.io</li>
+                        <li><strong>SQL Development:</strong> DataGrip, DBeaver, TablePlus</li>
+                        <li><strong>Performance Monitoring:</strong> pg_stat_statements, MongoDB Profiler</li>
+                        <li><strong>Migration Tools:</strong> Flyway, Liquibase, Alembic</li>
+                        <li><strong>Query Analysis:</strong> EXPLAIN plans, query execution statistics</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📚 Chapter Summary</h2>
+                <p>In this chapter, we've explored essential database design patterns and optimization strategies:</p>
+
+                <ul>
+                    <li><strong>Inheritance Patterns:</strong> Single Table, Class Table, and Concrete Table approaches</li>
+                    <li><strong>Indexing Strategies:</strong> Primary keys, composite indexes, full-text, and spatial indexes</li>
+                    <li><strong>Schema Optimization:</strong> Normalization vs denormalization trade-offs</li>
+                    <li><strong>Anti-Patterns:</strong> God tables, over-joining, and string primary keys</li>
+                    <li><strong>Refactoring Patterns:</strong> Online schema changes and blue-green deployments</li>
+                    <li><strong>Performance Optimization:</strong> Query analysis and optimization techniques</li>
+                    <li><strong>Best Practices:</strong> Design principles and development tools</li>
+                </ul>
+
+                <div class="info-box">
+                    <strong>🎯 Next Steps:</strong> In the final chapter, we'll dive into performance optimization techniques, query monitoring, and scaling strategies to ensure your database can handle production workloads effectively.
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Study Guide Collection | <a href="study-guide-progress.html">View Progress Dashboard</a> | <a href="database-design2.html">Previous Chapter ←</a> | <a href="database-design4.html">Next Chapter →</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Quiz functionality
+            const quizOptions = document.querySelectorAll('.quiz-option');
+            const correctAnswers = [
+                'Class Table Inheritance',
+                'Full-text Index',
+                'When read performance is critical'
+            ];
+
+            quizOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionIndex = Array.from(this.parentElement.parentElement.parentElement.children).indexOf(this.parentElement.parentElement);
+                    const isCorrect = this.textContent === correctAnswers[questionIndex];
+
+                    // Remove previous styling
+                    this.parentElement.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.style.background = '';
+                        opt.style.color = '';
+                    });
+
+                    if (isCorrect) {
+                        this.style.background = '#4CAF50';
+                        this.style.color = 'white';
+                        alert('✅ Correct!');
+                    } else {
+                        this.style.background = '#f44336';
+                        this.style.color = 'white';
+                        alert('❌ Incorrect. Try again!');
+                    }
+                });
+            });
+
+            // Code block copy functionality
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = '📋 Copy';
+                copyBtn.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 60px;
+                    background: #4CAF50;
+                    color: white;
+                    border: none;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.8em;
+                `;
+
+                copyBtn.addEventListener('click', function() {
+                    const code = block.textContent.replace(/^(SQL|MongoDB|Redis)$/m, '').trim();
+                    navigator.clipboard.writeText(code).then(() => {
+                        this.textContent = '✅ Copied!';
+                        setTimeout(() => this.textContent = '📋 Copy', 2000);
+                    });
+                });
+
+                block.style.position = 'relative';
+                block.appendChild(copyBtn);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Guides Hub - Complete Developer Learning Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen gradient-bg">
+        <div class="container mx-auto px-4 py-8 max-w-7xl">
+            <!-- Hero Section -->
+            <div class="text-center text-white py-16 px-6 hero-gradient rounded-3xl mb-16 backdrop-blur-sm">
+                <h1 class="text-5xl md:text-6xl font-light mb-6 text-shadow-lg">🚀 Study Guides Hub</h1>
+                <p class="text-xl md:text-2xl opacity-90 max-w-4xl mx-auto leading-relaxed">
+                    Your complete learning platform for modern software development. Master full-stack development, mobile apps, cloud technologies, and cybersecurity with our comprehensive, interactive study guides.
+                </p>
+            </div>
+
+            <!-- Search Section -->
+            <div class="bg-white rounded-2xl p-8 mb-16 shadow-xl">
+                <div class="flex flex-col md:flex-row gap-4 max-w-2xl mx-auto">
+                    <input type="text" class="flex-1 px-6 py-4 border-2 border-gray-200 rounded-xl text-lg focus:border-primary-500 focus:outline-none transition-colors" placeholder="Search study guides..." id="searchInput">
+                    <button class="bg-primary-500 hover:bg-primary-600 text-white px-8 py-4 rounded-xl font-medium text-lg transition-colors" onclick="searchGuides()">Search</button>
+                </div>
+            </div>
+
+            <!-- Categories Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                <!-- Web Development Card -->
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg card-hover">
+                    <div class="bg-gradient-to-r from-primary-500 to-secondary-500 text-white p-6 text-center">
+                        <h3 class="text-2xl font-light mb-2">🌐 Web Development</h3>
+                        <p class="opacity-90">Full-Stack & Frontend Technologies</p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3">
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="fullstack1.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">HTML Fundamentals</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="fullstack2.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">CSS Styling</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="fullstack3.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">JavaScript Basics</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="fullstack4.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Advanced Concepts</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="react1.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">React Fundamentals</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="react2.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Components & Props</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="react3.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">State Management</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="react4.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Hooks & Lifecycle</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="react5.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">React Router</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="react6.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Advanced Patterns</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="nodejs1.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Node.js Fundamentals</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="nodejs2.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Express.js Framework</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="nodejs3.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Database Integration</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="nodejs4.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Authentication & Security</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="nodejs5.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">API Development</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Mobile Development Card -->
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg card-hover">
+                    <div class="bg-gradient-to-r from-primary-500 to-secondary-500 text-white p-6 text-center">
+                        <h3 class="text-2xl font-light mb-2">📱 Mobile Development</h3>
+                        <p class="opacity-90">Android & Cross-Platform Apps</p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3">
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="android1.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Android Fundamentals</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="android2.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Getting Started</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="android3.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Applications & Activities</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="android4.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">User Interfaces</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="android5.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Intents & Broadcast Receivers</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="android6.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Data Storage (SQLite, Room)</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="android7.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Content Providers</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="android8.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Services & Background Tasks</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="android9.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Networking & APIs</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="android10.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Location & Maps</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="android11.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Material Design 3</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="android12.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Firebase Integration</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Cloud & DevOps Card -->
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg card-hover">
+                    <div class="bg-gradient-to-r from-primary-500 to-secondary-500 text-white p-6 text-center">
+                        <h3 class="text-2xl font-light mb-2">☁️ Cloud & DevOps</h3>
+                        <p class="opacity-90">Modern Development Workflow</p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3">
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="cloud-devops1.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Git & Version Control</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="cloud-devops2.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">CI/CD Pipelines</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="cloud-devops3.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Docker & Containers</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="cloud-devops4.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Cloud Platforms</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="cloud-devops5.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Deployment Strategies</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Cybersecurity Card -->
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg card-hover">
+                    <div class="bg-gradient-to-r from-primary-500 to-secondary-500 text-white p-6 text-center">
+                        <h3 class="text-2xl font-light mb-2">🔒 Cybersecurity</h3>
+                        <p class="opacity-90">Security Best Practices</p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3">
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="cybersecurity1.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Web Security Basics</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="cybersecurity2.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Authentication & Authorization</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="cybersecurity3.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Data Protection</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="cybersecurity4.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Security Best Practices</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Database Design Card -->
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg card-hover">
+                    <div class="bg-gradient-to-r from-primary-500 to-secondary-500 text-white p-6 text-center">
+                        <h3 class="text-2xl font-light mb-2">🗄️ Database Design</h3>
+                        <p class="opacity-90">Data Management & Optimization</p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3">
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="database-design1.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">SQL Fundamentals</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="database-design2.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">NoSQL Databases</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="database-design3.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Design Patterns</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="database-design4.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Performance Optimization</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Progressive Web Apps Card -->
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg card-hover">
+                    <div class="bg-gradient-to-r from-primary-500 to-secondary-500 text-white p-6 text-center">
+                        <h3 class="text-2xl font-light mb-2">📱 Progressive Web Apps</h3>
+                        <p class="opacity-90">Modern Web Applications</p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3">
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="pwa1.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">PWA Fundamentals</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="pwa2.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Service Workers</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="pwa3.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">App Manifest</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                            <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <a href="pwa4.html" class="text-primary-600 hover:text-primary-700 font-medium flex-1 guide-link">Offline Functionality</a>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Complete</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        <div class="featured-section">
+            <h2>⭐ Featured Study Guides</h2>
+            <div class="featured-grid">
+                <div class="featured-card">
+                    <div class="featured-icon">🔧</div>
+                    <h4>Chrome DevTools</h4>
+                    <p>Master the essential debugging toolkit for modern web development</p>
+                    <a href="chrome-devtools-guide.html" class="featured-btn">Start Learning</a>
+                </div>
+                <div class="featured-card">
+                    <div class="featured-icon">📊</div>
+                    <h4>Progress Dashboard</h4>
+                    <p>Track your learning progress across all study guides</p>
+                    <a href="study-guide-progress.html" class="featured-btn">View Progress</a>
+                </div>
+                <div class="featured-card">
+                    <div class="featured-icon">🚀</div>
+                    <h4>Quick Start</h4>
+                    <p>New to development? Start with our beginner-friendly guides</p>
+                    <a href="fullstack1.html" class="featured-btn">Begin Journey</a>
+                </div>
+                <div class="featured-card">
+                    <div class="featured-icon">🔒</div>
+                    <h4>Security First</h4>
+                    <p>Learn essential security practices for production applications</p>
+                    <a href="cybersecurity1.html" class="featured-btn">Secure Your Apps</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h2>📈 Learning Platform Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">45</div>
+                    <div class="stat-label">Study Guides Created</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">9</div>
+                    <div class="stat-label">Technology Areas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Completion Rate</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">Learning Possibilities</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Study Guides Hub | Built for developers, by developers</p>
+            <p><a href="study-guide-progress.html">View Detailed Progress Report</a></p>
+        </div>
+    </div>
+
+    <script>
+        function searchGuides() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const guideLinks = document.querySelectorAll('.guide-link');
+
+            guideLinks.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.parentElement;
+
+                if (text.includes(searchTerm) || searchTerm === '') {
+                    listItem.style.display = 'flex';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        // Add search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchGuides();
+            }
+        });
+
+        // Add smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

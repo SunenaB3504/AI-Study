@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React Chapter 5: React Router</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#61dafb',
+                        secondary: '#21a3c4',
+                        accent: '#4caf50'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+            <div class="bg-gradient-to-r from-primary to-secondary text-white p-8 text-center">
+                <h1 class="text-4xl font-bold mb-2">⚛️ React Chapter 5</h1>
+                <div class="text-xl opacity-90">React Router - Client-Side Routing and Navigation</div>
+                <div class="mt-4 flex justify-center gap-4">
+                    <button id="tts-toggle" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-medium transition-colors">
+                        🔊 Enable TTS
+                    </button>
+                    <button id="chapter-complete" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-medium transition-colors">
+                        ✅ Mark Complete
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-8">
+                <div class="bg-gray-50 p-6 rounded-lg mb-8 flex justify-between items-center flex-wrap gap-4">
+                    <a href="react4.html" class="bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-lg font-medium transition-colors no-underline">⬅️ Chapter 4: Hooks & Lifecycle</a>
+                    <a href="study-guide-progress.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg font-medium transition-colors no-underline">📊 Progress Dashboard</a>
+                    <a href="react6.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg font-medium transition-colors no-underline">Chapter 6: Advanced Patterns ➡️</a>
+                </div>
+
+                <div class="mb-10 p-8 bg-gray-50 rounded-lg border-l-4 border-primary">
+                    <h2 class="text-primary text-2xl font-semibold mb-4">🎯 Chapter Overview</h2>
+                    <p class="text-gray-700 mb-4">In this chapter, we'll explore React Router - the de facto routing library for React applications. You'll learn how to implement client-side routing, handle navigation, and create dynamic, multi-page React applications that feel like native web apps.</p>
+
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                        <h4 class="text-yellow-800 font-semibold mb-2">📚 What You'll Learn</h4>
+                        <ul class="text-yellow-800 space-y-1">
+                            <li>Setting up React Router in your application</li>
+                            <li>Basic routing with Route and Routes components</li>
+                            <li>Navigation with Link and NavLink components</li>
+                            <li>Dynamic routing with URL parameters</li>
+                            <li>Nested routes and route composition</li>
+                            <li>Programmatic navigation and redirects</li>
+                            <li>Route protection and authentication guards</li>
+                            <li>Route-based code splitting and lazy loading</li>
+                            <li>Custom hooks for routing logic</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mb-10 p-8 bg-gray-50 rounded-lg border-l-4 border-primary">
+                    <h2 class="text-primary text-2xl font-semibold mb-4">🚀 Getting Started with React Router</h2>
+                    <p class="text-gray-700 mb-6">React Router enables navigation among views in a React application, allowing the creation of single-page applications with navigation.</p>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Installation and Setup</h3>
+                    <div class="bg-gray-800 text-gray-100 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto relative">
+                        <div class="absolute top-2 right-2 bg-primary text-gray-800 px-2 py-1 rounded text-xs font-bold">JavaScript/JSX</div>
+// Install React Router
+npm install react-router-dom
+
+// For web applications, use react-router-dom
+// For React Native, use react-router-native
+
+// Basic setup in your main App component
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="/about" element={&lt;About /&gt;} /&gt;
+        &lt;Route path="/contact" element={&lt;Contact /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Router Types</h3>
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                        <h4 class="text-yellow-800 font-semibold mb-2">🔧 Router Types</h4>
+                        <ul class="text-yellow-800 space-y-1">
+                            <li><strong>BrowserRouter:</strong> Uses HTML5 history API (recommended for web apps)</li>
+                            <li><strong>HashRouter:</strong> Uses URL hash (#) for routing (good for static hosting)</li>
+                            <li><strong>MemoryRouter:</strong> Keeps history in memory (good for testing or React Native)</li>
+                            <li><strong>StaticRouter:</strong> For server-side rendering</li>
+                        </ul>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Basic Routing Example</h3>
+                    <div class="bg-gray-800 text-gray-100 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto relative">
+                        <div class="absolute top-2 right-2 bg-primary text-gray-800 px-2 py-1 rounded text-xs font-bold">JavaScript/JSX</div>
+import React from 'react';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+
+function Home() {
+  return &lt;h2&gt;Home Page&lt;/h2&gt;;
+}
+
+function About() {
+  return &lt;h2&gt;About Page&lt;/h2&gt;;
+}
+
+function Contact() {
+  return &lt;h2&gt;Contact Page&lt;/h2&gt;;
+}
+
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;nav&gt;
+        &lt;Link to="/"&gt;Home&lt;/Link&gt;
+        &lt;Link to="/about"&gt;About&lt;/Link&gt;
+        &lt;Link to="/contact"&gt;Contact&lt;/Link&gt;
+      &lt;/nav&gt;
+
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="/about" element={&lt;About /&gt;} /&gt;
+        &lt;Route path="/contact" element={&lt;Contact /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}
+                    </div>
+                </div>
+
+            <div class="section">
+                <h2>🔗 Navigation Components</h2>
+                <p>React Router provides several components for navigation between routes.</p>
+
+                <h3>Link vs NavLink</h3>
+                <div class="code-block">// Link - Basic navigation
+import { Link } from 'react-router-dom';
+
+function Navigation() {
+  return (
+    &lt;nav&gt;
+      &lt;Link to="/"&gt;Home&lt;/Link&gt;
+      &lt;Link to="/about"&gt;About&lt;/Link&gt;
+      &lt;Link to="/contact"&gt;Contact&lt;/Link&gt;
+    &lt;/nav&gt;
+  );
+}
+
+// NavLink - Enhanced navigation with active state
+import { NavLink } from 'react-router-dom';
+
+function Navigation() {
+  return (
+    &lt;nav&gt;
+      &lt;NavLink
+        to="/"
+        className={({ isActive }) =&gt; isActive ? 'active' : ''}
+      &gt;
+        Home
+      &lt;/NavLink&gt;
+      &lt;NavLink
+        to="/about"
+        className={({ isActive }) =&gt; isActive ? 'active' : ''}
+      &gt;
+        About
+      &lt;/NavLink&gt;
+      &lt;NavLink
+        to="/contact"
+        className={({ isActive }) =&gt; isActive ? 'active' : ''}
+      &gt;
+        Contact
+      &lt;/NavLink&gt;
+    &lt;/nav&gt;
+  );
+}</div>
+
+                <h3>Advanced NavLink Features</h3>
+                <div class="code-block">// Style-based active state
+&lt;NavLink
+  to="/products"
+  style={({ isActive }) =&gt; ({
+    color: isActive ? 'red' : 'blue',
+    fontWeight: isActive ? 'bold' : 'normal'
+  })}
+&gt;
+  Products
+&lt;/NavLink&gt;
+
+// Custom active class
+&lt;NavLink
+  to="/dashboard"
+  className={({ isActive }) =&gt;
+    isActive ? 'nav-link active-link' : 'nav-link'
+  }
+&gt;
+  Dashboard
+&lt;/NavLink&gt;
+
+// Exact matching
+&lt;NavLink
+  to="/"
+  end  // This makes it exact match (equivalent to exact in v5)
+&gt;
+  Home
+&lt;/NavLink&gt;</div>
+            </div>
+
+                <div class="mb-10 p-8 bg-gray-50 rounded-lg border-l-4 border-primary">
+                    <h2 class="text-primary text-2xl font-semibold mb-4">📊 Dynamic Routing with Parameters</h2>
+                    <p class="text-gray-700 mb-6">Dynamic routing allows you to create routes with parameters that can be extracted and used in your components.</p>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Route Parameters</h3>
+                    <div class="bg-gray-800 text-gray-100 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto relative">
+                        <div class="absolute top-2 right-2 bg-primary text-gray-800 px-2 py-1 rounded text-xs font-bold">JavaScript/JSX</div>
+import { useParams } from 'react-router-dom';
+
+function UserProfile() {
+  const { userId } = useParams();
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;User Profile&lt;/h2&gt;
+      &lt;p&gt;User ID: {userId}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+// In your routes
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/user/:userId" element={&lt;UserProfile /&gt;} /&gt;
+        &lt;Route path="/post/:postId" element={&lt;PostDetail /&gt;} /&gt;
+        &lt;Route path="/category/:categoryId/product/:productId" element={&lt;ProductDetail /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}
+
+// Navigation with parameters
+function UserList() {
+  const users = [1, 2, 3, 4, 5];
+
+  return (
+    &lt;ul&gt;
+      {users.map(userId =&gt; (
+        &lt;li key={userId}&gt;
+          &lt;Link to={`/user/${userId}`}&gt;User {userId}&lt;/Link&gt;
+        &lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Query Parameters and Search Params</h3>
+                    <div class="bg-gray-800 text-gray-100 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto relative">
+                        <div class="absolute top-2 right-2 bg-primary text-gray-800 px-2 py-1 rounded text-xs font-bold">JavaScript/JSX</div>
+import { useSearchParams } from 'react-router-dom';
+
+function ProductList() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Get query parameters
+  const category = searchParams.get('category');
+  const sort = searchParams.get('sort') || 'name';
+  const page = parseInt(searchParams.get('page')) || 1;
+
+  // Update query parameters
+  const handleCategoryChange = (newCategory) =&gt; {
+    setSearchParams({
+      category: newCategory,
+      sort,
+      page: 1 // Reset to first page
+    });
+  };
+
+  const handleSortChange = (newSort) =&gt; {
+    setSearchParams({
+      category,
+      sort: newSort,
+      page
+    });
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;select value={category} onChange={e =&gt; handleCategoryChange(e.target.value)}&gt;
+        &lt;option value="all"&gt;All Categories&lt;/option&gt;
+        &lt;option value="electronics"&gt;Electronics&lt;/option&gt;
+        &lt;option value="books"&gt;Books&lt;/option&gt;
+      &lt;/select&gt;
+
+      &lt;select value={sort} onChange={e =&gt; handleSortChange(e.target.value)}&gt;
+        &lt;option value="name"&gt;Name&lt;/option&gt;
+        &lt;option value="price"&gt;Price&lt;/option&gt;
+        &lt;option value="rating"&gt;Rating&lt;/option&gt;
+      &lt;/select&gt;
+
+      &lt;p&gt;Current page: {page}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Optional Parameters</h3>
+                    <div class="bg-gray-800 text-gray-100 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto relative">
+                        <div class="absolute top-2 right-2 bg-primary text-gray-800 px-2 py-1 rounded text-xs font-bold">JavaScript/JSX</div>
+// Optional parameter with default value
+function ProductDetail() {
+  const { category = 'all', productId } = useParams();
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Product Detail&lt;/h2&gt;
+      &lt;p&gt;Category: {category}&lt;/p&gt;
+      &lt;p&gt;Product ID: {productId}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Routes with optional parameters
+&lt;Routes&gt;
+  &lt;Route path="/product/:productId" element={&lt;ProductDetail /&gt;} /&gt;
+  &lt;Route path="/:category/product/:productId" element={&lt;ProductDetail /&gt;} /&gt;
+&lt;/Routes&gt;
+
+// Navigation
+&lt;Link to="/product/123"&gt;Product 123&lt;/Link&gt;
+&lt;Link to="/electronics/product/123"&gt;Electronics Product 123&lt;/Link&gt;
+                    </div>
+                </div>
+
+            <div class="section">
+                <h2>🏗️ Nested Routes</h2>
+                <p>Nested routes allow you to create hierarchical route structures and render child components within parent layouts.</p>
+
+                <h3>Basic Nested Routes</h3>
+                <div class="code-block">function Dashboard() {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Dashboard&lt;/h2&gt;
+      &lt;nav&gt;
+        &lt;Link to="profile"&gt;Profile&lt;/Link&gt;
+        &lt;Link to="settings"&gt;Settings&lt;/Link&gt;
+        &lt;Link to="analytics"&gt;Analytics&lt;/Link&gt;
+      &lt;/nav&gt;
+
+      &lt;Routes&gt;
+        &lt;Route path="profile" element={&lt;Profile /&gt;} /&gt;
+        &lt;Route path="settings" element={&lt;Settings /&gt;} /&gt;
+        &lt;Route path="analytics" element={&lt;Analytics /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/div&gt;
+  );
+}
+
+// In main App
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="/dashboard/*" element={&lt;Dashboard /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}</div>
+
+                <h3>Layout Routes</h3>
+                <div class="code-block">// Layout component
+function Layout() {
+  return (
+    &lt;div className="layout"&gt;
+      &lt;header&gt;
+        &lt;nav&gt;
+          &lt;Link to="/"&gt;Home&lt;/Link&gt;
+          &lt;Link to="/about"&gt;About&lt;/Link&gt;
+          &lt;Link to="/contact"&gt;Contact&lt;/Link&gt;
+        &lt;/nav&gt;
+      &lt;/header&gt;
+
+      &lt;main&gt;
+        &lt;Outlet /&gt; {/* This is where child routes render */}
+      &lt;/main&gt;
+
+      &lt;footer&gt;
+        &lt;p&gt;© 2025 My App&lt;/p&gt;
+      &lt;/footer&gt;
+    &lt;/div&gt;
+  );
+}
+
+// App with layout
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Layout /&gt;}&gt;
+          &lt;Route index element={&lt;Home /&gt;} /&gt; {/* index route for / */}
+          &lt;Route path="about" element={&lt;About /&gt;} /&gt;
+          &lt;Route path="contact" element={&lt;Contact /&gt;} /&gt;
+        &lt;/Route&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}</div>
+
+                <h3>Complex Nested Structure</h3>
+                <div class="code-block">function AdminLayout() {
+  return (
+    &lt;div className="admin-layout"&gt;
+      &lt;aside&gt;
+        &lt;nav&gt;
+          &lt;Link to="users"&gt;Users&lt;/Link&gt;
+          &lt;Link to="products"&gt;Products&lt;/Link&gt;
+          &lt;Link to="orders"&gt;Orders&lt;/Link&gt;
+        &lt;/nav&gt;
+      &lt;/aside&gt;
+
+      &lt;main&gt;
+        &lt;Outlet /&gt;
+      &lt;/main&gt;
+    &lt;/div&gt;
+  );
+}
+
+function UsersLayout() {
+  return (
+    &lt;div&gt;
+      &lt;h3&gt;Users Management&lt;/h3&gt;
+      &lt;nav&gt;
+        &lt;Link to="list"&gt;User List&lt;/Link&gt;
+        &lt;Link to="add"&gt;Add User&lt;/Link&gt;
+      &lt;/nav&gt;
+
+      &lt;Outlet /&gt;
+    &lt;/div&gt;
+  );
+}
+
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="/admin" element={&lt;AdminLayout /&gt;}&gt;
+          &lt;Route path="dashboard" element={&lt;AdminDashboard /&gt;} /&gt;
+          &lt;Route path="users" element={&lt;UsersLayout /&gt;}&gt;
+            &lt;Route index element={&lt;UsersList /&gt;} /&gt;
+            &lt;Route path="list" element={&lt;UsersList /&gt;} /&gt;
+            &lt;Route path="add" element={&lt;AddUser /&gt;} /&gt;
+            &lt;Route path=":userId" element={&lt;UserDetail /&gt;} /&gt;
+          &lt;/Route&gt;
+          &lt;Route path="products" element={&lt;Products /&gt;} /&gt;
+        &lt;/Route&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}</div>
+            </div>
+
+            <div class="section">
+                <h2>🎯 Programmatic Navigation</h2>
+                <p>Programmatic navigation allows you to navigate between routes imperatively using JavaScript instead of Link components.</p>
+
+                <h3>useNavigate Hook</h3>
+                <div class="code-block">import { useNavigate } from 'react-router-dom';
+
+function LoginForm() {
+  const navigate = useNavigate();
+
+  const handleLogin = async (credentials) =&gt; {
+    try {
+      const response = await loginUser(credentials);
+      // Navigate to dashboard after successful login
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
+  };
+
+  return (
+    &lt;form onSubmit={handleLogin}&gt;
+      {/* form fields */}
+      &lt;button type="submit"&gt;Login&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+
+// Navigation with state
+function ProductCard({ product }) {
+  const navigate = useNavigate();
+
+  const handleViewDetails = () =&gt; {
+    navigate(`/product/${product.id}`, {
+      state: { from: 'product-list', product }
+    });
+  };
+
+  return (
+    &lt;div onClick={handleViewDetails}&gt;
+      &lt;h3&gt;{product.name}&lt;/h3&gt;
+      &lt;p&gt;{product.description}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+// In the destination component
+function ProductDetail() {
+  const location = useLocation();
+  const { from, product } = location.state || {};
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{product.name}&lt;/h2&gt;
+      {from &amp;&amp; &lt;p&gt;Came from: {from}&lt;/p&gt;}
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3>Navigation Methods</h3>
+                <div class="code-block">function NavigationExample() {
+  const navigate = useNavigate();
+
+  const goHome = () =&gt; {
+    navigate('/'); // Navigate to home
+  };
+
+  const goBack = () =&gt; {
+    navigate(-1); // Go back one page
+  };
+
+  const goForward = () =&gt; {
+    navigate(1); // Go forward one page
+  };
+
+  const goToProduct = (productId) =&gt; {
+    navigate(`/product/${productId}`, {
+      replace: true, // Replace current history entry
+      state: { from: 'navigation-example' }
+    });
+  };
+
+  const searchProducts = (query) =&gt; {
+    navigate(`/products?q=${encodeURIComponent(query)}`);
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={goHome}&gt;Go Home&lt;/button&gt;
+      &lt;button onClick={goBack}&gt;Go Back&lt;/button&gt;
+      &lt;button onClick={goForward}&gt;Go Forward&lt;/button&gt;
+      &lt;button onClick={() =&gt; goToProduct(123)}&gt;View Product 123&lt;/button&gt;
+      &lt;button onClick={() =&gt; searchProducts('laptop')}&gt;Search Laptops&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</div>
+            </div>
+
+            <div class="section">
+                <h2>🔐 Route Protection and Guards</h2>
+                <p>Route protection allows you to control access to certain routes based on authentication status or user permissions.</p>
+
+                <h3>Basic Route Guard</h3>
+                <div class="code-block">// Auth context
+const AuthContext = React.createContext();
+
+function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+
+  const login = (userData) =&gt; setUser(userData);
+  const logout = () =&gt; setUser(null);
+
+  return (
+    &lt;AuthContext.Provider value={{ user, login, logout }}&gt;
+      {children}
+    &lt;/AuthContext.Provider&gt;
+  );
+}
+
+// Protected route component
+function ProtectedRoute({ children }) {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() =&gt; {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
+  return user ? children : null;
+}
+
+// Usage
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;AuthProvider&gt;
+        &lt;Routes&gt;
+          &lt;Route path="/login" element={&lt;Login /&gt;} /&gt;
+          &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+          &lt;Route
+            path="/dashboard"
+            element={
+              &lt;ProtectedRoute&gt;
+                &lt;Dashboard /&gt;
+              &lt;/ProtectedRoute&gt;
+            }
+          /&gt;
+        &lt;/Routes&gt;
+      &lt;/AuthProvider&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}</div>
+
+                <h3>Role-Based Route Protection</h3>
+                <div class="code-block">function RoleProtectedRoute({ children, allowedRoles }) {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() =&gt; {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    if (!allowedRoles.includes(user.role)) {
+      navigate('/unauthorized');
+      return;
+    }
+  }, [user, allowedRoles, navigate]);
+
+  if (!user || !allowedRoles.includes(user.role)) {
+    return &lt;div&gt;Loading...&lt;/div&gt;;
+  }
+
+  return children;
+}
+
+// Usage with different roles
+function App() {
+  return (
+    &lt;Routes&gt;
+      &lt;Route path="/admin" element={
+        &lt;RoleProtectedRoute allowedRoles={['admin']}&gt;
+          &lt;AdminPanel /&gt;
+        &lt;/RoleProtectedRoute&gt;
+      } /&gt;
+      &lt;Route path="/moderator" element={
+        &lt;RoleProtectedRoute allowedRoles={['admin', 'moderator']}&gt;
+          &lt;ModeratorPanel /&gt;
+        &lt;/RoleProtectedRoute&gt;
+      } /&gt;
+      &lt;Route path="/user" element={
+        &lt;RoleProtectedRoute allowedRoles={['admin', 'moderator', 'user']}&gt;
+          &lt;UserPanel /&gt;
+        &lt;/RoleProtectedRoute&gt;
+      } /&gt;
+    &lt;/Routes&gt;
+  );
+}</div>
+
+                <h3>Redirect Component</h3>
+                <div class="code-block">import { Navigate } from 'react-router-dom';
+
+// Simple redirect
+function OldPage() {
+  return &lt;Navigate to="/new-page" /&gt;;
+}
+
+// Conditional redirect
+function Profile() {
+  const { user } = useContext(AuthContext);
+
+  if (!user) {
+    return &lt;Navigate to="/login" replace /&gt;;
+  }
+
+  return &lt;div&gt;Welcome {user.name}!&lt;/div&gt;;
+}
+
+// Redirect with state
+function Checkout() {
+  const { cart } = useContext(CartContext);
+
+  if (cart.items.length === 0) {
+    return (
+      &lt;Navigate
+        to="/products"
+        state={{ message: 'Your cart is empty' }}
+      /&gt;
+    );
+  }
+
+  return &lt;CheckoutForm /&gt;;
+}</div>
+            </div>
+
+            <div class="section">
+                <h2>⚡ Code Splitting and Lazy Loading</h2>
+                <p>Code splitting allows you to split your bundle into smaller chunks that can be loaded on demand, improving performance.</p>
+
+                <h3>Route-Based Code Splitting</h3>
+                <div class="code-block">import { lazy, Suspense } from 'react';
+
+// Lazy load components
+const Home = lazy(() =&gt; import('./pages/Home'));
+const About = lazy(() =&gt; import('./pages/About'));
+const Contact = lazy(() =&gt; import('./pages/Contact'));
+const Dashboard = lazy(() =&gt; import('./pages/Dashboard'));
+
+// Loading component
+function LoadingSpinner() {
+  return &lt;div&gt;Loading...&lt;/div&gt;;
+}
+
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Suspense fallback={&lt;LoadingSpinner /&gt;}&gt;
+        &lt;Routes&gt;
+          &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+          &lt;Route path="/about" element={&lt;About /&gt;} /&gt;
+          &lt;Route path="/contact" element={&lt;Contact /&gt;} /&gt;
+          &lt;Route path="/dashboard" element={&lt;Dashboard /&gt;} /&gt;
+        &lt;/Routes&gt;
+      &lt;/Suspense&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}</div>
+
+                <h3>Advanced Code Splitting Patterns</h3>
+                <div class="code-block">// Multiple suspense boundaries
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={
+          &lt;Suspense fallback={&lt;div&gt;Loading home...&lt;/div&gt;}&gt;
+            &lt;Home /&gt;
+          &lt;/Suspense&gt;
+        } /&gt;
+        &lt;Route path="/admin/*" element={
+          &lt;Suspense fallback={&lt;div&gt;Loading admin...&lt;/div&gt;}&gt;
+            &lt;AdminRoutes /&gt;
+          &lt;/Suspense&gt;
+        } /&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}
+
+// Lazy loading with error boundaries
+class LazyWrapper extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return &lt;div&gt;Failed to load component&lt;/div&gt;;
+    }
+
+    return this.props.children;
+  }
+}
+
+function LazyRoute({ component: Component }) {
+  return (
+    &lt;LazyWrapper&gt;
+      &lt;Suspense fallback={&lt;div&gt;Loading...&lt;/div&gt;}&gt;
+        &lt;Component /&gt;
+      &lt;/Suspense&gt;
+    &lt;/LazyWrapper&gt;
+  );
+}</div>
+
+                <h3>Preloading Routes</h3>
+                <div class="code-block">// Custom hook for preloading
+function useRoutePreloader() {
+  const navigate = useNavigate();
+
+  const preloadRoute = (path) =&gt; {
+    // Preload the route component
+    const routeModule = import(`./pages/${path}`);
+    return routeModule;
+  };
+
+  const navigateWithPreload = (path) =&gt; {
+    preloadRoute(path).then(() =&gt; {
+      navigate(path);
+    });
+  };
+
+  return { navigateWithPreload, preloadRoute };
+}
+
+// Usage
+function Navigation() {
+  const { navigateWithPreload } = useRoutePreloader();
+
+  return (
+    &lt;nav&gt;
+      &lt;Link
+        to="/dashboard"
+        onMouseEnter={() =&gt; preloadRoute('Dashboard')}
+      &gt;
+        Dashboard
+      &lt;/Link&gt;
+      &lt;button onClick={() =&gt; navigateWithPreload('AdminPanel')}&gt;
+        Go to Admin
+      &lt;/button&gt;
+    &lt;/nav&gt;
+  );
+}</div>
+            </div>
+
+            <div class="section">
+                <h2>🎣 Custom Routing Hooks</h2>
+                <p>Custom hooks can encapsulate complex routing logic and make it reusable across your application.</p>
+
+                <h3>useQuery Hook</h3>
+                <div class="code-block">function useQuery() {
+  const { search } = useLocation();
+
+  return React.useMemo(() =&gt; new URLSearchParams(search), [search]);
+}
+
+// Usage
+function SearchResults() {
+  const query = useQuery();
+  const searchTerm = query.get('q');
+  const page = parseInt(query.get('page')) || 1;
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Search Results for: {searchTerm}&lt;/h2&gt;
+      &lt;p&gt;Page: {page}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3>useAuth Hook with Routing</h3>
+                <div class="code-block">function useAuth() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() =&gt; {
+    // Check if user is authenticated
+    checkAuth().then(userData =&gt; {
+      setUser(userData);
+      setLoading(false);
+    }).catch(() =&gt; {
+      setUser(null);
+      setLoading(false);
+    });
+  }, []);
+
+  const login = async (credentials) =&gt; {
+    try {
+      const userData = await loginUser(credentials);
+      setUser(userData);
+      navigate('/dashboard');
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const logout = () =&gt; {
+    setUser(null);
+    navigate('/login');
+  };
+
+  return {
+    user,
+    loading,
+    login,
+    logout,
+    isAuthenticated: !!user
+  };
+}
+
+// Usage in components
+function LoginButton() {
+  const { login, logout, isAuthenticated } = useAuth();
+
+  if (isAuthenticated) {
+    return &lt;button onClick={logout}&gt;Logout&lt;/button&gt;;
+  }
+
+  return &lt;button onClick={() =&gt; login({/* credentials */})}&gt;Login&lt;/button&gt;;
+}</div>
+
+                <h3>useBreadcrumbs Hook</h3>
+                <div class="code-block">function useBreadcrumbs() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const pathnames = location.pathname.split('/').filter(x =&gt; x);
+
+  const breadcrumbs = pathnames.map((name, index) =&gt; {
+    const routeTo = `/${pathnames.slice(0, index + 1).join('/')}`;
+    const isLast = index === pathnames.length - 1;
+
+    return {
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      path: routeTo,
+      isLast
+    };
+  });
+
+  const goToBreadcrumb = (path) =&gt; {
+    navigate(path);
+  };
+
+  return { breadcrumbs, goToBreadcrumb };
+}
+
+// Usage
+function BreadcrumbNav() {
+  const { breadcrumbs, goToBreadcrumb } = useBreadcrumbs();
+
+  return (
+    &lt;nav aria-label="breadcrumb"&gt;
+      &lt;ol&gt;
+        &lt;li&gt;
+          &lt;button onClick={() =&gt; goToBreadcrumb('/')}&gt;Home&lt;/button&gt;
+        &lt;/li&gt;
+        {breadcrumbs.map((crumb, index) =&gt; (
+          &lt;li key={crumb.path}&gt;
+            {crumb.isLast ? (
+              &lt;span&gt;{crumb.name}&lt;/span&gt;
+            ) : (
+              &lt;button onClick={() =&gt; goToBreadcrumb(crumb.path)}&gt;
+                {crumb.name}
+              &lt;/button&gt;
+            )}
+          &lt;/li&gt;
+        ))}
+      &lt;/ol&gt;
+    &lt;/nav&gt;
+  );
+}</div>
+            </div>
+
+                <div class="bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-300 rounded-xl p-8 mb-10">
+                    <h3 class="text-blue-800 text-2xl font-bold mb-4">💪 Practice Exercise: Complete Blog Application</h3>
+                    <p class="text-gray-700 mb-6">Build a comprehensive blog application that demonstrates all React Router concepts learned in this chapter.</p>
+
+                    <h4 class="text-blue-700 font-semibold mb-3">Requirements:</h4>
+                    <ul class="text-gray-700 space-y-2 mb-6">
+                        <li>Create a <strong>multi-page blog</strong> with home, articles, and admin sections</li>
+                        <li>Implement <strong>dynamic routing</strong> for individual blog posts</li>
+                        <li>Add <strong>authentication</strong> with protected admin routes</li>
+                        <li>Use <strong>lazy loading</strong> for route-based code splitting</li>
+                        <li>Implement <strong>search and filtering</strong> with query parameters</li>
+                        <li>Create <strong>nested routes</strong> for admin panel (users, posts, settings)</li>
+                        <li>Add <strong>breadcrumb navigation</strong> using custom hooks</li>
+                        <li>Implement <strong>404 page</strong> with navigation back to home</li>
+                    </ul>
+
+                    <h4 class="text-blue-700 font-semibold mb-3">Bonus Challenges:</h4>
+                    <ul class="text-gray-700 space-y-2">
+                        <li>Add <strong>pagination</strong> with URL state management</li>
+                        <li>Implement <strong>route transitions</strong> and animations</li>
+                        <li>Create a <strong>route guard system</strong> with role-based access</li>
+                        <li>Add <strong>deep linking</strong> support for social media sharing</li>
+                        <li>Implement <strong>route preloading</strong> on hover for better UX</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-50 to-purple-100 border-2 border-purple-300 rounded-xl p-8 mb-10">
+                    <h3 class="text-purple-800 text-2xl font-bold mb-6">🧠 Knowledge Check</h3>
+                    <p class="text-gray-700 mb-6">Test your understanding of React Router concepts.</p>
+
+                    <div class="bg-white rounded-lg p-6 mb-6 shadow-md">
+                        <h4 class="text-gray-800 font-semibold mb-3">Question 1: Route Matching</h4>
+                        <p class="text-gray-700 mb-4">What happens when multiple routes match the current URL?</p>
+                        <div class="space-y-2 mb-4">
+                            <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">A) The first matching route is rendered</div>
+                            <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">B) All matching routes are rendered</div>
+                            <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">C) An error is thrown</div>
+                            <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">D) The most specific route is chosen</div>
+                        </div>
+                        <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-medium transition-colors" onclick="showAnswer(1)">Show Answer</button>
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4 mt-4 hidden" id="answer1">
+                            <strong class="text-green-800">Answer: A)</strong> <span class="text-gray-700">The first matching route in the Routes component is rendered. Routes are matched in the order they are defined.</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg p-6 mb-6 shadow-md">
+                        <h4 class="text-gray-800 font-semibold mb-3">Question 2: Nested Routes</h4>
+                        <p class="text-gray-700 mb-4">What component is used to render child routes in nested routing?</p>
+                        <div class="space-y-2 mb-4">
+                            <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">A) Children</div>
+                            <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">B) Outlet</div>
+                            <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">C) Switch</div>
+                            <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">D) Router</div>
+                        </div>
+                        <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-medium transition-colors" onclick="showAnswer(2)">Show Answer</button>
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4 mt-4 hidden" id="answer2">
+                            <strong class="text-green-800">Answer: B)</strong> <span class="text-gray-700">Outlet component is used to render child routes in nested routing. It acts as a placeholder where child route components are rendered.</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg p-6 mb-6 shadow-md">
+                        <h4 class="text-gray-800 font-semibold mb-3">Question 3: Programmatic Navigation</h4>
+                        <p class="text-gray-700 mb-4">Which hook is used for programmatic navigation in React Router v6?</p>
+                        <div class="space-y-2 mb-4">
+                            <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">A) useHistory</div>
+                            <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">B) useNavigate</div>
+                            <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">C) useLocation</div>
+                            <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">D) useParams</div>
+                        </div>
+                        <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-medium transition-colors" onclick="showAnswer(3)">Show Answer</button>
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4 mt-4 hidden" id="answer3">
+                            <strong class="text-green-800">Answer: B)</strong> <span class="text-gray-700">useNavigate hook is used for programmatic navigation in React Router v6. It replaced useHistory from v5.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-xl p-8 mb-10">
+                    <h3 class="text-green-800 text-2xl font-bold mb-6">📚 Chapter Summary</h3>
+                    <p class="text-gray-700 mb-6">You've mastered React Router and client-side routing in React applications. Here's what we covered:</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-lg border-l-4 border-green-500 shadow-sm">
+                            <h4 class="text-green-700 font-semibold mb-3">🚀 Router Setup</h4>
+                            <p class="text-gray-600 text-sm">BrowserRouter, HashRouter, and MemoryRouter with proper application structure and route configuration.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border-l-4 border-green-500 shadow-sm">
+                            <h4 class="text-green-700 font-semibold mb-3">🔗 Navigation</h4>
+                            <p class="text-gray-600 text-sm">Link and NavLink components for declarative navigation with active state styling and navigation patterns.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border-l-4 border-green-500 shadow-sm">
+                            <h4 class="text-green-700 font-semibold mb-3">📊 Dynamic Routing</h4>
+                            <p class="text-gray-600 text-sm">URL parameters with useParams, query parameters with useSearchParams, and optional route parameters.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border-l-4 border-green-500 shadow-sm">
+                            <h4 class="text-green-700 font-semibold mb-3">🏗️ Nested Routes</h4>
+                            <p class="text-gray-600 text-sm">Hierarchical route structures with layout components, Outlet for child rendering, and complex nested patterns.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border-l-4 border-green-500 shadow-sm">
+                            <h4 class="text-green-700 font-semibold mb-3">🎯 Programmatic Navigation</h4>
+                            <p class="text-gray-600 text-sm">useNavigate hook for imperative navigation, state passing, and navigation methods (back, forward, replace).</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border-l-4 border-green-500 shadow-sm">
+                            <h4 class="text-green-700 font-semibold mb-3">🔐 Route Protection</h4>
+                            <p class="text-gray-600 text-sm">Authentication guards, role-based access control, and redirect patterns for secure route management.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border-l-4 border-green-500 shadow-sm">
+                            <h4 class="text-green-700 font-semibold mb-3">⚡ Performance</h4>
+                            <p class="text-gray-600 text-sm">Code splitting with lazy loading, Suspense boundaries, and route-based bundle optimization.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border-l-4 border-green-500 shadow-sm">
+                            <h4 class="text-green-700 font-semibold mb-3">🎣 Custom Hooks</h4>
+                            <p class="text-gray-600 text-sm">Reusable routing logic with useQuery, useAuth, and useBreadcrumbs hooks for common routing patterns.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                        <h4 class="text-yellow-800 font-semibold mb-3">🚀 Next Steps</h4>
+                        <p class="text-yellow-800 mb-2">Now that you understand React Router, you're ready to explore:</p>
+                        <ul class="text-yellow-800">
+                            <li><strong>Chapter 6:</strong> Advanced Patterns - Performance optimization and complex patterns</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-6 rounded-lg mb-8 flex justify-between items-center flex-wrap gap-4">
+                    <a href="react4.html" class="bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-lg font-medium transition-colors no-underline">⬅️ Chapter 4: Hooks & Lifecycle</a>
+                    <a href="study-guide-progress.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg font-medium transition-colors no-underline">📊 Progress Dashboard</a>
+                    <a href="react6.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg font-medium transition-colors no-underline">Chapter 6: Advanced Patterns ➡️</a>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 text-white text-center p-6">
+                <p class="text-gray-300 mb-2">© 2025 React Study Guide - Chapter 5: React Router | Created with ❤️ for learning</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showAnswer(questionNumber) {
+            const answer = document.getElementById(`answer${questionNumber}`);
+            answer.classList.toggle('hidden');
+        }
+
+        // TTS (Text-to-Speech) functionality
+        let ttsEnabled = false;
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+
+        function initTTS() {
+            const ttsToggle = document.getElementById('tts-toggle');
+
+            ttsToggle.addEventListener('click', function() {
+                ttsEnabled = !ttsEnabled;
+
+                if (ttsEnabled) {
+                    this.textContent = '🔊 TTS Enabled';
+                    this.classList.remove('bg-green-500', 'hover:bg-green-600');
+                    this.classList.add('bg-red-500', 'hover:bg-red-600');
+                    speakText('Text-to-speech enabled. Click on any paragraph to hear it read aloud.');
+                } else {
+                    this.textContent = '🔊 Enable TTS';
+                    this.classList.remove('bg-red-500', 'hover:bg-red-600');
+                    this.classList.add('bg-green-500', 'hover:bg-green-600');
+                    if (currentUtterance) {
+                        speechSynthesis.cancel();
+                    }
+                    speakText('Text-to-speech disabled.');
+                }
+            });
+
+            // Add click listeners to text elements
+            document.addEventListener('click', function(e) {
+                if (!ttsEnabled) return;
+
+                if (e.target.tagName === 'P' || e.target.tagName === 'LI' || e.target.tagName === 'SPAN') {
+                    const text = e.target.textContent.trim();
+                    if (text && text.length > 10) {
+                        speakText(text);
+                    }
+                }
+            });
+        }
+
+        function speakText(text) {
+            if (!ttsEnabled || !speechSynthesis) return;
+
+            // Cancel any current speech
+            if (currentUtterance) {
+                speechSynthesis.cancel();
+            }
+
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.rate = 0.9;
+            currentUtterance.pitch = 1;
+            currentUtterance.volume = 0.8;
+
+            speechSynthesis.speak(currentUtterance);
+        }
+
+        // Chapter completion tracking
+        function initChapterTracking() {
+            const chapterCompleteBtn = document.getElementById('chapter-complete');
+
+            chapterCompleteBtn.addEventListener('click', function() {
+                const isCompleted = this.textContent.includes('Mark Complete');
+
+                if (isCompleted) {
+                    this.textContent = '✅ Completed';
+                    this.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                    this.classList.add('bg-green-500', 'hover:bg-green-600');
+
+                    // Store completion status
+                    localStorage.setItem('react5-completed', 'true');
+
+                    // Show success message
+                    showNotification('Chapter 5 marked as completed!', 'success');
+
+                    // Update progress
+                    updateProgress();
+                } else {
+                    this.textContent = '✅ Mark Complete';
+                    this.classList.remove('bg-green-500', 'hover:bg-green-600');
+                    this.classList.add('bg-blue-500', 'hover:bg-blue-600');
+
+                    localStorage.removeItem('react5-completed');
+                    showNotification('Chapter unmarked', 'info');
+                }
+            });
+
+            // Load completion status on page load
+            const isCompleted = localStorage.getItem('react5-completed') === 'true';
+            if (isCompleted) {
+                chapterCompleteBtn.textContent = '✅ Completed';
+                chapterCompleteBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                chapterCompleteBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+            }
+        }
+
+        function updateProgress() {
+            // Update local progress tracking
+            const completedChapters = [];
+            for (let i = 1; i <= 6; i++) {
+                if (localStorage.getItem(`react${i}-completed`) === 'true') {
+                    completedChapters.push(i);
+                }
+            }
+
+            localStorage.setItem('react-progress', JSON.stringify({
+                completed: completedChapters,
+                total: 6,
+                percentage: Math.round((completedChapters.length / 6) * 100)
+            }));
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-medium z-50 ${
+                type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+            }`;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Add some interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            initTTS();
+            initChapterTracking();
+
+            // Add click tracking for navigation
+            const navButtons = document.querySelectorAll('a[href]');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    console.log(`Navigating to: ${this.textContent.trim()}`);
+                });
+            });
+
+            // Add hover effects for code blocks
+            const codeBlocks = document.querySelectorAll('div[class*="bg-gray-800"]');
+            codeBlocks.forEach(block => {
+                block.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.01)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                block.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+
+            // Add smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\Admin\Sunil\Study\react5.html

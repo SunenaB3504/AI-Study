@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud & DevOps - Chapter 2: CI/CD Pipelines</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #0056b3;
+        }
+
+        .nav-btn.secondary {
+            background: #6c757d;
+        }
+
+        .nav-btn.secondary:hover {
+            background: #545b62;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #FF6B35;
+        }
+
+        .section h3 {
+            color: #34495e;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+
+        .section h4 {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: "YAML";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #FF6B35;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+
+        .code-block.groovy::before {
+            content: "Groovy";
+        }
+
+        .code-block.bash::before {
+            content: "Bash";
+        }
+
+        .code-block.json::before {
+            content: "JSON";
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .pipeline-diagram {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .pipeline-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pipeline-step {
+            background: #f8f9fa;
+            border: 2px solid #FF6B35;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #FF6B35;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .pipeline-step::after {
+            content: '';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 25px;
+            height: 2px;
+            background: #FF6B35;
+        }
+
+        .pipeline-step:last-child::after {
+            display: none;
+        }
+
+        .tool-comparison {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .tool-comparison th,
+        .tool-comparison td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tool-comparison th {
+            background: #FF6B35;
+            color: white;
+            font-weight: 600;
+        }
+
+        .tool-comparison tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .tool-comparison tr:hover {
+            background: #e3f2fd;
+        }
+
+        .practice-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .practice-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .practice-exercise {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #FF6B35;
+        }
+
+        .practice-exercise h4 {
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+
+        .quiz-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .quiz-section h3 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .quiz-question {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .quiz-question h4 {
+            margin-bottom: 10px;
+        }
+
+        .quiz-options {
+            margin: 10px 0;
+        }
+
+        .quiz-option {
+            display: block;
+            margin: 5px 0;
+            padding: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: #FF6B35;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .pipeline-flow {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .pipeline-step::after {
+                display: none;
+            }
+
+            .tool-comparison {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>☁️ Cloud & DevOps</h1>
+            <div class="subtitle">Chapter 2: CI/CD Pipelines</div>
+        </div>
+
+        <div class="nav">
+            <div class="nav-links">
+                <a href="study-guide-progress.html" class="nav-btn">📊 Progress Dashboard</a>
+                <a href="cloud-devops1.html" class="nav-btn">⬅️ Git & Version Control</a>
+                <a href="cloud-devops3.html" class="nav-btn">Docker & Containers →</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>🎯 Chapter Overview</h2>
+                <p>Welcome to the world of CI/CD! This chapter builds on the Git foundation from Chapter 1 to explore Continuous Integration and Continuous Deployment pipelines. By the end of this comprehensive guide, you'll understand:</p>
+                <ul>
+                    <li>CI/CD fundamentals and core concepts</li>
+                    <li>Popular CI/CD tools and platforms</li>
+                    <li>Pipeline configuration and automation</li>
+                    <li>Testing strategies in CI/CD workflows</li>
+                    <li>Deployment automation and strategies</li>
+                    <li>Security considerations and best practices</li>
+                    <li>Monitoring and troubleshooting pipelines</li>
+                    <li>Integration with version control systems</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>🔄 CI/CD Fundamentals</h2>
+
+                <h3>📋 What is CI/CD?</h3>
+                <div class="info-box">
+                    <h4>Continuous Integration (CI)</h4>
+                    <p>The practice of frequently integrating code changes into a shared repository, with automated testing to detect issues early.</p>
+
+                    <h4>Continuous Deployment (CD)</h4>
+                    <p>The practice of automatically deploying code changes to production after passing all tests and quality gates.</p>
+
+                    <h4>Continuous Delivery (CD)</h4>
+                    <p>The practice of keeping code in a deployable state, allowing manual deployment to production when ready.</p>
+                </div>
+
+                <h3>🚀 Benefits of CI/CD</h3>
+                <div class="success-box">
+                    <h4>💡 Key Advantages:</h4>
+                    <ul>
+                        <li><strong>Faster Releases:</strong> Automated pipelines reduce manual work and speed up deployments</li>
+                        <li><strong>Quality Assurance:</strong> Automated testing catches bugs before they reach production</li>
+                        <li><strong>Risk Reduction:</strong> Small, frequent changes are easier to troubleshoot</li>
+                        <li><strong>Team Productivity:</strong> Developers focus on code, not deployment logistics</li>
+                        <li><strong>Reliability:</strong> Consistent, repeatable processes reduce human error</li>
+                        <li><strong>Feedback Loops:</strong> Quick feedback on code quality and functionality</li>
+                    </ul>
+                </div>
+
+                <h3>🔄 The CI/CD Pipeline</h3>
+
+                <div class="pipeline-diagram">
+                    <h4>Typical CI/CD Pipeline Flow</h4>
+                    <div class="pipeline-flow">
+                        <div class="pipeline-step">Code<br/>Commit</div>
+                        <div class="pipeline-step">Build</div>
+                        <div class="pipeline-step">Test</div>
+                        <div class="pipeline-step">Deploy<br/>Staging</div>
+                        <div class="pipeline-step">Deploy<br/>Production</div>
+                    </div>
+                    <p><strong>Source</strong> → <strong>Build</strong> → <strong>Test</strong> → <strong>Deploy</strong> → <strong>Monitor</strong></p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🛠️ Popular CI/CD Tools</h2>
+
+                <h3>📊 Tool Comparison</h3>
+                <table class="tool-comparison">
+                    <thead>
+                        <tr>
+                            <th>Tool</th>
+                            <th>Type</th>
+                            <th>Best For</th>
+                            <th>Pros</th>
+                            <th>Cons</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>GitHub Actions</strong></td>
+                            <td>Cloud-native</td>
+                            <td>Open source projects, GitHub users</td>
+                            <td>Free tier, GitHub integration, Marketplace</td>
+                            <td>GitHub-only, limited customization</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Jenkins</strong></td>
+                            <td>Self-hosted</td>
+                            <td>Complex workflows, enterprise</td>
+                            <td>Highly customizable, vast plugins</td>
+                            <td>Complex setup, maintenance overhead</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GitLab CI/CD</strong></td>
+                            <td>Integrated</td>
+                            <td>GitLab users, full DevOps suite</td>
+                            <td>All-in-one solution, auto DevOps</td>
+                            <td>GitLab ecosystem lock-in</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CircleCI</strong></td>
+                            <td>Cloud/Self-hosted</td>
+                            <td>Performance, Docker support</td>
+                            <td>Fast builds, great Docker support</td>
+                            <td>Complex pricing, learning curve</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Azure DevOps</strong></td>
+                            <td>Cloud/Microsoft</td>
+                            <td>Microsoft ecosystem, enterprise</td>
+                            <td>Integrated with Azure, comprehensive</td>
+                            <td>Microsoft-centric, complex pricing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Travis CI</strong></td>
+                            <td>Cloud</td>
+                            <td>Open source, GitHub integration</td>
+                            <td>Simple setup, great for OSS</td>
+                            <td>Limited for private repos</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>🚀 Getting Started with GitHub Actions</h3>
+
+                <h4>🔧 Basic Workflow Configuration</h4>
+                <div class="code-block">
+# .github/workflows/ci.yml
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests
+      run: npm test
+
+    - name: Build application
+      run: npm run build
+                </div>
+
+                <h4>🔧 Advanced GitHub Actions Workflow</h4>
+                <div class="code-block">
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  NODE_ENV: production
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    - run: npm ci
+    - run: npm test
+    - run: npm run lint
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run build
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-files
+        path: dist/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: build-files
+        path: dist/
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production server..."
+        # Add your deployment commands here
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔧 Jenkins Pipeline Configuration</h2>
+
+                <h3>📝 Declarative Pipeline</h3>
+
+                <h4>🔧 Basic Jenkins Pipeline</h4>
+                <div class="code-block groovy">
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/your-org/your-repo.git',
+                    credentialsId: 'git-credentials'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'npm install'
+                sh 'npm run build'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'npm test'
+            }
+            post {
+                always {
+                    junit 'test-results/*.xml'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'docker build -t myapp:${BUILD_NUMBER} .'
+                sh 'docker push myapp:${BUILD_NUMBER}'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}
+                </div>
+
+                <h4>🔧 Advanced Jenkins Pipeline with Parallel Stages</h4>
+                <div class="code-block groovy">
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = 'myapp'
+        DOCKER_TAG = "${env.BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Parallel Build & Test') {
+            parallel {
+                stage('Build Frontend') {
+                    agent {
+                        docker { image 'node:18-alpine' }
+                    }
+                    steps {
+                        sh 'cd frontend && npm install && npm run build'
+                    }
+                }
+
+                stage('Build Backend') {
+                    agent {
+                        docker { image 'maven:3.9-eclipse-temurin-17' }
+                    }
+                    steps {
+                        sh 'cd backend && mvn clean package'
+                    }
+                }
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                sh 'docker-compose up -d'
+                sh 'npm run test:e2e'
+                sh 'docker-compose down'
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                sh 'npm audit'
+                sh 'docker run --rm -v $(pwd):/src sonarsource/sonar-scanner-cli'
+            }
+        }
+
+        stage('Deploy to Staging') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                sh 'kubectl apply -f k8s/staging/'
+            }
+        }
+
+        stage('Deploy to Production') {
+            when {
+                branch 'main'
+            }
+            steps {
+                input message: 'Deploy to production?'
+                sh 'kubectl apply -f k8s/production/'
+            }
+        }
+    }
+}
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🧪 Testing in CI/CD</h2>
+
+                <h3>📊 Test Automation Strategy</h3>
+
+                <h4>🔧 Multi-Level Testing Approach</h4>
+                <div class="info-box">
+                    <h4>🏗️ Testing Pyramid:</h4>
+                    <ul>
+                        <li><strong>Unit Tests:</strong> Test individual functions/components (fast, isolated)</li>
+                        <li><strong>Integration Tests:</strong> Test component interactions (medium speed)</li>
+                        <li><strong>E2E Tests:</strong> Test complete user workflows (slow, comprehensive)</li>
+                        <li><strong>Performance Tests:</strong> Test system performance under load</li>
+                        <li><strong>Security Tests:</strong> Test for vulnerabilities and security issues</li>
+                    </ul>
+                </div>
+
+                <h4>🔧 Jest Testing in CI/CD</h4>
+                <div class="code-block json">
+// jest.config.js
+module.exports = {
+  testEnvironment: 'node',
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html'],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
+    }
+  },
+  testMatch: [
+    '**/__tests__/**/*.js',
+    '**/?(*.)+(spec|test).js'
+  ],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js']
+};
+                </div>
+
+                <h4>🔧 GitHub Actions Testing Workflow</h4>
+                <div class="code-block">
+name: Test & Coverage
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run linting
+      run: npm run lint
+
+    - name: Run unit tests
+      run: npm run test:unit
+
+    - name: Run integration tests
+      run: npm run test:integration
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+
+    - name: Comment PR with test results
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Test Results
+        path: 'test-results/*.xml'
+        reporter: java-junit
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 Deployment Automation</h2>
+
+                <h3>📦 Deployment Strategies</h3>
+
+                <h4>🔄 Blue-Green Deployment</h4>
+                <div class="code-block bash">
+#!/bin/bash
+# Blue-Green Deployment Script
+
+BLUE_PORT=3000
+GREEN_PORT=3001
+CURRENT_BLUE_GREEN=$(curl -s http://localhost:8080/api/health | jq -r '.environment')
+
+if [ "$CURRENT_BLUE_GREEN" = "blue" ]; then
+    echo "Switching to GREEN environment..."
+
+    # Deploy to green
+    docker-compose -f docker-compose.green.yml up -d
+
+    # Health check
+    for i in {1..30}; do
+        if curl -f http://localhost:$GREEN_PORT/api/health; then
+            echo "Green environment is healthy"
+
+            # Switch load balancer
+            sed -i 's/3000/3001/g' nginx.conf
+            nginx -s reload
+
+            # Stop blue environment
+            docker-compose -f docker-compose.blue.yml down
+            break
+        fi
+        sleep 10
+    done
+else
+    echo "Switching to BLUE environment..."
+    # Similar logic for blue deployment
+fi
+                </div>
+
+                <h4>🔄 Rolling Deployment</h4>
+                <div class="code-block bash">
+#!/bin/bash
+# Rolling Deployment Script
+
+TOTAL_INSTANCES=4
+DEPLOY_BATCH_SIZE=2
+
+for i in $(seq 1 $DEPLOY_BATCH_SIZE $TOTAL_INSTANCES); do
+    echo "Deploying batch starting at instance $i"
+
+    # Deploy batch
+    for j in $(seq $i $((i + DEPLOY_BATCH_SIZE - 1))); do
+        if [ $j -le $TOTAL_INSTANCES ]; then
+            echo "Deploying instance $j"
+            kubectl set image deployment/myapp myapp=myapp:v2 --record
+            sleep 30
+        fi
+    done
+
+    # Health check batch
+    for j in $(seq $i $((i + DEPLOY_BATCH_SIZE - 1))); do
+        if [ $j -le $TOTAL_INSTANCES ]; then
+            echo "Health checking instance $j"
+            # Add health check logic
+        fi
+    done
+done
+
+echo "Rolling deployment completed"
+                </div>
+
+                <h4>🔧 Kubernetes Deployment</h4>
+                <div class="code-block">
+# deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+  labels:
+    app: myapp
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: myapp:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔒 Security in CI/CD</h2>
+
+                <h3>🛡️ Security Best Practices</h3>
+
+                <h4>🔧 Secret Management</h4>
+                <div class="warning-box">
+                    <h4>🚨 Never Store Secrets in Code:</h4>
+                    <ul>
+                        <li>Use environment variables for sensitive data</li>
+                        <li>Store secrets in dedicated secret management systems</li>
+                        <li>Rotate secrets regularly</li>
+                        <li>Use encrypted storage for sensitive configuration</li>
+                        <li>Implement least privilege access</li>
+                    </ul>
+                </div>
+
+                <h4>🔧 GitHub Actions Secrets</h4>
+                <div class="code-block">
+name: Secure Deployment
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build and push Docker image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: myapp
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Deploy to ECS
+      run: |
+        aws ecs update-service --cluster my-cluster \
+                               --service my-service \
+                               --force-new-deployment
+                </div>
+
+                <h4>🔧 Dependency Scanning</h4>
+                <div class="code-block">
+name: Security Scan
+
+on: [push, pull_request]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+    - name: Dependency check
+      uses: dependency-check/Dependency-Check_Action@main
+      with:
+        project: 'MyApp'
+        path: '.'
+        format: 'ALL'
+
+    - name: CodeQL Analysis
+      uses: github/codeql-action/init@v2
+      with:
+        languages: javascript
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📊 Monitoring & Troubleshooting</h2>
+
+                <h3>🔍 Pipeline Monitoring</h3>
+
+                <h4>🔧 Pipeline Metrics</h4>
+                <div class="info-box">
+                    <h4>📈 Key Metrics to Monitor:</h4>
+                    <ul>
+                        <li><strong>Build Success Rate:</strong> Percentage of successful builds</li>
+                        <li><strong>Build Duration:</strong> Time taken for builds and deployments</li>
+                        <li><strong>Test Coverage:</strong> Code coverage percentage</li>
+                        <li><strong>Deployment Frequency:</strong> How often deployments occur</li>
+                        <li><strong>Mean Time to Recovery:</strong> Time to fix failed deployments</li>
+                        <li><strong>Pipeline Reliability:</strong> Uptime and availability</li>
+                    </ul>
+                </div>
+
+                <h4>🔧 GitHub Actions Monitoring</h4>
+                <div class="code-block">
+name: Pipeline Health Check
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check recent workflow runs
+      run: |
+        # Get recent workflow runs
+        RUNS=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                   -H "Accept: application/vnd.github.v3+json" \
+                   https://api.github.com/repos/${{ github.repository }}/actions/runs \
+                   | jq '.workflow_runs[] | select(.created_at > "'$(date -d '6 hours ago' +%Y-%m-%dT%H:%M:%SZ)'")')
+
+        # Calculate success rate
+        TOTAL=$(echo "$RUNS" | jq -s 'length')
+        SUCCESS=$(echo "$RUNS" | jq -s '[.[] | select(.conclusion == "success")] | length')
+
+        if [ "$TOTAL" -gt 0 ]; then
+            RATE=$((SUCCESS * 100 / TOTAL))
+            echo "Success rate: $RATE% ($SUCCESS/$TOTAL)"
+
+            if [ "$RATE" -lt 80 ]; then
+                echo "⚠️  Low success rate detected"
+                # Send notification
+            fi
+        fi
+                </div>
+
+                <h3>🐛 Common Pipeline Issues</h3>
+
+                <h4>🔧 Troubleshooting Guide</h4>
+                <div class="warning-box">
+                    <h4>🔧 Common Issues & Solutions:</h4>
+                    <ul>
+                        <li><strong>Build Failures:</strong> Check logs, verify dependencies, test locally first</li>
+                        <li><strong>Test Flakiness:</strong> Isolate tests, use proper test setup/teardown</li>
+                        <li><strong>Deployment Timeouts:</strong> Optimize build process, use faster runners</li>
+                        <li><strong>Resource Limits:</strong> Monitor resource usage, optimize configurations</li>
+                        <li><strong>Secret Issues:</strong> Verify secret names, check permissions</li>
+                        <li><strong>Network Problems:</strong> Check connectivity, use retry mechanisms</li>
+                        <li><strong>Cache Issues:</strong> Clear caches, verify cache keys</li>
+                        <li><strong>Parallel Job Conflicts:</strong> Use proper resource locking</li>
+                    </ul>
+                </div>
+
+                <h4>🔧 Debugging Failed Pipelines</h4>
+                <div class="code-block bash">
+#!/bin/bash
+# Debug script for failed pipelines
+
+echo "🔍 Gathering debug information..."
+
+# Check system resources
+echo "System Resources:"
+df -h
+free -h
+uptime
+
+# Check running processes
+echo "Running Processes:"
+ps aux | head -20
+
+# Check network connectivity
+echo "Network Status:"
+curl -I https://registry.npmjs.org/
+curl -I https://github.com/
+
+# Check environment variables
+echo "Environment Variables:"
+env | grep -E "(NODE|NPM|CI|GITHUB)" | head -10
+
+# Check file permissions
+echo "File Permissions:"
+ls -la
+ls -la node_modules/ 2>/dev/null || echo "node_modules not found"
+
+# Check logs
+echo "Recent Logs:"
+find . -name "*.log" -type f -exec tail -20 {} \; 2>/dev/null || echo "No log files found"
+
+echo "✅ Debug information collected"
+                </div>
+            </div>
+
+            <div class="practice-section">
+                <h3>💪 Practice Exercises</h3>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 1: Basic CI Pipeline</h4>
+                    <p>Create a GitHub Actions workflow for a Node.js application:</p>
+                    <ol>
+                        <li>Set up automated testing on every push</li>
+                        <li>Add linting and code quality checks</li>
+                        <li>Configure test coverage reporting</li>
+                        <li>Add build artifact generation</li>
+                        <li>Implement branch protection rules</li>
+                    </ol>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 2: Multi-Environment Deployment</h4>
+                    <p>Implement a deployment pipeline with multiple environments:</p>
+                    <ol>
+                        <li>Create separate workflows for staging and production</li>
+                        <li>Implement manual approval for production deployments</li>
+                        <li>Add environment-specific configuration</li>
+                        <li>Set up automated rollback mechanisms</li>
+                        <li>Configure monitoring and alerting</li>
+                    </ol>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 3: Security Integration</h4>
+                    <p>Add security scanning to your CI/CD pipeline:</p>
+                    <ol>
+                        <li>Implement dependency vulnerability scanning</li>
+                        <li>Add container image security scanning</li>
+                        <li>Configure secrets management</li>
+                        <li>Set up code security analysis</li>
+                        <li>Implement compliance checks</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <h3>🧠 Knowledge Check</h3>
+
+                <div class="quiz-question">
+                    <h4>Question 1: What does CI stand for in CI/CD?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">Continuous Integration</div>
+                        <div class="quiz-option">Code Integration</div>
+                        <div class="quiz-option">Continuous Implementation</div>
+                        <div class="quiz-option">Code Implementation</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 2: Which tool is known for its vast plugin ecosystem and flexibility?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">GitHub Actions</div>
+                        <div class="quiz-option">Jenkins</div>
+                        <div class="quiz-option">CircleCI</div>
+                        <div class="quiz-option">Travis CI</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 3: What is the main purpose of a blue-green deployment strategy?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">Reduce deployment time</div>
+                        <div class="quiz-option">Minimize downtime during deployments</div>
+                        <div class="quiz-option">Save storage space</div>
+                        <div class="quiz-option">Improve security</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📋 CI/CD Best Practices</h2>
+
+                <div class="success-box">
+                    <h4>💡 Essential CI/CD Best Practices:</h4>
+                    <ul>
+                        <li><strong>Keep Pipelines Fast:</strong> Optimize build times, use caching effectively</li>
+                        <li><strong>Fail Fast:</strong> Stop pipeline on first failure, don't waste resources</li>
+                        <li><strong>Use Declarative Syntax:</strong> Prefer declarative over scripted pipelines</li>
+                        <li><strong>Secure Secrets:</strong> Never store secrets in code, use secret management</li>
+                        <li><strong>Test Everything:</strong> Unit, integration, e2e, performance, security tests</li>
+                        <li><strong>Monitor Everything:</strong> Track metrics, set up alerts, analyze failures</li>
+                        <li><strong>Automate Rollbacks:</strong> Have automated rollback strategies ready</li>
+                        <li><strong>Use GitOps:</strong> Store infrastructure as code in Git</li>
+                        <li><strong>Parallelize Jobs:</strong> Run independent jobs in parallel to save time</li>
+                        <li><strong>Version Everything:</strong> Tag builds, use semantic versioning</li>
+                    </ul>
+                </div>
+
+                <h3>🔧 Pipeline Optimization Techniques</h3>
+
+                <h4>🚀 Performance Optimization</h4>
+                <div class="info-box">
+                    <h4>⚡ Speed Up Your Pipelines:</h4>
+                    <ul>
+                        <li><strong>Use Caching:</strong> Cache dependencies, build artifacts, Docker layers</li>
+                        <li><strong>Parallel Execution:</strong> Run independent jobs simultaneously</li>
+                        <li><strong>Selective Builds:</strong> Only build what changed (monorepos)</li>
+                        <li><strong>Faster Runners:</strong> Use more powerful machines when needed</li>
+                        <li><strong>Artifact Reuse:</strong> Store and reuse build artifacts</li>
+                        <li><strong>Pre-built Images:</strong> Use pre-built Docker images</li>
+                        <li><strong>Skip Unnecessary Steps:</strong> Use conditional execution</li>
+                        <li><strong>Optimize Test Suites:</strong> Parallel tests, selective test execution</li>
+                    </ul>
+                </div>
+
+                <h3>🛠️ Essential Tools & Resources</h3>
+                <div class="info-box">
+                    <h4>🔧 Recommended Tools:</h4>
+                    <ul>
+                        <li><strong>CI/CD Platforms:</strong> GitHub Actions, Jenkins, GitLab CI, CircleCI</li>
+                        <li><strong>Testing:</strong> Jest, Cypress, Selenium, Postman</li>
+                        <li><strong>Security:</strong> Snyk, SonarQube, OWASP ZAP, Trivy</li>
+                        <li><strong>Monitoring:</strong> Prometheus, Grafana, DataDog, New Relic</li>
+                        <li><strong>Deployment:</strong> Kubernetes, Docker, Helm, Terraform</li>
+                        <li><strong>Version Control:</strong> Git, GitHub, GitLab, Bitbucket</li>
+                        <li><strong>Artifact Storage:</strong> Nexus, Artifactory, Docker Registry</li>
+                        <li><strong>Documentation:</strong> Confluence, GitBook, MkDocs</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 Chapter Summary</h2>
+                <p>This comprehensive chapter has equipped you with essential CI/CD knowledge and skills:</p>
+
+                <ul>
+                    <li><strong>CI/CD Fundamentals:</strong> Core concepts, benefits, pipeline structure</li>
+                    <li><strong>Popular Tools:</strong> GitHub Actions, Jenkins, GitLab CI, comparison matrix</li>
+                    <li><strong>Pipeline Configuration:</strong> Declarative pipelines, advanced workflows</li>
+                    <li><strong>Testing Strategies:</strong> Multi-level testing, automated test integration</li>
+                    <li><strong>Deployment Automation:</strong> Blue-green, rolling, Kubernetes deployments</li>
+                    <li><strong>Security Integration:</strong> Secret management, vulnerability scanning</li>
+                    <li><strong>Monitoring & Troubleshooting:</strong> Pipeline metrics, debugging techniques</li>
+                    <li><strong>Best Practices:</strong> Performance optimization, security, reliability</li>
+                </ul>
+
+                <div class="success-box">
+                    <strong>🎉 Congratulations!</strong> You now have a solid foundation in CI/CD pipelines. These skills are crucial for modern software development and will help you implement reliable, automated deployment workflows.
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Study Guide Collection | <a href="study-guide-progress.html">View Progress Dashboard</a> | <a href="cloud-devops1.html">Git & Version Control ←</a> | <a href="cloud-devops3.html">Docker & Containers →</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Quiz functionality
+            const quizOptions = document.querySelectorAll('.quiz-option');
+            const correctAnswers = [
+                'Continuous Integration',
+                'Jenkins',
+                'Minimize downtime during deployments'
+            ];
+
+            quizOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionIndex = Array.from(this.parentElement.parentElement.parentElement.children).indexOf(this.parentElement.parentElement);
+                    const isCorrect = this.textContent === correctAnswers[questionIndex];
+
+                    // Remove previous styling
+                    this.parentElement.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.style.background = '';
+                        opt.style.color = '';
+                    });
+
+                    if (isCorrect) {
+                        this.style.background = '#4CAF50';
+                        this.style.color = 'white';
+                        alert('✅ Correct!');
+                    } else {
+                        this.style.background = '#f44336';
+                        this.style.color = 'white';
+                        alert('❌ Incorrect. Try again!');
+                    }
+                });
+            });
+
+            // Code block copy functionality
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = '📋 Copy';
+                copyBtn.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 60px;
+                    background: #FF6B35;
+                    color: white;
+                    border: none;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.8em;
+                `;
+
+                copyBtn.addEventListener('click', function() {
+                    const code = block.textContent.replace(/^(YAML|Groovy|Bash|JSON)$/m, '').trim();
+                    navigator.clipboard.writeText(code).then(() => {
+                        this.textContent = '✅ Copied!';
+                        setTimeout(() => this.textContent = '📋 Copy', 2000);
+                    });
+                });
+
+                block.style.position = 'relative';
+                block.appendChild(copyBtn);
+            });
+        });
+    </script>
+</body>
+</html>

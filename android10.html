@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Study Guide - Chapter 10: Location & Maps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        }
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
+    <header class="hero-gradient text-white py-16 px-6 text-center mb-12">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-light mb-4">Android Study Guide</h1>
+            <div class="text-xl md:text-2xl opacity-90">Chapter 10: Location & Maps</div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <h2 class="text-primary-600 text-3xl font-light mb-6">Location Services & Google Maps Integration</h2>
+            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                <p class="text-lg text-gray-700">Android provides comprehensive location services and Google Maps integration for building location-aware applications.</p>
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Location Permissions</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+&lt;!-- AndroidManifest.xml --&gt;<br>
+&lt;manifest&gt;<br>
+    &lt;!-- Coarse location (city-level) --&gt;<br>
+    &lt;uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /&gt;<br>
+<br>
+    &lt;!-- Fine location (exact GPS) --&gt;<br>
+    &lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt;<br>
+<br>
+    &lt;!-- Background location (Android 10+) --&gt;<br>
+    &lt;uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /&gt;<br>
+<br>
+    &lt;!-- For Google Maps --&gt;<br>
+    &lt;meta-data<br>
+        android:name="com.google.android.geo.API_KEY"<br>
+        android:value="YOUR_API_KEY_HERE" /&gt;<br>
+<br>
+    &lt;application&gt;<br>
+        &lt;!-- Google Maps API Key --&gt;<br>
+    &lt;/application&gt;<br>
+&lt;/manifest&gt;
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Requesting Location Permissions</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+public class LocationActivity extends AppCompatActivity {<br>
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;<br>
+    private FusedLocationProviderClient fusedLocationClient;<br>
+<br>
+    @Override<br>
+    protected void onCreate(Bundle savedInstanceState) {<br>
+        super.onCreate(savedInstanceState);<br>
+        setContentView(R.layout.activity_location);<br>
+<br>
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);<br>
+<br>
+        // Check and request permissions<br>
+        if (checkLocationPermissions()) {<br>
+            getCurrentLocation();<br>
+        } else {<br>
+            requestLocationPermissions();<br>
+        }<br>
+    }<br>
+<br>
+    private boolean checkLocationPermissions() {<br>
+        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)<br>
+                == PackageManager.PERMISSION_GRANTED;<br>
+    }<br>
+<br>
+    private void requestLocationPermissions() {<br>
+        ActivityCompat.requestPermissions(this,<br>
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION,<br>
+                           Manifest.permission.ACCESS_COARSE_LOCATION},<br>
+                LOCATION_PERMISSION_REQUEST_CODE);<br>
+    }<br>
+<br>
+    @Override<br>
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,<br>
+                                         @NonNull int[] grantResults) {<br>
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);<br>
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {<br>
+            if (grantResults.length &gt; 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {<br>
+                getCurrentLocation();<br>
+            } else {<br>
+                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();<br>
+            }<br>
+        }<br>
+    }<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Getting Current Location</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+private void getCurrentLocation() {<br>
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)<br>
+            != PackageManager.PERMISSION_GRANTED) {<br>
+        return;<br>
+    }<br>
+<br>
+    fusedLocationClient.getLastLocation()<br>
+            .addOnSuccessListener(this, new OnSuccessListener&lt;Location&gt;() {<br>
+                @Override<br>
+                public void onSuccess(Location location) {<br>
+                    if (location != null) {<br>
+                        double latitude = location.getLatitude();<br>
+                        double longitude = location.getLongitude();<br>
+                        float accuracy = location.getAccuracy();<br>
+<br>
+                        // Use the location data<br>
+                        updateUI(latitude, longitude, accuracy);<br>
+                    } else {<br>
+                        // Location is null, request location updates<br>
+                        requestLocationUpdates();<br>
+                    }<br>
+                }<br>
+            })<br>
+            .addOnFailureListener(this, new OnFailureListener() {<br>
+                @Override<br>
+                public void onFailure(@NonNull Exception e) {<br>
+                    Log.e("Location", "Error getting location: " + e.getMessage());<br>
+                }<br>
+            });<br>
+}<br>
+<br>
+private void requestLocationUpdates() {<br>
+    LocationRequest locationRequest = LocationRequest.create()<br>
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)<br>
+            .setInterval(10000)        // 10 seconds<br>
+            .setFastestInterval(5000); // 5 seconds<br>
+<br>
+    LocationCallback locationCallback = new LocationCallback() {<br>
+        @Override<br>
+        public void onLocationResult(LocationResult locationResult) {<br>
+            if (locationResult == null) {<br>
+                return;<br>
+            }<br>
+            for (Location location : locationResult.getLocations()) {<br>
+                // Handle location update<br>
+                updateUI(location.getLatitude(), location.getLongitude(),<br>
+                        location.getAccuracy());<br>
+            }<br>
+        }<br>
+    };<br>
+<br>
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)<br>
+            == PackageManager.PERMISSION_GRANTED) {<br>
+        fusedLocationClient.requestLocationUpdates(locationRequest,<br>
+                locationCallback, Looper.getMainLooper());<br>
+    }<br>
+}<br>
+<br>
+private void updateUI(double latitude, double longitude, float accuracy) {<br>
+    TextView locationText = findViewById(R.id.location_text);<br>
+    locationText.setText(String.format("Lat: %.6f, Lng: %.6f, Acc: %.1fm",<br>
+            latitude, longitude, accuracy));<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Google Maps Integration</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+// Add to build.gradle (app level)<br>
+dependencies {<br>
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'<br>
+    implementation 'com.google.android.gms:play-services-location:21.0.1'<br>
+}<br>
+<br>
+// activity_maps.xml<br>
+&lt;fragment xmlns:android="http://schemas.android.com/apk/res/android"<br>
+    xmlns:map="http://schemas.android.com/apk/res-auto"<br>
+    xmlns:tools="http://schemas.android.com/tools"<br>
+    android:id="@+id/map"<br>
+    android:name="com.google.android.gms.maps.SupportMapFragment"<br>
+    android:layout_width="match_parent"<br>
+    android:layout_height="match_parent"<br>
+    tools:context=".MapsActivity" /&gt;<br>
+<br>
+// MapsActivity.java<br>
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {<br>
+    private GoogleMap mMap;<br>
+<br>
+    @Override<br>
+    protected void onCreate(Bundle savedInstanceState) {<br>
+        super.onCreate(savedInstanceState);<br>
+        setContentView(R.layout.activity_maps);<br>
+<br>
+        // Obtain the SupportMapFragment and get notified when the map is ready<br>
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()<br>
+                .findFragmentById(R.id.map);<br>
+        mapFragment.getMapAsync(this);<br>
+    }<br>
+<br>
+    @Override<br>
+    public void onMapReady(GoogleMap googleMap) {<br>
+        mMap = googleMap;<br>
+<br>
+        // Add a marker in Sydney and move the camera<br>
+        LatLng sydney = new LatLng(-34, 151);<br>
+        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));<br>
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));<br>
+    }<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Adding Markers and Overlays</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+@Override<br>
+public void onMapReady(GoogleMap googleMap) {<br>
+    mMap = googleMap;<br>
+<br>
+    // Enable my location layer<br>
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)<br>
+            == PackageManager.PERMISSION_GRANTED) {<br>
+        mMap.setMyLocationEnabled(true);<br>
+    }<br>
+<br>
+    // Add marker with custom options<br>
+    LatLng location = new LatLng(-33.852, 151.211);<br>
+    MarkerOptions markerOptions = new MarkerOptions()<br>
+            .position(location)<br>
+            .title("Sydney Opera House")<br>
+            .snippet("Iconic performing arts centre")<br>
+            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));<br>
+<br>
+    Marker marker = mMap.addMarker(markerOptions);<br>
+    marker.showInfoWindow();<br>
+<br>
+    // Move camera with animation<br>
+    CameraPosition cameraPosition = new CameraPosition.Builder()<br>
+            .target(location)<br>
+            .zoom(15)<br>
+            .bearing(90)<br>
+            .tilt(30)<br>
+            .build();<br>
+<br>
+    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));<br>
+<br>
+    // Add polyline<br>
+    PolylineOptions polylineOptions = new PolylineOptions()<br>
+            .add(new LatLng(-33.852, 151.211))<br>
+            .add(new LatLng(-33.854, 151.215))<br>
+            .add(new LatLng(-33.856, 151.218))<br>
+            .color(Color.BLUE)<br>
+            .width(10);<br>
+<br>
+    mMap.addPolyline(polylineOptions);<br>
+<br>
+    // Add polygon<br>
+    PolygonOptions polygonOptions = new PolygonOptions()<br>
+            .add(new LatLng(-33.852, 151.211))<br>
+            .add(new LatLng(-33.854, 151.215))<br>
+            .add(new LatLng(-33.856, 151.218))<br>
+            .add(new LatLng(-33.850, 151.213))<br>
+            .strokeColor(Color.RED)<br>
+            .fillColor(Color.argb(50, 255, 0, 0));<br>
+<br>
+    mMap.addPolygon(polygonOptions);<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Geofencing</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+public class GeofenceActivity extends AppCompatActivity {<br>
+    private GeofencingClient geofencingClient;<br>
+    private PendingIntent geofencePendingIntent;<br>
+<br>
+    @Override<br>
+    protected void onCreate(Bundle savedInstanceState) {<br>
+        super.onCreate(savedInstanceState);<br>
+        setContentView(R.layout.activity_geofence);<br>
+<br>
+        geofencingClient = LocationServices.getGeofencingClient(this);<br>
+    }<br>
+<br>
+    private void addGeofence() {<br>
+        Geofence geofence = new Geofence.Builder()<br>
+                .setRequestId("HOME_GEOFENCE")<br>
+                .setCircularRegion(-33.852, 151.211, 100) // Lat, Lng, Radius in meters<br>
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)<br>
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |<br>
+                                  Geofence.GEOFENCE_TRANSITION_EXIT)<br>
+                .build();<br>
+<br>
+        GeofencingRequest geofencingRequest = new GeofencingRequest.Builder()<br>
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)<br>
+                .addGeofence(geofence)<br>
+                .build();<br>
+<br>
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)<br>
+                == PackageManager.PERMISSION_GRANTED) {<br>
+            geofencingClient.addGeofences(geofencingRequest, getGeofencePendingIntent())<br>
+                    .addOnSuccessListener(this, new OnSuccessListener&lt;Void&gt;() {<br>
+                        @Override<br>
+                        public void onSuccess(Void aVoid) {<br>
+                            Log.d("Geofence", "Geofence added successfully");<br>
+                        }<br>
+                    })<br>
+                    .addOnFailureListener(this, new OnFailureListener() {<br>
+                        @Override<br>
+                        public void onFailure(@NonNull Exception e) {<br>
+                            Log.e("Geofence", "Failed to add geofence: " + e.getMessage());<br>
+                        }<br>
+                    });<br>
+        }<br>
+    }<br>
+<br>
+    private PendingIntent getGeofencePendingIntent() {<br>
+        if (geofencePendingIntent != null) {<br>
+            return geofencePendingIntent;<br>
+        }<br>
+<br>
+        Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);<br>
+        geofencePendingIntent = PendingIntent.getBroadcast(this, 0, intent,<br>
+                PendingIntent.FLAG_UPDATE_CURRENT);<br>
+        return geofencePendingIntent;<br>
+    }<br>
+}<br>
+<br>
+// GeofenceBroadcastReceiver.java<br>
+public class GeofenceBroadcastReceiver extends BroadcastReceiver {<br>
+    @Override<br>
+    public void onReceive(Context context, Intent intent) {<br>
+        GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);<br>
+<br>
+        if (geofencingEvent.hasError()) {<br>
+            Log.e("Geofence", "Geofencing error: " + geofencingEvent.getErrorCode());<br>
+            return;<br>
+        }<br>
+<br>
+        int geofenceTransition = geofencingEvent.getGeofenceTransition();<br>
+<br>
+        if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {<br>
+            // User entered the geofence<br>
+            sendNotification(context, "Welcome home!");<br>
+        } else if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {<br>
+            // User exited the geofence<br>
+            sendNotification(context, "Goodbye!");<br>
+        }<br>
+    }<br>
+<br>
+    private void sendNotification(Context context, String message) {<br>
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "geofence_channel")<br>
+                .setSmallIcon(R.drawable.ic_notification)<br>
+                .setContentTitle("Geofence Alert")<br>
+                .setContentText(message)<br>
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);<br>
+<br>
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);<br>
+        notificationManager.notify(1, builder.build());<br>
+    }<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Location Settings</h3>
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+private void checkLocationSettings() {<br>
+    LocationRequest locationRequest = LocationRequest.create()<br>
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);<br>
+<br>
+    LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()<br>
+            .addLocationRequest(locationRequest);<br>
+<br>
+    SettingsClient client = LocationServices.getSettingsClient(this);<br>
+    Task&lt;LocationSettingsResponse&gt; task = client.checkLocationSettings(builder.build());<br>
+<br>
+    task.addOnSuccessListener(this, new OnSuccessListener&lt;LocationSettingsResponse&gt;() {<br>
+        @Override<br>
+        public void onSuccess(LocationSettingsResponse locationSettingsResponse) {<br>
+            // Location settings are satisfied, get location<br>
+            getCurrentLocation();<br>
+        }<br>
+    });<br>
+<br>
+    task.addOnFailureListener(this, new OnFailureListener() {<br>
+        @Override<br>
+        public void onFailure(@NonNull Exception e) {<br>
+            if (e instanceof ResolvableApiException) {<br>
+                // Location settings are not satisfied, show dialog to enable<br>
+                try {<br>
+                    ResolvableApiException resolvable = (ResolvableApiException) e;<br>
+                    resolvable.startResolutionForResult(LocationActivity.this,<br>
+                            REQUEST_CHECK_SETTINGS);<br>
+                } catch (IntentSender.SendIntentException sendEx) {<br>
+                    // Ignore the error<br>
+                }<br>
+            }<br>
+        }<br>
+    });<br>
+}
+            </div>
+
+            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Best Practices</h3>
+            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                <p class="text-lg text-gray-700">Always request the minimum location accuracy needed, handle permission denials gracefully, and respect user's privacy preferences.</p>
+            </div>
+            <ul class="list-disc list-inside text-gray-700 space-y-2 mb-8">
+                <li>Use coarse location when fine location isn't necessary</li>
+                <li>Request background location only when absolutely needed</li>
+                <li>Stop location updates when not needed to save battery</li>
+                <li>Handle location settings and GPS availability</li>
+                <li>Provide clear rationale for location permissions</li>
+                <li>Test on different devices and location scenarios</li>
+            </ul>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-6 mt-12">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <a href="android9.html" class="text-primary-600 hover:text-primary-700 font-medium px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200">← Previous Chapter</a>
+                <a href="android11.html" class="text-primary-600 hover:text-primary-700 font-medium px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200">Next Chapter →</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

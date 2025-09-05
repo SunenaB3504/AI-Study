@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React Chapter 6: Advanced Patterns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#61dafb',
+                        secondary: '#21a3c4',
+                        accent: '#4caf50'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-primary to-secondary text-white p-8 text-center">
+                <h1 class="text-4xl font-bold mb-2">⚛️ React Chapter 6</h1>
+                <div class="text-xl opacity-90">Advanced Patterns - Performance & Complex Architectures</div>
+            </div>
+            <!-- Content -->
+            <div class="p-8">
+                <div class="bg-gray-50 p-6 rounded-lg mb-8 flex justify-between items-center flex-wrap gap-4">
+                    <a href="react5.html" class="bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-lg font-medium transition-colors no-underline">⬅️ Chapter 5: React Router</a>
+                    <a href="study-guide-progress.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg font-medium transition-colors no-underline">📊 Progress Dashboard</a>
+                    <a href="nodejs1.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg font-medium transition-colors no-underline">🚀 Node.js Chapter 1 ➡️</a>
+                    <button id="tts-toggle" class="bg-purple-500 hover:bg-purple-600 text-white px-5 py-3 rounded-lg font-medium transition-colors flex items-center gap-2">
+                        <span id="tts-icon">🔊</span>
+                        <span id="tts-text">Enable TTS</span>
+                    </button>
+                </div>
+
+                <div class="mb-10 p-8 bg-gray-50 rounded-lg border-l-4 border-primary">
+                    <h2 class="text-primary text-2xl font-semibold mb-4">🎯 Chapter Overview</h2>
+                    <p class="text-gray-700 mb-4">In this final React chapter, we'll explore advanced patterns and best practices that will take your React development skills to the next level. You'll learn sophisticated techniques for building scalable, maintainable, and performant React applications.</p>
+
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                        <h4 class="text-yellow-800 font-semibold mb-2">📚 What You'll Learn</h4>
+                        <ul class="text-yellow-800 space-y-1">
+                            <li>Performance optimization techniques and React.memo</li>
+                            <li>Advanced hooks patterns and custom hooks</li>
+                            <li>Render props pattern for flexible component composition</li>
+                            <li>Higher-order components (HOCs) for code reuse</li>
+                            <li>Compound components for cohesive APIs</li>
+                            <li>Advanced Context API usage and patterns</li>
+                            <li>Error boundaries for robust error handling</li>
+                            <li>React best practices and anti-patterns</li>
+                        </ul>
+                    </div>
+                </div>
+
+            <div class="section">
+                <h2>⚡ Performance Optimization</h2>
+                <p>React performance optimization is crucial for building fast, responsive applications. Let's explore the key techniques and tools.</p>
+
+                <h3>React.memo for Component Memoization</h3>
+                <div class="code-block">// Basic memoization
+const ExpensiveComponent = React.memo(function ExpensiveComponent({ data, onClick }) {
+  console.log('ExpensiveComponent rendered');
+  return (
+    &lt;div&gt;
+      &lt;h3&gt;{data.title}&lt;/h3&gt;
+      &lt;p&gt;{data.description}&lt;/p&gt;
+      &lt;button onClick={onClick}&gt;Click me&lt;/button&gt;
+    &lt;/div&gt;
+  );
+});
+
+// Custom comparison function
+const CustomMemoComponent = React.memo(
+  function CustomMemoComponent({ user, onUpdate }) {
+    return (
+      &lt;div&gt;
+        &lt;h3&gt;{user.name}&lt;/h3&gt;
+        &lt;p&gt;Last updated: {user.lastUpdated}&lt;/p&gt;
+        &lt;button onClick={() =&gt; onUpdate(user.id)}&gt;Update&lt;/button&gt;
+      &lt;/div&gt;
+    );
+  },
+  (prevProps, nextProps) =&gt; {
+    // Only re-render if user name changed
+    return prevProps.user.name === nextProps.user.name;
+  }
+);
+
+// Usage
+function App() {
+  const [count, setCount] = useState(0);
+  const [user, setUser] = useState({ name: 'John', lastUpdated: Date.now() });
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;Increment: {count}&lt;/button&gt;
+      &lt;ExpensiveComponent
+        data={{ title: 'Hello', description: 'World' }}
+        onClick={() =&gt; console.log('clicked')}
+      /&gt;
+      &lt;CustomMemoComponent
+        user={user}
+        onUpdate={(id) =&gt; setUser({ ...user, lastUpdated: Date.now() })}
+      /&gt;
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3>useMemo and useCallback Hooks</h3>
+                <div class="code-block">// useMemo for expensive calculations
+function ExpensiveCalculation({ numbers }) {
+  const sum = useMemo(() =&gt; {
+    console.log('Calculating sum...');
+    return numbers.reduce((acc, num) =&gt; acc + num, 0);
+  }, [numbers]);
+
+  const average = useMemo(() =&gt; {
+    console.log('Calculating average...');
+    return numbers.length > 0 ? sum / numbers.length : 0;
+  }, [sum, numbers.length]);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Sum: {sum}&lt;/p&gt;
+      &lt;p&gt;Average: {average}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+// useCallback for stable function references
+function ParentComponent() {
+  const [count, setCount] = useState(0);
+  const [items, setItems] = useState(['apple', 'banana', 'cherry']);
+
+  const handleItemClick = useCallback((item) =&gt; {
+    console.log('Item clicked:', item);
+    setCount(prev =&gt; prev + 1);
+  }, []); // Empty dependency array - function never changes
+
+  const addItem = useCallback(() =&gt; {
+    setItems(prev =&gt; [...prev, `item-${Date.now()}`]);
+  }, []);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Click count: {count}&lt;/p&gt;
+      &lt;button onClick={addItem}&gt;Add Item&lt;/button&gt;
+      &lt;ItemList items={items} onItemClick={handleItemClick} /&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Child component that benefits from memoization
+const ItemList = React.memo(function ItemList({ items, onItemClick }) {
+  console.log('ItemList rendered');
+  return (
+    &lt;ul&gt;
+      {items.map((item, index) =&gt; (
+        &lt;li key={index}&gt;
+          &lt;button onClick={() =&gt; onItemClick(item)}&gt;{item}&lt;/button&gt;
+        &lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+});</div>
+
+                <h3>Code Splitting and Lazy Loading</h3>
+                <div class="code-block">import { lazy, Suspense } from 'react';
+
+// Lazy load components
+const AdminPanel = lazy(() =&gt; import('./components/AdminPanel'));
+const UserDashboard = lazy(() =&gt; import('./components/UserDashboard'));
+const ReportsPage = lazy(() =&gt; import('./components/ReportsPage'));
+
+// Loading component
+function LoadingSpinner() {
+  return (
+    &lt;div className="loading-spinner"&gt;
+      &lt;div className="spinner"&gt;&lt;/div&gt;
+      &lt;p&gt;Loading...&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Main app with route-based code splitting
+function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+
+  const renderPage = () =&gt; {
+    switch (currentPage) {
+      case 'admin':
+        return (
+          &lt;Suspense fallback={&lt;LoadingSpinner /&gt;}&gt;
+            &lt;AdminPanel /&gt;
+          &lt;/Suspense&gt;
+        );
+      case 'dashboard':
+        return (
+          &lt;Suspense fallback={&lt;LoadingSpinner /&gt;}&gt;
+            &lt;UserDashboard /&gt;
+          &lt;/Suspense&gt;
+        );
+      case 'reports':
+        return (
+          &lt;Suspense fallback={&lt;LoadingSpinner /&gt;}&gt;
+            &lt;ReportsPage /&gt;
+          &lt;/Suspense&gt;
+        );
+      default:
+        return &lt;HomePage /&gt;;
+    }
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;nav&gt;
+        &lt;button onClick={() =&gt; setCurrentPage('home')}&gt;Home&lt;/button&gt;
+        &lt;button onClick={() =&gt; setCurrentPage('dashboard')}&gt;Dashboard&lt;/button&gt;
+        &lt;button onClick={() =&gt; setCurrentPage('admin')}&gt;Admin&lt;/button&gt;
+        &lt;button onClick={() =&gt; setCurrentPage('reports')}&gt;Reports&lt;/button&gt;
+      &lt;/nav&gt;
+      {renderPage()}
+    &lt;/div&gt;
+  );
+}</div>
+            </div>
+
+            <div class="section">
+                <h2>🔧 Advanced Hooks Patterns</h2>
+                <p>Advanced hooks patterns help you manage complex state and side effects more effectively.</p>
+
+                <h3>Custom Hooks for Business Logic</h3>
+                <div class="code-block">// Custom hook for API calls
+function useApi(endpoint) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchData = useCallback(async () =&gt; {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(endpoint);
+      const result = await response.json();
+      setData(result);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [endpoint]);
+
+  useEffect(() =&gt; {
+    fetchData();
+  }, [fetchData]);
+
+  return { data, loading, error, refetch: fetchData };
+}
+
+// Custom hook for local storage
+function useLocalStorage(key, initialValue) {
+  const [storedValue, setStoredValue] = useState(() =&gt; {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error(`Error reading localStorage key "${key}":`, error);
+      return initialValue;
+    }
+  });
+
+  const setValue = useCallback((value) =&gt; {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      console.error(`Error setting localStorage key "${key}":`, error);
+    }
+  }, [key, storedValue]);
+
+  return [storedValue, setValue];
+}
+
+// Custom hook for form handling
+function useForm(initialValues = {}) {
+  const [values, setValues] = useState(initialValues);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  const handleChange = useCallback((name, value) =&gt; {
+    setValues(prev =&gt; ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev =&gt; ({ ...prev, [name]: null }));
+    }
+  }, [errors]);
+
+  const handleBlur = useCallback((name) =&gt; {
+    setTouched(prev =&gt; ({ ...prev, [name]: true }));
+  }, []);
+
+  const validate = useCallback((validationRules) =&gt; {
+    const newErrors = {};
+    Object.keys(validationRules).forEach(field =&gt; {
+      const error = validationRules[field](values[field]);
+      if (error) {
+        newErrors[field] = error;
+      }
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }, [values]);
+
+  const reset = useCallback(() =&gt; {
+    setValues(initialValues);
+    setErrors({});
+    setTouched({});
+  }, [initialValues]);
+
+  return {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+    validate,
+    reset,
+    isValid: Object.keys(errors).length === 0
+  };
+}
+
+// Usage
+function LoginForm() {
+  const { values, errors, handleChange, handleBlur, validate, isValid } = useForm({
+    email: '',
+    password: ''
+  });
+
+  const handleSubmit = (e) =&gt; {
+    e.preventDefault();
+    const validationRules = {
+      email: (value) =&gt; !value ? 'Email is required' : !/\S+@\S+\.\S+/.test(value) ? 'Invalid email' : null,
+      password: (value) =&gt; !value ? 'Password is required' : value.length < 6 ? 'Password too short' : null
+    };
+
+    if (validate(validationRules)) {
+      console.log('Form submitted:', values);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        value={values.email}
+        onChange={(e) => handleChange('email', e.target.value)}
+        onBlur={() => handleBlur('email')}
+        placeholder="Email"
+      />
+      {errors.email && <span>{errors.email}</span>}
+
+      <input
+        type="password"
+        value={values.password}
+        onChange={(e) => handleChange('password', e.target.value)}
+        onBlur={() => handleBlur('password')}
+        placeholder="Password"
+      />
+      {errors.password && <span>{errors.password}</span>}
+
+      <button type="submit" disabled={!isValid}>Login</button>
+    </form>
+  );
+}</div>
+
+                <h3>useReducer for Complex State</h3>
+                <div class="code-block">// Shopping cart reducer
+const cartReducer = (state, action) =&gt; {
+  switch (action.type) {
+    case 'ADD_ITEM':
+      const existingItem = state.items.find(item =&gt; item.id === action.payload.id);
+      if (existingItem) {
+        return {
+          ...state,
+          items: state.items.map(item =&gt;
+            item.id === action.payload.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          )
+        };
+      }
+      return {
+        ...state,
+        items: [...state.items, { ...action.payload, quantity: 1 }]
+      };
+
+    case 'REMOVE_ITEM':
+      return {
+        ...state,
+        items: state.items.filter(item =&gt; item.id !== action.payload)
+      };
+
+    case 'UPDATE_QUANTITY':
+      return {
+        ...state,
+        items: state.items.map(item =&gt;
+          item.id === action.payload.id
+            ? { ...item, quantity: action.payload.quantity }
+            : item
+        )
+      };
+
+    case 'CLEAR_CART':
+      return { ...state, items: [] };
+
+    default:
+      return state;
+  }
+};
+
+// Custom hook using useReducer
+function useShoppingCart() {
+  const [state, dispatch] = useReducer(cartReducer, { items: [] });
+
+  const addItem = useCallback((item) =&gt; {
+    dispatch({ type: 'ADD_ITEM', payload: item });
+  }, []);
+
+  const removeItem = useCallback((itemId) =&gt; {
+    dispatch({ type: 'REMOVE_ITEM', payload: itemId });
+  }, []);
+
+  const updateQuantity = useCallback((itemId, quantity) =&gt; {
+    dispatch({ type: 'UPDATE_QUANTITY', payload: { id: itemId, quantity } });
+  }, []);
+
+  const clearCart = useCallback(() =&gt; {
+    dispatch({ type: 'CLEAR_CART' });
+  }, []);
+
+  const total = useMemo(() =&gt; {
+    return state.items.reduce((sum, item) =&gt; sum + (item.price * item.quantity), 0);
+  }, [state.items]);
+
+  const itemCount = useMemo(() =&gt; {
+    return state.items.reduce((count, item) =&gt; count + item.quantity, 0);
+  }, [state.items]);
+
+  return {
+    items: state.items,
+    total,
+    itemCount,
+    addItem,
+    removeItem,
+    updateQuantity,
+    clearCart
+  };
+}
+
+// Usage
+function ShoppingCart() {
+  const { items, total, itemCount, addItem, removeItem, updateQuantity, clearCart } = useShoppingCart();
+
+  const products = [
+    { id: 1, name: 'Laptop', price: 999 },
+    { id: 2, name: 'Mouse', price: 25 },
+    { id: 3, name: 'Keyboard', price: 75 }
+  ];
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Shopping Cart ({itemCount} items)&lt;/h2&gt;
+
+      &lt;div&gt;
+        &lt;h3&gt;Products&lt;/h3&gt;
+        {products.map(product =&gt; (
+          &lt;div key={product.id}&gt;
+            &lt;span&gt;{product.name} - ${product.price}&lt;/span&gt;
+            &lt;button onClick={() =&gt; addItem(product)}&gt;Add to Cart&lt;/button&gt;
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+
+      &lt;div&gt;
+        &lt;h3&gt;Cart&lt;/h3&gt;
+        {items.map(item =&gt; (
+          &lt;div key={item.id}&gt;
+            &lt;span&gt;{item.name} - ${item.price} x {item.quantity}&lt;/span&gt;
+            &lt;input
+              type="number"
+              value={item.quantity}
+              onChange={(e) =&gt; updateQuantity(item.id, parseInt(e.target.value))}
+              min="1"
+            /&gt;
+            &lt;button onClick={() =&gt; removeItem(item.id)}&gt;Remove&lt;/button&gt;
+          &lt;/div&gt;
+        ))}
+        &lt;p&gt;Total: ${total}&lt;/p&gt;
+        &lt;button onClick={clearCart}&gt;Clear Cart&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</div>
+            </div>
+
+            <div class="section">
+                <h2>🎨 Render Props Pattern</h2>
+                <p>Render props is a powerful pattern for sharing code between React components using a prop whose value is a function.</p>
+
+                <h3>Basic Render Props</h3>
+                <div class="code-block">// Mouse position tracker
+class MouseTracker extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { x: 0, y: 0 };
+  }
+
+  handleMouseMove = (event) =&gt; {
+    this.setState({
+      x: event.clientX,
+      y: event.clientY
+    });
+  };
+
+  render() {
+    return (
+      &lt;div style={{ height: '100vh' }} onMouseMove={this.handleMouseMove}&gt;
+        {this.props.render(this.state)}
+      &lt;/div&gt;
+    );
+  }
+}
+
+// Usage
+function App() {
+  return (
+    &lt;MouseTracker
+      render={({ x, y }) =&gt; (
+        &lt;h1&gt;The mouse position is ({x}, {y})&lt;/h1&gt;
+      )}
+    /&gt;
+  );
+}
+
+// Alternative with children as function
+class MouseTrackerAlt extends React.Component {
+  // ... same implementation
+  render() {
+    return (
+      &lt;div style={{ height: '100vh' }} onMouseMove={this.handleMouseMove}&gt;
+        {this.props.children(this.state)}
+      &lt;/div&gt;
+    );
+  }
+}
+
+// Usage with children
+function AppAlt() {
+  return (
+    &lt;MouseTrackerAlt&gt;
+      {({ x, y }) =&gt; &lt;h1&gt;The mouse position is ({x}, {y})&lt;/h1&gt;}
+    &lt;/MouseTrackerAlt&gt;
+  );
+}</div>
+
+                <h3>Data Fetching with Render Props</h3>
+                <div class="code-block">// Data fetching component
+class DataFetcher extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: null,
+      loading: true,
+      error: null
+    };
+  }
+
+  componentDidMount() {
+    this.fetchData();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.url !== this.props.url) {
+      this.fetchData();
+    }
+  }
+
+  fetchData = async () =&gt; {
+    this.setState({ loading: true, error: null });
+    try {
+      const response = await fetch(this.props.url);
+      const data = await response.json();
+      this.setState({ data, loading: false });
+    } catch (error) {
+      this.setState({ error: error.message, loading: false });
+    }
+  };
+
+  render() {
+    return this.props.render(this.state);
+  }
+}
+
+// Usage
+function UserProfile({ userId }) {
+  return (
+    &lt;DataFetcher
+      url={`https://api.example.com/users/${userId}`}
+      render={({ data, loading, error }) =&gt; {
+        if (loading) return &lt;div&gt;Loading...&lt;/div&gt;;
+        if (error) return &lt;div&gt;Error: {error}&lt;/div&gt;;
+        return (
+          &lt;div&gt;
+            &lt;h2&gt;{data.name}&lt;/h2&gt;
+            &lt;p&gt;Email: {data.email}&lt;/p&gt;
+            &lt;p&gt;Role: {data.role}&lt;/p&gt;
+          &lt;/div&gt;
+        );
+      }}
+    /&gt;
+  );
+}
+
+// Multiple data sources
+function Dashboard() {
+  return (
+    &lt;div&gt;
+      &lt;DataFetcher
+        url="/api/stats"
+        render={({ data: stats, loading: statsLoading }) =&gt; (
+          &lt;DataFetcher
+            url="/api/users"
+            render={({ data: users, loading: usersLoading }) =&gt; {
+              if (statsLoading || usersLoading) return &lt;div&gt;Loading...&lt;/div&gt;
+              return (
+                &lt;div&gt;
+                  &lt;h2&gt;Dashboard&lt;/h2&gt;
+                  &lt;p&gt;Total Users: {users.length}&lt;/p&gt;
+                  &lt;p&gt;Active Sessions: {stats.activeSessions}&lt;/p&gt;
+                &lt;/div&gt;
+              );
+            }}
+          /&gt;
+        )}
+      /&gt;
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3>Advanced Render Props Patterns</h3>
+                <div class="code-block">// Toggle component
+class Toggle extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { on: false };
+  }
+
+  toggle = () =&gt; {
+    this.setState(prevState =&gt; ({ on: !prevState.on }));
+  };
+
+  render() {
+    return this.props.render({
+      on: this.state.on,
+      toggle: this.toggle
+    });
+  }
+}
+
+// Usage patterns
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;Toggle
+        render={({ on, toggle }) =&gt; (
+          &lt;div&gt;
+            &lt;button onClick={toggle}&gt;
+              {on ? 'Hide' : 'Show'} Content
+            &lt;button&gt;
+            {on &amp;&amp; &lt;p&gt;This content is visible!&lt;/p&gt;}
+          &lt;/div&gt;
+        )}
+      /&gt;
+
+      &lt;Toggle&gt;
+        {({ on, toggle }) =&gt; (
+          &lt;Switch
+            on={on}
+            onToggle={toggle}
+            label="Enable Feature"
+          /&gt;
+        )}
+      &lt;/Toggle&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Form validation with render props
+class FormValidator extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      values: {},
+      errors: {},
+      touched: {}
+    };
+  }
+
+  handleChange = (field, value) =&gt; {
+    this.setState(prevState =&gt; ({
+      values: { ...prevState.values, [field]: value },
+      errors: { ...prevState.errors, [field]: null }
+    }));
+  };
+
+  handleBlur = (field) =&gt; {
+    this.setState(prevState =&gt; ({
+      touched: { ...prevState.touched, [field]: true }
+    }));
+  };
+
+  validate = () =&gt; {
+    const errors = {};
+    // Validation logic here
+    this.setState({ errors });
+    return Object.keys(errors).length === 0;
+  };
+
+  render() {
+    return this.props.render({
+      values: this.state.values,
+      errors: this.state.errors,
+      touched: this.state.touched,
+      handleChange: this.handleChange,
+      handleBlur: this.handleBlur,
+      validate: this.validate
+    });
+  }
+}</div>
+            </div>
+
+            <div class="section">
+                <h2>🏗️ Higher-Order Components (HOCs)</h2>
+                <p>Higher-order components are functions that take a component and return a new component with additional props or behavior.</p>
+
+                <h3>Basic HOC Pattern</h3>
+                <div class="code-block">// Basic HOC for adding loading state
+function withLoading(Component) {
+  return function WithLoadingComponent({ isLoading, ...props }) {
+    if (isLoading) {
+      return &lt;div&gt;Loading...&lt;/div&gt;;
+    }
+    return &lt;Component {...props} /&gt;;
+  };
+}
+
+// Usage
+function UserList({ users }) {
+  return (
+    &lt;ul&gt;
+      {users.map(user =&gt; (
+        &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+
+const UserListWithLoading = withLoading(UserList);
+
+// In parent component
+function App() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() =&gt; {
+    fetchUsers().then(data =&gt; {
+      setUsers(data);
+      setLoading(false);
+    });
+  }, []);
+
+  return &lt;UserListWithLoading isLoading={loading} users={users} /&gt;;
+}</div>
+
+                <h3>HOC with Authentication</h3>
+                <div class="code-block">// Authentication HOC
+const withAuth = (Component) =&gt; {
+  return function AuthenticatedComponent(props) {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() =&gt; {
+      checkAuth().then(userData =&gt; {
+        setUser(userData);
+        setLoading(false);
+      }).catch(() =&gt; {
+        setUser(null);
+        setLoading(false);
+      });
+    }, []);
+
+    if (loading) {
+      return &lt;div&gt;Checking authentication...&lt;/div&gt;
+    }
+
+    if (!user) {
+      return &lt;div&gt;Please log in to access this content.&lt;/div&gt;
+    }
+
+    return &lt;Component {...props} user={user} /&gt;;
+  };
+};
+
+// HOC with theme support
+const withTheme = (Component) =&gt; {
+  return function ThemedComponent(props) {
+    const [theme, setTheme] = useState('light');
+
+    const toggleTheme = () =&gt; {
+      setTheme(prevTheme =&gt; prevTheme === 'light' ? 'dark' : 'light');
+    };
+
+    return (
+      &lt;div className={`theme-${theme}`}&gt;
+        &lt;Component {...props} theme={theme} toggleTheme={toggleTheme} /&gt;
+      &lt;/div&gt;
+    );
+  };
+};
+
+// HOC composition
+const withAuthAndTheme = (Component) =&gt; {
+  return withAuth(withTheme(Component));
+};
+
+// Usage
+function Dashboard({ user, theme, toggleTheme }) {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Welcome, {user.name}!&lt;/h1&gt;
+      &lt;p&gt;Current theme: {theme}&lt;/p&gt;
+      &lt;button onClick={toggleTheme}&gt;Toggle Theme&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+const AuthenticatedThemedDashboard = withAuthAndTheme(Dashboard);</div>
+
+                <h3>HOC with Data Fetching</h3>
+                <div class="code-block">// Generic data fetching HOC
+function withDataFetching(url) {
+  return function (Component) {
+    return function DataFetchingComponent(props) {
+      const [data, setData] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+
+      useEffect(() =&gt; {
+        fetch(url)
+          .then(response =&gt; response.json())
+          .then(data =&gt; {
+            setData(data);
+            setLoading(false);
+          })
+          .catch(error =&gt; {
+            setError(error.message);
+            setLoading(false);
+          });
+      }, []);
+
+      return (
+        &lt;Component
+          {...props}
+          data={data}
+          loading={loading}
+          error={error}
+        /&gt;
+      );
+    };
+  };
+}
+
+// Specific HOCs for different data types
+const withUsers = withDataFetching('/api/users');
+const withPosts = withDataFetching('/api/posts');
+const withComments = withDataFetching('/api/comments');
+
+// Usage
+function UsersList({ data: users, loading, error }) {
+  if (loading) return &lt;div&gt;Loading users...&lt;/div&gt;;
+  if (error) return &lt;div&gt;Error: {error}&lt;/div&gt;;
+
+  return (
+    &lt;ul&gt;
+      {users.map(user =&gt; (
+        &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+
+function PostsList({ data: posts, loading, error }) {
+  if (loading) return &lt;div&gt;Loading posts...&lt;/div&gt;;
+  if (error) return &lt;div&gt;Error: {error}&lt;/div&gt;;
+
+  return (
+    &lt;div&gt;
+      {posts.map(post =&gt; (
+        &lt;div key={post.id}&gt;
+          &lt;h3&gt;{post.title}&lt;/h3&gt;
+          &lt;p&gt;{post.content}&lt;/p&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}
+
+const UsersListWithData = withUsers(UsersList);
+const PostsListWithData = withPosts(PostsList);</div>
+            </div>
+
+            <div class="section">
+                <h2>🧩 Compound Components</h2>
+                <p>Compound components provide a cohesive API for related components that work together, sharing implicit state.</p>
+
+                <h3>Basic Compound Component</h3>
+                <div class="code-block">// Tabs compound component
+const TabsContext = React.createContext();
+
+function Tabs({ children, defaultActiveTab = 0 }) {
+  const [activeTab, setActiveTab] = useState(defaultActiveTab);
+
+  return (
+    &lt;TabsContext.Provider value={{ activeTab, setActiveTab }}&gt;
+      &lt;div className="tabs"&gt;{children}&lt;/div&gt;
+    &lt;/TabsContext.Provider&gt;
+  );
+}
+
+function TabList({ children }) {
+  return &lt;div className="tab-list"&gt;{children}&lt;/div&gt;;
+}
+
+function Tab({ index, children }) {
+  const { activeTab, setActiveTab } = useContext(TabsContext);
+
+  return (
+    &lt;button
+      className={`tab ${activeTab === index ? 'active' : ''}`}
+      onClick={() =&gt; setActiveTab(index)}
+    &gt;
+      {children}
+    &lt;/button&gt;
+  );
+}
+
+function TabPanel({ index, children }) {
+  const { activeTab } = useContext(TabsContext);
+
+  if (activeTab !== index) return null;
+
+  return &lt;div className="tab-panel"&gt;{children}&lt;/div&gt;;
+}
+
+// Attach components to Tabs
+Tabs.List = TabList;
+Tabs.Tab = Tab;
+Tabs.Panel = TabPanel;
+
+// Usage
+function App() {
+  return (
+    &lt;Tabs defaultActiveTab={1}&gt;
+      &lt;Tabs.List&gt;
+        &lt;Tabs.Tab index={0}&gt;Home&lt;/Tabs.Tab&gt;
+        &lt;Tabs.Tab index={1}&gt;About&lt;/Tabs.Tab&gt;
+        &lt;Tabs.Tab index={2}&gt;Contact&lt;/Tabs.Tab&gt;
+      &lt;/Tabs.List&gt;
+
+      &lt;Tabs.Panel index={0}&gt;
+        &lt;h2&gt;Home&lt;/h2&gt;
+        &lt;p&gt;Welcome to our website!&lt;/p&gt;
+      &lt;/Tabs.Panel&gt;
+
+      &lt;Tabs.Panel index={1}&gt;
+        &lt;h2&gt;About&lt;/h2&gt;
+        &lt;p&gt;Learn more about us.&lt;/p&gt;
+      &lt;/Tabs.Panel&gt;
+
+      &lt;Tabs.Panel index={2}&gt;
+        &lt;h2&gt;Contact&lt;/h2&gt;
+        &lt;p&gt;Get in touch with us.&lt;/p&gt;
+      &lt;/Tabs.Panel&gt;
+    &lt;/Tabs&gt;
+  );
+}</div>
+
+                <h3>Advanced Compound Component - Form</h3>
+                <div class="code-block">// Form compound component
+const FormContext = React.createContext();
+
+function Form({ children, onSubmit, initialValues = {} }) {
+  const [values, setValues] = useState(initialValues);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  const handleChange = (name, value) =&gt; {
+    setValues(prev =&gt; ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev =&gt; ({ ...prev, [name]: null }));
+    }
+  };
+
+  const handleBlur = (name) =&gt; {
+    setTouched(prev =&gt; ({ ...prev, [name]: true }));
+  };
+
+  const handleSubmit = (e) =&gt; {
+    e.preventDefault();
+    onSubmit(values);
+  };
+
+  const contextValue = {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur
+  };
+
+  return (
+    &lt;FormContext.Provider value={contextValue}&gt;
+      &lt;form onSubmit={handleSubmit}&gt;{children}&lt;/form&gt;
+    &lt;/FormContext.Provider&gt;
+  );
+}
+
+function Field({ name, type = 'text', placeholder, validation }) {
+  const { values, errors, touched, handleChange, handleBlur } = useContext(FormContext);
+
+  const handleInputChange = (e) =&gt; {
+    handleChange(name, e.target.value);
+  };
+
+  const handleInputBlur = () =&gt; {
+    handleBlur(name);
+    if (validation) {
+      const error = validation(values[name]);
+      if (error) {
+        // This would need to be handled differently in a real implementation
+        console.error(error);
+      }
+    }
+  };
+
+  return (
+    &lt;div className="field"&gt;
+      &lt;input
+        type={type}
+        name={name}
+        value={values[name] || ''}
+        onChange={handleInputChange}
+        onBlur={handleInputBlur}
+        placeholder={placeholder}
+        className={errors[name] &amp;&amp; touched[name] ? 'error' : ''}
+      /&gt;
+      {errors[name] &amp;&amp; touched[name] &amp;&amp; (
+        &lt;span className="error-message"&gt;{errors[name]}&lt;/span&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+
+function SubmitButton({ children }) {
+  return &lt;button type="submit"&gt;{children}&lt;/button&gt;
+}
+
+// Attach components
+Form.Field = Field;
+Form.SubmitButton = SubmitButton;
+
+// Usage
+function LoginForm() {
+  const handleSubmit = (values) =&gt; {
+    console.log('Form submitted:', values);
+  };
+
+  return (
+    &lt;Form onSubmit={handleSubmit} initialValues={{ email: '', password: '' }}&gt;
+      &lt;Form.Field
+        name="email"
+        type="email"
+        placeholder="Enter your email"
+        validation={(value) =&gt; !value ? 'Email is required' : null}
+      /&gt;
+
+      &lt;Form.Field
+        name="password"
+        type="password"
+        placeholder="Enter your password"
+        validation={(value) =&gt; !value ? 'Password is required' : null}
+      /&gt;
+
+      &lt;Form.SubmitButton&gt;Login&lt;/Form.SubmitButton&gt;
+    &lt;/Form&gt;
+  );
+}</div>
+
+                <h3>Modal Compound Component</h3>
+                <div class="code-block">// Modal compound component
+const ModalContext = React.createContext();
+
+function Modal({ children, isOpen, onClose }) {
+  if (!isOpen) return null;
+
+  return (
+    &lt;ModalContext.Provider value={{ onClose }}&gt;
+      &lt;div className="modal-overlay" onClick={onClose}&gt;
+        &lt;div className="modal-content" onClick={(e) =&gt; e.stopPropagation()}&gt;
+          {children}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/ModalContext.Provider&gt;
+  );
+}
+
+function ModalHeader({ children }) {
+  const { onClose } = useContext(ModalContext);
+
+  return (
+    &lt;div className="modal-header"&gt;
+      &lt;h2&gt;{children}&lt;/h2&gt;
+      &lt;button className="close-button" onClick={onClose}&gt;×&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+function ModalBody({ children }) {
+  return &lt;div className="modal-body"&gt;{children}&lt;/div&gt;;
+}
+
+function ModalFooter({ children }) {
+  return &lt;div className="modal-footer"&gt;{children}&lt;/div&gt;;
+}
+
+// Attach components
+Modal.Header = ModalHeader;
+Modal.Body = ModalBody;
+Modal.Footer = ModalFooter;
+
+// Usage
+function App() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={() =&gt; setIsModalOpen(true)}&gt;Open Modal&lt;/button&gt;
+
+      &lt;Modal isOpen={isModalOpen} onClose={() =&gt; setIsModalOpen(false)}&gt;
+        &lt;Modal.Header&gt;Confirm Action&lt;/Modal.Header&gt;
+        &lt;Modal.Body&gt;
+          &lt;p&gt;Are you sure you want to perform this action?&lt;/p&gt;
+        &lt;/Modal.Body&gt;
+        &lt;Modal.Footer&gt;
+          &lt;button onClick={() =&gt; setIsModalOpen(false)}&gt;Cancel&lt;/button&gt;
+          &lt;button onClick={() =&gt; { console.log('Action confirmed'); setIsModalOpen(false); }}&gt;
+            Confirm
+          &lt;/button&gt;
+        &lt;/Modal.Footer&gt;
+      &lt;/Modal&gt;
+    &lt;/div&gt;
+  );
+}</div>
+            </div>
+
+            <div class="section">
+                <h2>🛡️ Error Boundaries</h2>
+                <p>Error boundaries catch JavaScript errors anywhere in their child component tree and display a fallback UI.</p>
+
+                <h3>Basic Error Boundary</h3>
+                <div class="code-block">class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null, errorInfo: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    // Update state so the next render will show the fallback UI
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // Log the error to an error reporting service
+    console.error('Error caught by boundary:', error, errorInfo);
+    this.setState({
+      error: error,
+      errorInfo: errorInfo
+    });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // Fallback UI
+      return (
+        &lt;div className="error-boundary"&gt;
+          &lt;h2&gt;Oops! Something went wrong.&lt;/h2&gt;
+          &lt;p&gt;We're sorry for the inconvenience.&lt;/p&gt;
+          &lt;button onClick={() =&gt; this.setState({ hasError: false })}&gt;
+            Try Again
+          &lt;/button&gt;
+          {process.env.NODE_ENV === 'development' &amp;&amp; (
+            &lt;details&gt;
+              &lt;summary&gt;Error Details (Development Only)&lt;/summary&gt;
+              &lt;pre&gt;{this.state.error &amp;&amp; this.state.error.toString()}&lt;/pre&gt;
+              &lt;pre&gt;{this.state.errorInfo.componentStack}&lt;/pre&gt;
+            &lt;/details&gt;
+          )}
+        &lt;/div&gt;
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// Usage
+function App() {
+  return (
+    &lt;ErrorBoundary&gt;
+      &lt;MyComponent /&gt;
+    &lt;/ErrorBoundary&gt;
+  );
+}</div>
+
+                <h3>Error Boundary with Hooks</h3>
+                <div class="code-block">// Custom hook for error handling
+function useErrorHandler() {
+  const [error, setError] = useState(null);
+
+  const resetError = useCallback(() =&gt; {
+    setError(null);
+  }, []);
+
+  const handleError = useCallback((error) =&gt; {
+    console.error('Error handled:', error);
+    setError(error);
+  }, []);
+
+  // Catch errors in async operations
+  useEffect(() =&gt; {
+    const handleUnhandledRejection = (event) =&gt; {
+      handleError(event.reason);
+    };
+
+    const handleErrorEvent = (event) =&gt; {
+      handleError(event.error);
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    window.addEventListener('error', handleErrorEvent);
+
+    return () =&gt; {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener('error', handleErrorEvent);
+    };
+  }, [handleError]);
+
+  return { error, resetError, handleError };
+}
+
+// Error boundary component using hooks
+function ErrorBoundaryWithHooks({ children, fallback }) {
+  const { error, resetError } = useErrorHandler();
+
+  if (error) {
+    return fallback ? (
+      fallback(error, resetError)
+    ) : (
+      &lt;div&gt;
+        &lt;h2&gt;An error occurred&lt;/h2&gt;
+        &lt;button onClick={resetError}&gt;Try Again&lt;/button&gt;
+      &lt;/div&gt;
+    );
+  }
+
+  return children;
+}
+
+// Usage
+function App() {
+  return (
+    &lt;ErrorBoundaryWithHooks
+      fallback={(error, resetError) =&gt; (
+        &lt;div className="custom-error"&gt;
+          &lt;h2&gt;Something went wrong&lt;/h2&gt;
+          &lt;p&gt;{error.message}&lt;/p&gt;
+          &lt;button onClick={resetError}&gt;Retry&lt;/button&gt;
+        &lt;/div&gt;
+      )}
+    &gt;
+      &lt;MyComponent /&gt;
+    &lt;/ErrorBoundaryWithHooks&gt;
+  );
+}</div>
+
+                <h3>Advanced Error Boundary Patterns</h3>
+                <div class="code-block">// Error boundary with retry functionality
+class RetryErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, retryCount: 0 };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    const { retryCount } = this.state;
+    const { maxRetries = 3 } = this.props;
+
+    if (retryCount < maxRetries) {
+      // Retry after a delay
+      setTimeout(() =&gt; {
+        this.setState(prevState =&gt; ({
+          hasError: false,
+          retryCount: prevState.retryCount + 1
+        }));
+      }, 1000 * (retryCount + 1)); // Exponential backoff
+    }
+  }
+
+  render() {
+    const { hasError, retryCount } = this.state;
+    const { maxRetries = 3, children, fallback } = this.props;
+
+    if (hasError) {
+      if (retryCount < maxRetries) {
+        return &lt;div&gt;Retrying... ({retryCount + 1}/{maxRetries})&lt;/div&gt;;
+      }
+
+      return fallback || (
+        &lt;div&gt;
+          &lt;h2&gt;Failed to load after {maxRetries} attempts&lt;/h2&gt;
+          &lt;button onClick={() =&gt; window.location.reload()}&gt;Reload Page&lt;/button&gt;
+        &lt;/div&gt;
+      );
+    }
+
+    return children;
+  }
+}
+
+// Error boundary for specific component types
+function withErrorBoundary(WrappedComponent, errorBoundaryProps = {}) {
+  return function WithErrorBoundaryComponent(props) {
+    return (
+      &lt;ErrorBoundary {...errorBoundaryProps}&gt;
+        &lt;WrappedComponent {...props} /&gt;
+      &lt;/ErrorBoundary&gt;
+    );
+  };
+}
+
+// Usage
+const SafeUserProfile = withErrorBoundary(UserProfile, {
+  fallback: &lt;div&gt;Failed to load user profile&lt;/div&gt;
+});
+
+const SafeDataList = withErrorBoundary(DataList, {
+  onError: (error) =&gt; console.error('DataList error:', error)
+});</div>
+            </div>
+
+            <div class="bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-300 rounded-xl p-8 mb-10">
+                <h3 class="text-blue-800 text-2xl font-bold mb-4">💪 Practice Exercise: Advanced React Application</h3>
+                <p class="text-gray-700 mb-6">Build a comprehensive React application that demonstrates all advanced patterns learned in this chapter.</p>
+
+                <h4 class="text-blue-700 font-semibold mb-3">Requirements:</h4>
+                <ul class="text-gray-700 space-y-2 mb-6">
+                    <li>Create a <strong>dashboard application</strong> with authentication and routing</li>
+                    <li>Implement <strong>performance optimization</strong> with React.memo, useMemo, and useCallback</li>
+                    <li>Use <strong>custom hooks</strong> for data fetching, form handling, and local storage</li>
+                    <li>Build <strong>compound components</strong> for tabs, modals, and forms</li>
+                    <li>Implement <strong>error boundaries</strong> with retry functionality</li>
+                    <li>Create <strong>HOCs</strong> for authentication, theming, and data fetching</li>
+                    <li>Use <strong>render props</strong> for flexible component composition</li>
+                    <li>Implement <strong>code splitting</strong> with lazy loading and Suspense</li>
+                </ul>
+
+                <h4 class="text-blue-700 font-semibold mb-3">Bonus Challenges:</h4>
+                <ul class="text-gray-700 space-y-2">
+                    <li>Add <strong>real-time updates</strong> with WebSocket integration</li>
+                    <li>Implement <strong>offline functionality</strong> with service workers</li>
+                    <li>Create a <strong>plugin system</strong> using render props</li>
+                    <li>Add <strong>A/B testing</strong> capabilities with HOCs</li>
+                    <li>Implement <strong>accessibility</strong> features throughout the application</li>
+                </ul>
+            </div>
+
+            <div class="bg-gradient-to-r from-purple-50 to-purple-100 border-2 border-purple-300 rounded-xl p-8 mb-10">
+                <h3 class="text-purple-800 text-2xl font-bold mb-6">🧠 Knowledge Check</h3>
+                <p class="text-gray-700 mb-6">Test your understanding of advanced React patterns.</p>
+
+                <div class="bg-white rounded-lg p-6 mb-6 shadow-md">
+                    <h4 class="text-gray-800 font-semibold mb-3">Question 1: React.memo</h4>
+                    <p class="text-gray-700 mb-4">When should you use React.memo?</p>
+                    <div class="space-y-2 mb-4">
+                        <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">A) For all components to improve performance</div>
+                        <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">B) Only for components that re-render frequently with same props</div>
+                        <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">C) For functional components only</div>
+                        <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">D) For class components only</div>
+                    </div>
+                    <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-medium transition-colors" onclick="showAnswer(1)">Show Answer</button>
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 mt-4 hidden" id="answer1">
+                        <strong class="text-green-800">Answer: B)</strong> <span class="text-gray-700">React.memo should be used for components that re-render frequently with the same props. It's not needed for all components and can actually hurt performance if overused.</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-6 mb-6 shadow-md">
+                    <h4 class="text-gray-800 font-semibold mb-3">Question 2: Higher-Order Components</h4>
+                    <p class="text-gray-700 mb-4">What is the main purpose of a Higher-Order Component?</p>
+                    <div class="space-y-2 mb-4">
+                        <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">A) To create new HTML elements</div>
+                        <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">B) To reuse component logic across multiple components</div>
+                        <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">C) To replace class components with functional components</div>
+                        <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">D) To optimize component rendering</div>
+                    </div>
+                    <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-medium transition-colors" onclick="showAnswer(2)">Show Answer</button>
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 mt-4 hidden" id="answer2">
+                        <strong class="text-green-800">Answer: B)</strong> <span class="text-gray-700">HOCs are designed to reuse component logic across multiple components. They take a component and return an enhanced version with additional functionality.</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-6 mb-6 shadow-md">
+                    <h4 class="text-gray-800 font-semibold mb-3">Question 3: Render Props</h4>
+                    <p class="text-gray-700 mb-4">What is a render prop?</p>
+                    <div class="space-y-2 mb-4">
+                        <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">A) A CSS property for rendering components</div>
+                        <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">B) A function passed as a prop that returns JSX</div>
+                        <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">C) A method for rendering class components</div>
+                        <div class="bg-gray-50 p-3 rounded cursor-pointer hover:bg-green-50 transition-colors">D) A React hook for rendering</div>
+                    </div>
+                    <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-medium transition-colors" onclick="showAnswer(3)">Show Answer</button>
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 mt-4 hidden" id="answer3">
+                        <strong class="text-green-800">Answer: B)</strong> <span class="text-gray-700">A render prop is a function passed as a prop to a component that returns JSX. It allows for flexible composition and code sharing between components.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-section">
+                <h3>📚 Chapter Summary</h3>
+                <p>You've mastered advanced React patterns and best practices! Here's what we covered:</p>
+
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <h4>⚡ Performance</h4>
+                        <p>React.memo, useMemo, useCallback, code splitting, and lazy loading for optimal performance and bundle size management.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>🔧 Advanced Hooks</h4>
+                        <p>Custom hooks for API calls, local storage, form handling, and complex state management with useReducer patterns.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>🎨 Render Props</h4>
+                        <p>Flexible component composition using functions as props for data fetching, mouse tracking, and toggle functionality.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>🏗️ HOCs</h4>
+                        <p>Higher-order components for authentication, theming, data fetching, and cross-cutting concerns with proper composition patterns.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>🧩 Compound Components</h4>
+                        <p>Cohesive APIs with shared implicit state for tabs, forms, modals, and complex UI components using React Context.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>🛡️ Error Boundaries</h4>
+                        <p>Robust error handling with class-based and hook-based error boundaries, retry functionality, and graceful degradation.</p>
+                    </div>
+                </div>
+
+                <div class="important summary-section-important">
+                    <h4>🚀 Congratulations!</h4>
+                    <p>You've completed the comprehensive React curriculum! You're now equipped with:</p>
+                    <ul>
+                        <li><strong>6 chapters</strong> of in-depth React knowledge</li>
+                        <li><strong>Modern React patterns</strong> and best practices</li>
+                        <li><strong>Performance optimization</strong> techniques</li>
+                        <li><strong>Advanced architectural patterns</strong> for scalable applications</li>
+                    </ul>
+                    <p><strong>Next Steps:</strong> Consider exploring Node.js backend development, database design, or other technologies in our study guide collection.</p>
+                </div>
+            </div>
+
+            <div class="chapter-nav final">
+                <a href="react5.html" class="nav-btn secondary">⬅️ Chapter 5: React Router</a>
+                <a href="study-guide-progress.html" class="nav-btn">📊 Progress Dashboard</a>
+                <a href="nodejs1.html" class="nav-btn">🚀 Node.js Chapter 1 ➡️</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 React Study Guide - Chapter 6: Advanced Patterns & Best Practices | Created with ❤️ for learning</p>
+        </div>
+    </div>
+
+    <script>
+        // Text-to-Speech functionality
+        let ttsEnabled = false;
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+
+        function initTTS() {
+            const ttsToggle = document.getElementById('tts-toggle');
+            const ttsIcon = document.getElementById('tts-icon');
+            const ttsText = document.getElementById('tts-text');
+
+            ttsToggle.addEventListener('click', function() {
+                ttsEnabled = !ttsEnabled;
+
+                if (ttsEnabled) {
+                    ttsIcon.textContent = '🔇';
+                    ttsText.textContent = 'Disable TTS';
+                    ttsToggle.classList.remove('bg-purple-500', 'hover:bg-purple-600');
+                    ttsToggle.classList.add('bg-red-500', 'hover:bg-red-600');
+                    speakText('Text-to-speech enabled. Click on any paragraph to hear it read aloud.');
+                } else {
+                    ttsIcon.textContent = '🔊';
+                    ttsText.textContent = 'Enable TTS';
+                    ttsToggle.classList.remove('bg-red-500', 'hover:bg-red-600');
+                    ttsToggle.classList.add('bg-purple-500', 'hover:bg-purple-600');
+                    stopSpeaking();
+                }
+            });
+        }
+
+        function speakText(text) {
+            if (!ttsEnabled || !speechSynthesis) return;
+
+            // Stop any current speech
+            stopSpeaking();
+
+            // Create new utterance
+            currentUtterance = new SpeechSynthesisUtterance(text);
+
+            // Configure voice settings
+            currentUtterance.rate = 0.9; // Slightly slower for better comprehension
+            currentUtterance.pitch = 1;
+            currentUtterance.volume = 0.8;
+
+            // Set voice (prefer English voices)
+            const voices = speechSynthesis.getVoices();
+            const englishVoice = voices.find(voice =>
+                voice.lang.startsWith('en') && voice.name.includes('Female')
+            ) || voices.find(voice => voice.lang.startsWith('en'));
+
+            if (englishVoice) {
+                currentUtterance.voice = englishVoice;
+            }
+
+            // Speak the text
+            speechSynthesis.speak(currentUtterance);
+        }
+
+        function stopSpeaking() {
+            if (speechSynthesis) {
+                speechSynthesis.cancel();
+            }
+            currentUtterance = null;
+        }
+
+        function addTTSListeners() {
+            // Add click listeners to paragraphs and headings
+            const textElements = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li');
+            textElements.forEach(element => {
+                element.style.cursor = 'pointer';
+                element.addEventListener('click', function() {
+                    if (ttsEnabled) {
+                        speakText(this.textContent);
+                    }
+                });
+                element.addEventListener('mouseenter', function() {
+                    if (ttsEnabled) {
+                        this.style.backgroundColor = 'rgba(147, 51, 234, 0.1)';
+                    }
+                });
+                element.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+            });
+        }
+
+        function showAnswer(questionNumber) {
+            const answer = document.getElementById(`answer${questionNumber}`);
+            if (answer.style.display === 'block') {
+                answer.style.display = 'none';
+            } else {
+                answer.style.display = 'block';
+            }
+        }
+
+        // Chapter tracking functionality
+        function initChapterTracking() {
+            const chapterKey = 'react6-progress';
+            const completedSections = JSON.parse(localStorage.getItem(chapterKey) || '[]');
+
+            // Mark sections as completed when clicked
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                const sectionId = `section-${index}`;
+
+                // Add completion button
+                const completeBtn = document.createElement('button');
+                completeBtn.className = 'bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm float-right transition-colors';
+                completeBtn.textContent = completedSections.includes(sectionId) ? '✅ Completed' : 'Mark Complete';
+                completeBtn.onclick = function() {
+                    if (completedSections.includes(sectionId)) {
+                        // Unmark as complete
+                        const index = completedSections.indexOf(sectionId);
+                        completedSections.splice(index, 1);
+                        this.textContent = 'Mark Complete';
+                        this.className = 'bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm float-right transition-colors';
+                    } else {
+                        // Mark as complete
+                        completedSections.push(sectionId);
+                        this.textContent = '✅ Completed';
+                        this.className = 'bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm float-right transition-colors';
+                    }
+                    localStorage.setItem(chapterKey, JSON.stringify(completedSections));
+                    updateProgress();
+                };
+
+                const header = section.querySelector('h2');
+                if (header) {
+                    header.appendChild(completeBtn);
+                }
+            });
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const chapterKey = 'react6-progress';
+            const completedSections = JSON.parse(localStorage.getItem(chapterKey) || '[]');
+            const totalSections = document.querySelectorAll('.section').length;
+            const progressPercent = totalSections > 0 ? Math.round((completedSections.length / totalSections) * 100) : 0;
+
+            // Update progress display if it exists
+            const progressDisplay = document.getElementById('chapter-progress');
+            if (progressDisplay) {
+                progressDisplay.textContent = `Chapter Progress: ${progressPercent}% (${completedSections.length}/${totalSections} sections)`;
+            }
+
+            // Store overall progress
+            const overallProgress = JSON.parse(localStorage.getItem('study-guide-progress') || '{}');
+            overallProgress.react6 = progressPercent;
+            localStorage.setItem('study-guide-progress', JSON.stringify(overallProgress));
+        }
+
+        // Add some interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize TTS
+            initTTS();
+            addTTSListeners();
+
+            // Initialize chapter tracking
+            initChapterTracking();
+
+            // Add click tracking for navigation
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    console.log(`Navigating to: ${this.textContent}`);
+                });
+            });
+
+            // Add hover effects for code blocks
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                block.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.01)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                block.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

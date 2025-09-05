@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Design - Chapter 1: SQL Fundamentals</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #0056b3;
+        }
+
+        .nav-btn.secondary {
+            background: #6c757d;
+        }
+
+        .nav-btn.secondary:hover {
+            background: #545b62;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4CAF50;
+        }
+
+        .section h3 {
+            color: #34495e;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+
+        .section h4 {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: "SQL";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #6c757d;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .data-table th {
+            background: #4CAF50;
+            color: white;
+            font-weight: 600;
+        }
+
+        .data-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .data-table tr:hover {
+            background: #e3f2fd;
+        }
+
+        .practice-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .practice-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .practice-exercise {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .practice-exercise h4 {
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+
+        .quiz-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .quiz-section h3 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .quiz-question {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .quiz-question h4 {
+            margin-bottom: 10px;
+        }
+
+        .quiz-options {
+            margin: 10px 0;
+        }
+
+        .quiz-option {
+            display: block;
+            margin: 5px 0;
+            padding: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .data-table {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ Database Design</h1>
+            <div class="subtitle">Chapter 1: SQL Fundamentals</div>
+        </div>
+
+        <div class="nav">
+            <div class="nav-links">
+                <a href="study-guide-progress.html" class="nav-btn">📊 Progress Dashboard</a>
+                <a href="nodejs5.html" class="nav-btn">🚀 Node.js API Development</a>
+                <a href="database-design2.html" class="nav-btn secondary">Next: NoSQL Databases →</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>🎯 Chapter Overview</h2>
+                <p>Welcome to the first chapter of Database Design! This comprehensive guide will introduce you to the fundamentals of SQL (Structured Query Language) and relational databases. By the end of this chapter, you'll understand:</p>
+                <ul>
+                    <li>What relational databases are and why they're important</li>
+                    <li>Basic SQL syntax and commands</li>
+                    <li>Database normalization principles</li>
+                    <li>How to design efficient database schemas</li>
+                    <li>Best practices for data integrity and relationships</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>📊 What is a Relational Database?</h2>
+                <p>A <strong>relational database</strong> is a type of database that stores and organizes data in tables with relationships between them. Think of it like a spreadsheet, but much more powerful and efficient.</p>
+
+                <div class="info-box">
+                    <h4>🔑 Key Characteristics:</h4>
+                    <ul>
+                        <li><strong>Tables:</strong> Data is organized in rows and columns</li>
+                        <li><strong>Relationships:</strong> Tables can be linked through common fields</li>
+                        <li><strong>ACID Properties:</strong> Atomicity, Consistency, Isolation, Durability</li>
+                        <li><strong>SQL:</strong> Standard language for querying and managing data</li>
+                    </ul>
+                </div>
+
+                <h3>🏗️ Database Structure</h3>
+                <p>Let's look at a simple example of a university database:</p>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Table Name</th>
+                                <th>Purpose</th>
+                                <th>Example Columns</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>students</code></td>
+                                <td>Store student information</td>
+                                <td>student_id, first_name, last_name, email, enrollment_date</td>
+                            </tr>
+                            <tr>
+                                <td><code>courses</code></td>
+                                <td>Store course information</td>
+                                <td>course_id, course_name, department, credits</td>
+                            </tr>
+                            <tr>
+                                <td><code>enrollments</code></td>
+                                <td>Link students to courses</td>
+                                <td>enrollment_id, student_id, course_id, grade, semester</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔧 SQL Basics</h2>
+                <p>SQL is the standard language for interacting with relational databases. Let's start with the fundamental commands:</p>
+
+                <h3>📝 SELECT Statement</h3>
+                <p>The SELECT statement is used to retrieve data from one or more tables:</p>
+
+                <div class="code-block">
+-- Select all columns from students table
+SELECT * FROM students;
+
+-- Select specific columns
+SELECT first_name, last_name, email FROM students;
+
+-- Select with a condition
+SELECT * FROM students WHERE enrollment_date > '2023-01-01';
+
+-- Select with ordering
+SELECT * FROM students ORDER BY last_name ASC;
+                </div>
+
+                <h3>➕ INSERT Statement</h3>
+                <p>The INSERT statement adds new records to a table:</p>
+
+                <div class="code-block">
+-- Insert a single record
+INSERT INTO students (first_name, last_name, email, enrollment_date)
+VALUES ('John', 'Doe', 'john.doe@university.edu', '2024-09-01');
+
+-- Insert multiple records
+INSERT INTO students (first_name, last_name, email, enrollment_date)
+VALUES
+    ('Jane', 'Smith', 'jane.smith@university.edu', '2024-09-01'),
+    ('Bob', 'Johnson', 'bob.johnson@university.edu', '2024-09-01');
+                </div>
+
+                <h3>🔄 UPDATE Statement</h3>
+                <p>The UPDATE statement modifies existing records:</p>
+
+                <div class="code-block">
+-- Update a single record
+UPDATE students
+SET email = 'john.doe.new@university.edu'
+WHERE student_id = 1;
+
+-- Update multiple records with condition
+UPDATE students
+SET enrollment_date = '2024-09-15'
+WHERE enrollment_date = '2024-09-01';
+                </div>
+
+                <h3>🗑️ DELETE Statement</h3>
+                <p>The DELETE statement removes records from a table:</p>
+
+                <div class="warning-box">
+                    <strong>⚠️ Warning:</strong> DELETE operations are permanent and cannot be undone. Always use WHERE clauses carefully!
+                </div>
+
+                <div class="code-block">
+-- Delete a specific record
+DELETE FROM students WHERE student_id = 1;
+
+-- Delete records with condition
+DELETE FROM students WHERE enrollment_date < '2020-01-01';
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔗 JOIN Operations</h2>
+                <p>JOINs allow you to combine data from multiple tables based on related columns:</p>
+
+                <h3>🔧 INNER JOIN</h3>
+                <p>Returns only records that have matching values in both tables:</p>
+
+                <div class="code-block">
+-- Get student names and their enrolled courses
+SELECT s.first_name, s.last_name, c.course_name, e.grade
+FROM students s
+INNER JOIN enrollments e ON s.student_id = e.student_id
+INNER JOIN courses c ON e.course_id = c.course_id;
+                </div>
+
+                <h3>⬅️ LEFT JOIN</h3>
+                <p>Returns all records from the left table and matching records from the right table:</p>
+
+                <div class="code-block">
+-- Get all students and their enrollments (including students with no enrollments)
+SELECT s.first_name, s.last_name, c.course_name
+FROM students s
+LEFT JOIN enrollments e ON s.student_id = e.student_id
+LEFT JOIN courses c ON e.course_id = c.course_id;
+                </div>
+
+                <h3>📊 Types of JOINs</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>JOIN Type</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>INNER JOIN</code></td>
+                                <td>Only matching records</td>
+                                <td>Get students who are enrolled in courses</td>
+                            </tr>
+                            <tr>
+                                <td><code>LEFT JOIN</code></td>
+                                <td>All from left + matching from right</td>
+                                <td>Get all students, with course info if enrolled</td>
+                            </tr>
+                            <tr>
+                                <td><code>RIGHT JOIN</code></td>
+                                <td>All from right + matching from left</td>
+                                <td>Get all courses, with student info if enrolled</td>
+                            </tr>
+                            <tr>
+                                <td><code>FULL OUTER JOIN</code></td>
+                                <td>All records from both tables</td>
+                                <td>Get all students and all courses</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🎯 Database Normalization</h2>
+                <p>Normalization is the process of organizing data to minimize redundancy and improve data integrity. There are several normal forms:</p>
+
+                <h3>1️⃣ First Normal Form (1NF)</h3>
+                <div class="info-box">
+                    <strong>Requirements:</strong>
+                    <ul>
+                        <li>Each column contains atomic (indivisible) values</li>
+                        <li>No repeating groups or arrays</li>
+                        <li>Each record is uniquely identifiable</li>
+                    </ul>
+                </div>
+
+                <h4>❌ Before 1NF:</h4>
+                <div class="code-block">
+CREATE TABLE students_bad (
+    student_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    courses VARCHAR(500)  -- "Math,Science,History" - violates 1NF
+);
+                </div>
+
+                <h4>✅ After 1NF:</h4>
+                <div class="code-block">
+CREATE TABLE students (
+    student_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100)
+);
+
+CREATE TABLE enrollments (
+    enrollment_id INT PRIMARY KEY,
+    student_id INT,
+    course_id INT,
+    grade CHAR(1),
+    FOREIGN KEY (student_id) REFERENCES students(student_id),
+    FOREIGN KEY (course_id) REFERENCES courses(course_id)
+);
+                </div>
+
+                <h3>2️⃣ Second Normal Form (2NF)</h3>
+                <div class="info-box">
+                    <strong>Requirements:</strong>
+                    <ul>
+                        <li>Must be in 1NF</li>
+                        <li>No partial dependencies (non-key attributes depend on part of the primary key)</li>
+                    </ul>
+                </div>
+
+                <h3>3️⃣ Third Normal Form (3NF)</h3>
+                <div class="info-box">
+                    <strong>Requirements:</strong>
+                    <ul>
+                        <li>Must be in 2NF</li>
+                        <li>No transitive dependencies (non-key attributes don't depend on other non-key attributes)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔑 Primary Keys and Foreign Keys</h2>
+
+                <h3>🗝️ Primary Keys</h3>
+                <p>A primary key uniquely identifies each record in a table:</p>
+
+                <div class="code-block">
+-- Single column primary key
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE,
+    email VARCHAR(100)
+);
+
+-- Composite primary key
+CREATE TABLE order_items (
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    PRIMARY KEY (order_id, product_id)
+);
+                </div>
+
+                <h3>🔗 Foreign Keys</h3>
+                <p>Foreign keys create relationships between tables:</p>
+
+                <div class="code-block">
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    order_date DATE,
+    total_amount DECIMAL(10,2),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100),
+    price DECIMAL(8,2),
+    category_id INT,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+                </div>
+
+                <div class="success-box">
+                    <h4>💡 Best Practices for Keys:</h4>
+                    <ul>
+                        <li>Use surrogate keys (auto-incrementing integers) for primary keys</li>
+                        <li>Name foreign key columns consistently (e.g., table_name_id)</li>
+                        <li>Always define foreign key constraints for data integrity</li>
+                        <li>Consider using UUIDs for distributed systems</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📊 Aggregate Functions and GROUP BY</h2>
+                <p>Aggregate functions perform calculations on groups of rows:</p>
+
+                <div class="code-block">
+-- Count total students
+SELECT COUNT(*) FROM students;
+
+-- Count students by enrollment year
+SELECT YEAR(enrollment_date) as year, COUNT(*) as student_count
+FROM students
+GROUP BY YEAR(enrollment_date);
+
+-- Average grade by course
+SELECT c.course_name, AVG(CASE
+    WHEN e.grade = 'A' THEN 4.0
+    WHEN e.grade = 'B' THEN 3.0
+    WHEN e.grade = 'C' THEN 2.0
+    WHEN e.grade = 'D' THEN 1.0
+    ELSE 0.0
+END) as avg_gpa
+FROM courses c
+LEFT JOIN enrollments e ON c.course_id = e.course_id
+GROUP BY c.course_id, c.course_name;
+                </div>
+
+                <h3>📈 Common Aggregate Functions</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Function</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>COUNT()</code></td>
+                                <td>Count rows</td>
+                                <td><code>COUNT(*) FROM users</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>SUM()</code></td>
+                                <td>Sum numeric values</td>
+                                <td><code>SUM(price) FROM products</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>AVG()</code></td>
+                                <td>Average numeric values</td>
+                                <td><code>AVG(salary) FROM employees</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>MIN()</code></td>
+                                <td>Minimum value</td>
+                                <td><code>MIN(price) FROM products</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>MAX()</code></td>
+                                <td>Maximum value</td>
+                                <td><code>MAX(salary) FROM employees</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="practice-section">
+                <h3>💪 Practice Exercises</h3>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 1: Basic Queries</h4>
+                    <p>Create SQL queries to:</p>
+                    <ol>
+                        <li>Select all students enrolled after January 1, 2024</li>
+                        <li>Count total number of courses in each department</li>
+                        <li>Find students who haven't enrolled in any courses</li>
+                    </ol>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 2: JOIN Operations</h4>
+                    <p>Write queries to:</p>
+                    <ol>
+                        <li>Get student names and course names for all enrollments</li>
+                        <li>Find courses with no enrolled students</li>
+                        <li>Calculate average grade for each course</li>
+                    </ol>
+                </div>
+
+                <div class="practice-exercise">
+                    <h4>Exercise 3: Database Design</h4>
+                    <p>Design tables for a library management system with:</p>
+                    <ul>
+                        <li>Books (title, author, ISBN, publication year)</li>
+                        <li>Members (name, email, membership date)</li>
+                        <li>Borrowing records (book, member, borrow date, return date)</li>
+                    </ul>
+                    <p>Ensure proper normalization and relationships.</p>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <h3>🧠 Knowledge Check</h3>
+
+                <div class="quiz-question">
+                    <h4>Question 1: What does SQL stand for?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">Simple Query Language</div>
+                        <div class="quiz-option">Structured Query Language</div>
+                        <div class="quiz-option">Standard Question Language</div>
+                        <div class="quiz-option">System Query Language</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 2: Which normal form eliminates transitive dependencies?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">First Normal Form (1NF)</div>
+                        <div class="quiz-option">Second Normal Form (2NF)</div>
+                        <div class="quiz-option">Third Normal Form (3NF)</div>
+                        <div class="quiz-option">Boyce-Codd Normal Form (BCNF)</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 3: What type of JOIN returns all records from both tables?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option">INNER JOIN</div>
+                        <div class="quiz-option">LEFT JOIN</div>
+                        <div class="quiz-option">RIGHT JOIN</div>
+                        <div class="quiz-option">FULL OUTER JOIN</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 Best Practices</h2>
+
+                <div class="success-box">
+                    <h4>💡 SQL Development Best Practices:</h4>
+                    <ul>
+                        <li><strong>Use meaningful table and column names</strong> - Avoid abbreviations</li>
+                        <li><strong>Always use WHERE clauses with UPDATE/DELETE</strong> - Prevent accidental data loss</li>
+                        <li><strong>Use parameterized queries</strong> - Prevent SQL injection attacks</li>
+                        <li><strong>Add comments to complex queries</strong> - Improve maintainability</li>
+                        <li><strong>Use transactions for multi-step operations</strong> - Ensure data consistency</li>
+                        <li><strong>Index frequently queried columns</strong> - Improve performance</li>
+                        <li><strong>Normalize but don't over-normalize</strong> - Balance between integrity and performance</li>
+                    </ul>
+                </div>
+
+                <h3>🔒 Security Considerations</h3>
+                <div class="warning-box">
+                    <strong>⚠️ Important Security Practices:</strong>
+                    <ul>
+                        <li>Never concatenate user input directly into SQL queries</li>
+                        <li>Use prepared statements or parameterized queries</li>
+                        <li>Implement proper access controls and permissions</li>
+                        <li>Regularly backup your databases</li>
+                        <li>Monitor and log database access</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📚 Chapter Summary</h2>
+                <p>In this chapter, we've covered the fundamental concepts of SQL and relational databases:</p>
+
+                <ul>
+                    <li><strong>Relational Database Concepts:</strong> Tables, relationships, ACID properties</li>
+                    <li><strong>Basic SQL Commands:</strong> SELECT, INSERT, UPDATE, DELETE</li>
+                    <li><strong>JOIN Operations:</strong> INNER, LEFT, RIGHT, and FULL OUTER JOINs</li>
+                    <li><strong>Database Normalization:</strong> 1NF, 2NF, 3NF principles</li>
+                    <li><strong>Keys and Constraints:</strong> Primary keys, foreign keys, data integrity</li>
+                    <li><strong>Aggregate Functions:</strong> COUNT, SUM, AVG, MIN, MAX with GROUP BY</li>
+                    <li><strong>Best Practices:</strong> Security, performance, maintainability</li>
+                </ul>
+
+                <div class="info-box">
+                    <strong>🎯 Next Steps:</strong> In the next chapter, we'll explore NoSQL databases and compare them with relational databases. You'll learn about document stores, key-value stores, and when to choose each type for your applications.
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Study Guide Collection | <a href="study-guide-progress.html">View Progress Dashboard</a> | <a href="database-design2.html">Next Chapter →</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Quiz functionality
+            const quizOptions = document.querySelectorAll('.quiz-option');
+            const correctAnswers = [
+                'Structured Query Language',
+                'Third Normal Form (3NF)',
+                'FULL OUTER JOIN'
+            ];
+
+            quizOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionIndex = Array.from(this.parentElement.parentElement.parentElement.children).indexOf(this.parentElement.parentElement);
+                    const isCorrect = this.textContent === correctAnswers[questionIndex];
+
+                    // Remove previous styling
+                    this.parentElement.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.style.background = '';
+                        opt.style.color = '';
+                    });
+
+                    if (isCorrect) {
+                        this.style.background = '#4CAF50';
+                        this.style.color = 'white';
+                        alert('✅ Correct!');
+                    } else {
+                        this.style.background = '#f44336';
+                        this.style.color = 'white';
+                        alert('❌ Incorrect. Try again!');
+                    }
+                });
+            });
+
+            // Code block copy functionality
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = '📋 Copy';
+                copyBtn.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 60px;
+                    background: #4CAF50;
+                    color: white;
+                    border: none;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.8em;
+                `;
+
+                copyBtn.addEventListener('click', function() {
+                    const code = block.textContent.replace('SQL', '').trim();
+                    navigator.clipboard.writeText(code).then(() => {
+                        this.textContent = '✅ Copied!';
+                        setTimeout(() => this.textContent = '📋 Copy', 2000);
+                    });
+                });
+
+                block.style.position = 'relative';
+                block.appendChild(copyBtn);
+            });
+        });
+    </script>
+</body>
+</html>

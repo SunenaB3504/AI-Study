@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android 1: Hello, Android</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-green-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <h1 class="text-3xl font-bold">Android Chapter 1</h1>
+                <a href="../index.html" class="bg-white text-green-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                    ← Back to Home
+                </a>
+            </div>
+            <h2 class="text-xl mt-2">Hello, Android</h2>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-wrap justify-between items-center">
+                <div class="flex gap-4">
+                    <button id="tts-toggle" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        🔊 Enable TTS
+                    </button>
+                    <button id="mark-chapter-complete" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        Mark Chapter Complete
+                    </button>
+                </div>
+                <div class="text-sm text-gray-600">
+                    <span id="reading-progress">0%</span> read
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Chapter Overview -->
+        <section id="overview" class="content-section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Chapter Overview</h3>
+            <p class="text-gray-700 mb-4">
+                Welcome to Android development! This chapter introduces you to the Android platform,
+                its background, and why it's an exciting opportunity for mobile application development.
+                You'll learn about Android's open philosophy, its development framework, and the
+                comprehensive SDK that makes Android development accessible to developers worldwide.
+            </p>
+            <div class="bg-green-50 border-l-4 border-green-400 p-4">
+                <p class="text-green-700">
+                    <strong>Learning Objectives:</strong> Understand Android's background, its open platform
+                    philosophy, native capabilities, and why it's an excellent choice for mobile development.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 1: A Little Background -->
+        <section id="background" class="content-section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">1.1 A Little Background</h3>
+
+            <h4 class="text-xl font-semibold text-gray-800 mb-3">The Not So Distant Past</h4>
+            <p class="text-gray-700 mb-4">
+                Historically, mobile phones were closed environments built on proprietary operating systems
+                that restricted third-party applications. This created artificial barriers for developers
+                hoping to build on increasingly powerful mobile hardware.
+            </p>
+
+            <p class="text-gray-700 mb-4">
+                Early mobile development required low-level C or C++ programming with heavy use of
+                proprietary APIs that were difficult to use. This difficulty was amplified when developing
+                applications that needed to work across different hardware implementations.
+            </p>
+
+            <h4 class="text-xl font-semibold text-gray-800 mb-3">The Future</h4>
+            <p class="text-gray-700 mb-4">
+                Android sits alongside a new wave of mobile operating systems designed for increasingly
+                powerful mobile hardware. Unlike many proprietary platforms, Android offers an open
+                development environment built on an open source Linux kernel.
+            </p>
+
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
+                <h5 class="font-semibold text-blue-800 mb-2">What Android Offers</h5>
+                <ul class="text-blue-700 space-y-1">
+                    <li>• Hardware access to camera, GPS, and accelerometer</li>
+                    <li>• Native Google Maps with geocoding and location-based services</li>
+                    <li>• Background services for continuous processing</li>
+                    <li>• SQLite database for data storage and retrieval</li>
+                    <li>• Shared data and interapplication communication</li>
+                    <li>• P2P services with Google Talk</li>
+                    <li>• Extensive media support and 2D/3D graphics</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 2: An Open Platform for Mobile Development -->
+        <section id="open-platform" class="content-section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">1.2 An Open Platform for Mobile Development</h3>
+
+            <p class="text-gray-700 mb-4">
+                Google describes Android as "the first truly open and comprehensive platform for mobile devices."
+                Android is made up of several necessary and dependent parts that work together to create
+                a complete mobile development platform.
+            </p>
+
+            <h4 class="text-xl font-semibold text-gray-800 mb-3">Android Components</h4>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h5 class="font-semibold text-gray-800 mb-2">Hardware Reference Design</h5>
+                    <p class="text-gray-600 text-sm">
+                        Describes the capabilities required of a mobile device to support the Android software stack,
+                        including specifications for processors, memory, storage, and peripherals.
+                    </p>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h5 class="font-semibold text-gray-800 mb-2">Linux Operating System</h5>
+                    <p class="text-gray-600 text-sm">
+                        Core services including hardware drivers, process and memory management, security,
+                        network, and power management, all optimized for mobile devices.
+                    </p>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h5 class="font-semibold text-gray-800 mb-2">Open Source Libraries</h5>
+                    <p class="text-gray-600 text-sm">
+                        C/C++ core libraries including SQLite, WebKit, OpenGL, and SSL for application development.
+                    </p>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h5 class="font-semibold text-gray-800 mb-2">Android Runtime</h5>
+                    <p class="text-gray-600 text-sm">
+                        Core libraries and Dalvik virtual machine that power Android applications.
+                    </p>
+                </div>
+            </div>
+
+            <h4 class="text-xl font-semibold text-gray-800 mb-3">What Makes Android Special</h4>
+            <p class="text-gray-700 mb-4">
+                Unlike other mobile platforms, Android doesn't differentiate between native applications
+                and those developed by third parties. All applications have equal standing and access
+                to the same underlying services and hardware.
+            </p>
+
+            <div class="bg-green-50 border-l-4 border-green-400 p-4">
+                <h5 class="font-semibold text-green-800 mb-2">Key Android Features</h5>
+                <ul class="text-green-700 space-y-1">
+                    <li>• No licensing, distribution, or development fees</li>
+                    <li>• Equal treatment of native and third-party applications</li>
+                    <li>• Complete hardware access for all applications</li>
+                    <li>• Open source framework with Linux kernel</li>
+                    <li>• Comprehensive SDK with full documentation</li>
+                    <li>• Thriving developer community and support</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 3: Native Android Applications -->
+        <section id="native-apps" class="content-section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">1.3 Native Android Applications</h3>
+
+            <p class="text-gray-700 mb-4">
+                Android phones come with a suite of preinstalled applications including email, SMS,
+                calendar, contacts, web browser, and Google Maps. All native applications are written
+                in Java using the Android SDK and run on the Dalvik virtual machine.
+            </p>
+
+            <h4 class="text-xl font-semibold text-gray-800 mb-3">Preinstalled Applications</h4>
+
+            <div class="grid md:grid-cols-2 gap-4 mb-6">
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Communication</h5>
+                    <ul class="text-gray-600 space-y-1 text-sm">
+                        <li>• Gmail-compatible email client</li>
+                        <li>• SMS management application</li>
+                        <li>• Instant messaging client</li>
+                        <li>• Phone dialer and contacts</li>
+                    </ul>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Productivity</h5>
+                    <ul class="text-gray-600 space-y-1 text-sm">
+                        <li>• Full PIM suite (calendar, contacts)</li>
+                        <li>• WebKit-based web browser</li>
+                        <li>• Document viewer and editor</li>
+                        <li>• Note-taking and task management</li>
+                    </ul>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Media & Entertainment</h5>
+                    <ul class="text-gray-600 space-y-1 text-sm">
+                        <li>• Music player and media library</li>
+                        <li>• Picture viewer and gallery</li>
+                        <li>• Video player and recorder</li>
+                        <li>• Camera and photo editor</li>
+                    </ul>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Services & Utilities</h5>
+                    <ul class="text-gray-600 space-y-1 text-sm">
+                        <li>• Google Maps with Street View</li>
+                        <li>• Android Marketplace client</li>
+                        <li>• Amazon MP3 store client</li>
+                        <li>• System settings and utilities</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                <h5 class="font-semibold text-yellow-800 mb-2">Application Equality</h5>
+                <p class="text-yellow-700">
+                    Android doesn't distinguish between native and third-party applications. Your applications
+                    can replace native applications and have access to the same data and hardware resources.
+                    This means you can create a custom home screen, dialer, or any other system component.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 4: Android SDK Features -->
+        <section id="sdk-features" class="content-section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">1.4 Android SDK Features</h3>
+
+            <p class="text-gray-700 mb-4">
+                The Android SDK provides powerful APIs that give developers access to the full range
+                of Android capabilities. Here are some of the most noteworthy features available to developers.
+            </p>
+
+            <h4 class="text-xl font-semibold text-gray-800 mb-3">Core Android APIs</h4>
+
+            <div class="space-y-4">
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Hardware Access</h5>
+                    <p class="text-gray-600 mb-2">
+                        Comprehensive APIs for accessing device hardware including camera, GPS,
+                        accelerometer, compass, and other sensors.
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <strong>Key Features:</strong> Camera control, GPS location, motion sensors,
+                        device orientation, hardware status monitoring
+                    </div>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Location-Based Services</h5>
+                    <p class="text-gray-600 mb-2">
+                        Native support for Google Maps with full programmatic control, geocoding,
+                        and location-based services using GPS and cell tower triangulation.
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <strong>Key Features:</strong> Interactive maps, route planning, location tracking,
+                        proximity alerts, address lookup
+                    </div>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Data Management</h5>
+                    <p class="text-gray-600 mb-2">
+                        SQLite database for structured data storage, content providers for data sharing,
+                        and preferences for simple data persistence.
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <strong>Key Features:</strong> Local database storage, data synchronization,
+                        inter-application data sharing, backup and restore
+                    </div>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Background Processing</h5>
+                    <p class="text-gray-600 mb-2">
+                        Services for background processing, notifications for user alerts, and alarms
+                        for scheduled tasks.
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <strong>Key Features:</strong> Background services, scheduled tasks, user notifications,
+                        system event handling
+                    </div>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Communication</h5>
+                    <p class="text-gray-600 mb-2">
+                        APIs for SMS, instant messaging, email, and peer-to-peer communication
+                        using Google Talk.
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <strong>Key Features:</strong> SMS sending/receiving, instant messaging,
+                        email integration, Bluetooth communication
+                    </div>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Media & Graphics</h5>
+                    <p class="text-gray-600 mb-2">
+                        Comprehensive media support including audio/video playback and recording,
+                        2D/3D graphics with OpenGL ES, and image processing.
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <strong>Key Features:</strong> Audio/video playback, camera integration,
+                        3D graphics, image processing, animation frameworks
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Introducing the Open Handset Alliance -->
+        <section id="oha" class="content-section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">1.5 Introducing the Open Handset Alliance</h3>
+
+            <p class="text-gray-700 mb-4">
+                The Open Handset Alliance (OHA) is a consortium of more than 30 technology companies
+                including major mobile manufacturers, carriers, and software developers. The alliance
+                was formed to accelerate innovation in mobile technology and offer consumers a richer,
+                less expensive, and better mobile experience.
+            </p>
+
+            <h4 class="text-xl font-semibold text-gray-800 mb-3">OHA Members</h4>
+
+            <div class="grid md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h5 class="font-semibold text-blue-800 mb-2">Hardware Manufacturers</h5>
+                    <ul class="text-blue-700 space-y-1 text-sm">
+                        <li>• Motorola</li>
+                        <li>• HTC</li>
+                        <li>• Samsung</li>
+                        <li>• LG</li>
+                        <li>• Sony Ericsson</li>
+                    </ul>
+                </div>
+
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h5 class="font-semibold text-green-800 mb-2">Mobile Carriers</h5>
+                    <ul class="text-green-700 space-y-1 text-sm">
+                        <li>• T-Mobile</li>
+                        <li>• Vodafone</li>
+                        <li>• Telefonica</li>
+                        <li>• China Mobile</li>
+                        <li>• NTT DoCoMo</li>
+                    </ul>
+                </div>
+
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <h5 class="font-semibold text-purple-800 mb-2">Software Companies</h5>
+                    <ul class="text-purple-700 space-y-1 text-sm">
+                        <li>• Google</li>
+                        <li>• Intel</li>
+                        <li>• NVIDIA</li>
+                        <li>• Texas Instruments</li>
+                        <li>• Qualcomm</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-green-50 border-l-4 border-green-400 p-4">
+                <h5 class="font-semibold text-green-800 mb-2">OHA Mission</h5>
+                <p class="text-green-700">
+                    The OHA's goal is to deliver a better mobile software experience for consumers by
+                    providing the platform needed for innovative mobile development at a faster rate and
+                    higher quality without licensing fees for software developers or handset manufacturers.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 6: Why Develop for Android? -->
+        <section id="why-develop" class="content-section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">1.6 Why Develop for Android?</h3>
+
+            <p class="text-gray-700 mb-4">
+                Android represents a unique opportunity for developers. With its open platform, comprehensive
+                SDK, and zero development costs, Android makes mobile development accessible to everyone.
+            </p>
+
+            <h4 class="text-xl font-semibold text-gray-800 mb-3">Developer Advantages</h4>
+
+            <div class="space-y-4">
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+                    <h5 class="font-semibold text-blue-800 mb-2">No Barriers to Entry</h5>
+                    <p class="text-blue-700">
+                        No licensing fees, no development costs, no certification requirements.
+                        Anyone with programming skills can start developing Android applications immediately.
+                    </p>
+                </div>
+
+                <div class="bg-green-50 border-l-4 border-green-400 p-4">
+                    <h5 class="font-semibold text-green-800 mb-2">Equal Opportunity</h5>
+                    <p class="text-green-700">
+                        Third-party applications have the same access to hardware and data as native applications.
+                        Your apps can replace or extend any system component.
+                    </p>
+                </div>
+
+                <div class="bg-purple-50 border-l-4 border-purple-400 p-4">
+                    <h5 class="font-semibold text-purple-800 mb-2">Rich Feature Set</h5>
+                    <p class="text-purple-700">
+                        Access to GPS, camera, accelerometer, maps, background services, databases,
+                        and comprehensive communication APIs.
+                    </p>
+                </div>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                    <h5 class="font-semibold text-yellow-800 mb-2">Growing Market</h5>
+                    <p class="text-yellow-700">
+                        Android's market share is growing rapidly with millions of devices in use worldwide.
+                        The Android Marketplace provides global distribution for your applications.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-red-50 border-l-4 border-red-400 p-4 mt-4">
+                <h5 class="font-semibold text-red-800 mb-2">What Android Has That Others Don't</h5>
+                <ul class="text-red-700 space-y-1">
+                    <li>• <strong>Native Google Maps:</strong> Full programmatic control of Google Maps in your applications</li>
+                    <li>• <strong>Background Services:</strong> True multitasking with services that run invisibly</li>
+                    <li>• <strong>Application Equality:</strong> No distinction between native and third-party apps</li>
+                    <li>• <strong>P2P Messaging:</strong> Built-in peer-to-peer communication using Google Talk</li>
+                    <li>• <strong>Open Philosophy:</strong> Complete access to system internals and hardware</li>
+                    <li>• <strong>Zero Cost:</strong> No development fees, no distribution costs, no licensing requirements</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Chapter Summary -->
+        <section id="summary" class="content-section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Chapter Summary</h3>
+
+            <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
+                <h4 class="font-semibold text-green-800 mb-2">Key Takeaways</h4>
+                <ul class="text-green-700 space-y-1">
+                    <li>• Android is an open source mobile platform created by the Open Handset Alliance</li>
+                    <li>• Android provides equal access to hardware and data for all applications</li>
+                    <li>• The Android SDK offers comprehensive APIs for mobile development</li>
+                    <li>• Android runs on a Linux kernel with the Dalvik virtual machine</li>
+                    <li>• No licensing or development fees are required to develop Android applications</li>
+                    <li>• Android offers unique features like native Google Maps and background services</li>
+                    <li>• The platform is designed to be open, innovative, and developer-friendly</li>
+                </ul>
+            </div>
+
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-blue-800 mb-2">Next Steps</h4>
+                <p class="text-blue-700">
+                    Now that you understand Android's background and capabilities, move on to Android Chapter 2
+                    to learn how to set up your development environment and create your first Android application.
+                </p>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <div class="flex justify-between items-center bg-white rounded-lg shadow-md p-6">
+            <div class="text-gray-500">← Previous Chapter</div>
+            <div class="text-gray-500">Android Chapter 1 of 11</div>
+            <a href="android2.html" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                Next Chapter →
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Full Stack & Android Development Study Guide</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../js/progress-tracker.js"></script>
+    <script src="../js/tts.js"></script>
+    <script src="../js/chapter.js"></script>
+</body>
+</html>

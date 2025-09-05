@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Development Study Guide - Chapter 3: Creating Applications and Activities (Updated 2025)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        }
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="js/tts.js"></script>
+    <script src="js/progress-tracker.js"></script>
+    <script src="js/chapter.js"></script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #3b82f6 0%, #22c55e 100%);
+            width: 0%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <header class="hero-gradient text-white py-12 px-6 text-center mb-12 rounded-3xl shadow-xl">
+            <h1 class="text-3xl md:text-4xl font-light mb-6">Chapter 3: Creating Applications and Activities</h1>
+            <div class="max-w-md mx-auto">
+                <div class="bg-white bg-opacity-20 rounded-full h-3 mb-3">
+                    <div class="progress-fill h-3 rounded-full transition-all duration-300" id="progressFill"></div>
+                </div>
+                <span class="text-white text-sm font-medium" id="progressText">0% Complete</span>
+            </div>
+        </header>
+
+        <main class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <section id="section-1" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h2 class="text-primary-600 text-3xl font-light mb-6">3.1 What Makes an Android Application?</h2>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Android applications consist of loosely coupled components, bound using an application manifest that describes each component and how they interact. This modular architecture allows for flexible, maintainable applications that can share components across different apps.</p>
+
+                    <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Application Components</h3>
+                    <p class="mb-6">Android applications are built from six key component types:</p>
+
+                    <h4 class="text-primary-600 text-xl font-semibold mb-3 mt-6">Activities</h4>
+                    <p class="mb-6">Your application's presentation layer. Every screen in your application will be an extension of the Activity class. Activities use Views to form graphical user interfaces that display information and respond to user actions. In terms of desktop development, an Activity is equivalent to a Form or Window.</p>
+
+                    <h4 class="text-primary-600 text-xl font-semibold mb-3 mt-6">Services</h4>
+                    <p class="mb-6">The invisible workers of your application. Service components run invisibly, updating your data sources and visible Activities and triggering Notifications. They're used to perform regular processing that needs to continue even when your application's Activities aren't active or visible.</p>
+
+                    <h4 class="text-primary-600 text-xl font-semibold mb-3 mt-6">Content Providers</h4>
+                    <p class="mb-6">A shareable data store. Content Providers are used to manage and share application databases. Content Providers are the preferred way of sharing data across application boundaries. This means that you can configure your own Content Providers to permit access from other applications and use Content Providers exposed by others to access their stored data.</p>
+
+                    <h4 class="text-primary-600 text-xl font-semibold mb-3 mt-6">Intents</h4>
+                    <p class="mb-6">A simple message-passing framework. Using Intents, you can broadcast messages system-wide or to a target Activity or Service, stating your intention to have an action performed. The system will then determine the target(s) that will perform any actions as appropriate.</p>
+
+                    <h4 class="text-primary-600 text-xl font-semibold mb-3 mt-6">Broadcast Receivers</h4>
+                    <p class="mb-6">Intent broadcast consumers. By creating and registering a Broadcast Receiver, your application can listen for broadcast Intents that match specific filter criteria. Broadcast Receivers will automatically start your application to respond to an incoming Intent, making them ideal for event-driven applications.</p>
+
+                    <h4 class="text-primary-600 text-xl font-semibold mb-3 mt-6">Notifications</h4>
+                    <p class="mb-6">A user notification framework. Notifications let you signal users without stealing focus or interrupting their current Activities. They're the preferred technique for getting a user's attention from within a Service or Broadcast Receiver.</p>
+
+                    <p>By decoupling the dependencies between application components, you can share and interchange individual pieces, such as Content Providers or Services, with other applications — both your own and those of third parties.</p>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <section id="section-2">
+                <h2>3.2 Introducing the Application Manifest</h2>
+                <div class="section-content">
+                    <p>Each Android project includes a manifest file, AndroidManifest.xml, stored in the root of the project hierarchy. The manifest lets you define the structure and metadata of your application and its components.</p>
+
+                    <p>It includes nodes for each of the components (Activities, Services, Content Providers, and Broadcast Receivers) that make up your application and, using Intent Filters and Permissions, determines how they interact with each other and other applications.</p>
+
+                    <p>It also offers attributes to specify application metadata (like its icon or theme), and additional top-level nodes can be used for security settings and unit tests.</p>
+
+                    <h3>Manifest Structure</h3>
+                    <p>The manifest is made up of a root manifest tag with a package attribute set to the project's package. It usually includes an xmlns:android attribute that supplies several system attributes used within the file.</p>
+
+                    <pre><code>&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.my_domain.my_app"&gt;
+          [ ... manifest nodes ... ]
+&lt;/manifest&gt;</code></pre>
+
+                    <h3>Component Declaration</h3>
+                    <p>The manifest supports the following component tags:</p>
+
+                    <ul>
+                        <li><strong>application</strong> - A manifest can contain only one application node. It uses attributes to specify the metadata for your application (including its title, icon, and theme). It also acts as a container that includes the Activity, Service, Content Provider, and Broadcast Receiver tags.</li>
+                        <li><strong>activity</strong> - An activity tag is required for every Activity displayed by your application, using the android:name attribute to specify the class name.</li>
+                        <li><strong>service</strong> - As with the activity tag, create a new service tag for each Service class used in your application.</li>
+                        <li><strong>provider</strong> - Provider tags are used for each of your application's Content Providers.</li>
+                        <li><strong>receiver</strong> - By adding a receiver tag, you can register a Broadcast Receiver without having to launch your application first.</li>
+                    </ul>
+
+                    <h3>Security and Permissions</h3>
+                    <p>Android includes a comprehensive security model that requires applications to declare the permissions they require. The uses-permission tag declares the permissions your application needs:</p>
+
+                    <pre><code>&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/&gt;</code></pre>
+
+                    <p>Modern Android development emphasizes privacy-first design, with granular permissions and user consent requirements.</p>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section 2 as complete">
+            </section>
+
+            <section id="section-3">
+                <h2>3.3 Android Application Life Cycle</h2>
+                <div class="section-content">
+                    <p>Unlike most traditional environments, Android applications have no control over their own life cycles. Instead, application components must listen for changes in the application state and react accordingly, taking particular care to be prepared for untimely termination.</p>
+
+                    <h3>Process Management</h3>
+                    <p>As mentioned before, by default, each Android application is run in its own process that's running a separate instance of the Android Runtime (ART). Memory and process management of each application is handled exclusively by the run time.</p>
+
+                    <p>While uncommon, it's possible to force application components within the same application to run in different processes or to have multiple applications share the same process using the android:process attribute on the affected component nodes within the manifest.</p>
+
+                    <h3>Application Priority and Process States</h3>
+                    <p>The order in which processes are killed to reclaim resources is determined by the priority of the hosted applications. An application's priority is equal to its highest-priority component.</p>
+
+                    <p>Android defines five process states:</p>
+                    <ol>
+                        <li><strong>Foreground Process</strong> - Active processes hosting applications with components currently interacting with the user</li>
+                        <li><strong>Visible Process</strong> - Processes hosting "visible" Activities that aren't in the foreground but are still visible</li>
+                        <li><strong>Service Process</strong> - Processes hosting Services that have been started</li>
+                        <li><strong>Background Process</strong> - Processes hosting Activities that aren't visible and don't have Services</li>
+                        <li><strong>Empty Process</strong> - Processes that don't host any active application components</li>
+                    </ol>
+
+                    <p>Android aggressively manages its resources, doing whatever it takes to ensure that the device remains responsive. This means that processes (and their hosted applications) will be killed, without warning if necessary, to free resources for higher-priority applications.</p>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section 3 as complete">
+            </section>
+
+            <section id="section-4">
+                <h2>3.4 Externalizing Resources</h2>
+                <div class="section-content">
+                    <p>No matter what your development environment, it's always good practice to keep non-code resources like images and string constants external to your code. Android supports the externalization of resources ranging from simple values such as strings and colors to more complex resources like images (drawables), animations, and themes.</p>
+
+                    <p>By externalizing resources, they become easier to maintain, update, and manage. This also lets you define alternative resource values to support different hardware and internationalization.</p>
+
+                    <h3>Creating Resources</h3>
+                    <p>Application resources are stored under the res/ folder of your project hierarchy. In this folder, each of the available resource types can have a subfolder containing its resources.</p>
+
+                    <h4>Simple Values</h4>
+                    <p>Supported simple values include strings, colors, dimensions, and string or integer arrays. All simple values are stored within XML files in the res/values folder.</p>
+
+                    <pre><code>&lt;resources&gt;
+  &lt;string name="app_name"&gt;My Application&lt;/string&gt;
+  &lt;color name="primary_color"&gt;#FF6200EE&lt;/color&gt;
+  &lt;dimen name="default_padding"&gt;16dp&lt;/dimen&gt;
+&lt;/resources&gt;</code></pre>
+
+                    <h4>Drawables</h4>
+                    <p>Drawable resources include bitmaps and vector graphics. They are stored as individual files in the res/drawable folder. Android supports PNG, JPG, GIF, and vector drawable formats.</p>
+
+                    <h4>Layouts</h4>
+                    <p>Layout resources let you decouple your presentation layer by designing user-interface layouts in XML rather than constructing them in code. Each layout definition is stored in a separate file in the res/layout folder.</p>
+
+                    <h3>Using Resources</h3>
+                    <p>You access resources in code using the static R class. R is a generated class based on your external resources and created by compiling your project.</p>
+
+                    <pre><code>// Access a string resource
+String appName = getString(R.string.app_name);
+
+// Access a color resource
+int primaryColor = getColor(R.color.primary_color);
+
+// Access a drawable resource
+Drawable icon = getDrawable(R.drawable.app_icon);</code></pre>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section 4 as complete">
+            </section>
+
+            <section id="section-5">
+                <h2>3.5 Android Activities</h2>
+                <div class="section-content">
+                    <p>To create user-interface screens for your applications, you extend the Activity class, using Views to provide user interaction. Each Activity represents a screen (similar to the concept of a Form in desktop development) that an application can present to its users.</p>
+
+                    <h3>Creating an Activity</h3>
+                    <p>To create a new Activity, you extend the Activity class, defining the user interface and implementing your functionality:</p>
+
+                    <pre><code>class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+    }
+}</code></pre>
+
+                    <p>The preferred way to design the UI for an Activity is to use a layout resource. The setContentView method accepts either a layout resource ID or a View instance.</p>
+
+                    <h3>Activity Lifecycle</h3>
+                    <p>A good understanding of the Activity life cycle is vital to ensure that your application provides a seamless user experience and properly manages its resources.</p>
+
+                    <p>As activities are created and destroyed, they transition through four possible states:</p>
+                    <ul>
+                        <li><strong>Active/Running</strong> - Activity is visible and has focus</li>
+                        <li><strong>Paused</strong> - Activity is visible but doesn't have focus</li>
+                        <li><strong>Stopped</strong> - Activity is not visible</li>
+                        <li><strong>Destroyed</strong> - Activity has been terminated</li>
+                    </ul>
+
+                    <p>The Activity class provides several callback methods that you can override to handle these state changes:</p>
+                    <ul>
+                        <li><code>onCreate()</code> - Called when the activity is first created</li>
+                        <li><code>onStart()</code> - Called when the activity becomes visible</li>
+                        <li><code>onResume()</code> - Called when the activity gains focus</li>
+                        <li><code>onPause()</code> - Called when the activity loses focus</li>
+                        <li><code>onStop()</code> - Called when the activity is no longer visible</li>
+                        <li><code>onDestroy()</code> - Called before the activity is destroyed</li>
+                    </ul>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section 5 as complete">
+            </section>
+
+            <section id="section-6">
+                <h2>3.6 Modern Android Development Practices</h2>
+                <div class="section-content">
+                    <p>As of 2025, Android development has evolved significantly with new tools, frameworks, and best practices that improve code quality, maintainability, and user experience.</p>
+
+                    <h3>Architecture Components</h3>
+                    <p>Android Architecture Components provide guidance on app architecture, with libraries for common tasks like lifecycle management, data persistence, and UI data binding:</p>
+
+                    <ul>
+                        <li><strong>ViewModel</strong> - Stores UI-related data that survives configuration changes</li>
+                        <li><strong>LiveData</strong> - Observable data holder that respects the lifecycle</li>
+                        <li><strong>Room</strong> - SQLite object mapping library</li>
+                        <li><strong>WorkManager</strong> - For deferrable, guaranteed background work</li>
+                    </ul>
+
+                    <h3>Jetpack Compose</h3>
+                    <p>Jetpack Compose is Android's modern toolkit for building native UI. It simplifies and accelerates UI development with:</p>
+                    <ul>
+                        <li>Declarative UI programming</li>
+                        <li>Less code and powerful tools</li>
+                        <li>Intuitive Kotlin APIs</li>
+                        <li>Accelerated development</li>
+                    </ul>
+
+                    <h3>Material Design 3</h3>
+                    <p>Material Design 3 provides an updated design system with dynamic color, improved accessibility, and modern components that adapt to different screen sizes and input methods.</p>
+
+                    <h3>Kotlin-First Development</h3>
+                    <p>Kotlin is now the preferred language for Android development, offering:</p>
+                    <ul>
+                        <li>Null safety and type safety</li>
+                        <li>Concise, expressive syntax</li>
+                        <li>Full Java interoperability</li>
+                        <li>Modern language features</li>
+                    </ul>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section 6 as complete">
+            </section>
+
+            <section id="section-7">
+                <h2>3.7 Creating Your First Modern Android App</h2>
+                <div class="section-content">
+                    <p>Let's create a simple modern Android application using current best practices. This example will demonstrate:</p>
+                    <ul>
+                        <li>Kotlin programming language</li>
+                        <li>Jetpack Compose for UI</li>
+                        <li>ViewModel for state management</li>
+                        <li>Material Design 3 components</li>
+                    </ul>
+
+                    <h3>Project Setup</h3>
+                    <p>Create a new project in Android Studio:</p>
+                    <ol>
+                        <li>Open Android Studio</li>
+                        <li>Select "New Project"</li>
+                        <li>Choose "Empty Compose Activity"</li>
+                        <li>Set project name and package</li>
+                        <li>Select minimum SDK (API 21 or higher)</li>
+                    </ol>
+
+                    <h3>MainActivity.kt</h3>
+                    <pre><code>class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MyAppTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    Greeting("Android")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    Text(
+        text = "Hello $name!",
+        modifier = modifier
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    MyAppTheme {
+        Greeting("Android")
+    }
+}</code></pre>
+
+                    <h3>Modern App Architecture</h3>
+                    <p>Modern Android apps follow the MVVM (Model-View-ViewModel) pattern:</p>
+                    <ul>
+                        <li><strong>Model</strong> - Data and business logic</li>
+                        <li><strong>View</strong> - UI components (Compose functions)</li>
+                        <li><strong>ViewModel</strong> - UI state and logic</li>
+                    </ul>
+
+                    <p>This separation makes apps more testable, maintainable, and scalable.</p>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section 7 as complete">
+            </section>
+
+            <section id="section-8">
+                <h2>3.8 Summary</h2>
+                <div class="section-content">
+                    <p>In this chapter, you learned how to design robust applications using loosely coupled application components bound together using the application manifest. You were introduced to the Android application life cycle, learning how each application's priority is determined by its process state.</p>
+
+                    <p>You discovered how to externalize resources to create hardware-specific and internationalized versions of your applications. Finally, you were introduced to Activities and their role in the application framework, including how to create new Activities and understand their life cycles.</p>
+
+                    <p>Key takeaways for modern Android development:</p>
+                    <ul>
+                        <li>Use Kotlin as the primary programming language</li>
+                        <li>Follow MVVM architecture with ViewModels and LiveData</li>
+                        <li>Leverage Jetpack Compose for modern UI development</li>
+                        <li>Implement Material Design 3 for consistent user experience</li>
+                        <li>Use Android Architecture Components for robust app structure</li>
+                        <li>Externalize resources for internationalization and device adaptation</li>
+                        <li>Understand and properly handle the Activity lifecycle</li>
+                    </ul>
+
+                    <p>The next chapter focuses on User Interfaces. You'll learn how to use layouts to design your UI before introducing native widgets and showing you how to extend, modify, and group them to create specialized controls.</p>
+                </div>
+                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section 8 as complete">
+            </section>
+        </main>
+    </div>
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\Admin\Sunil\Study\android3.html

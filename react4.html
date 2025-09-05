@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React Chapter 4: Hooks & Lifecycle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#61dafb',
+                        secondary: '#21a3c4',
+                        accent: '#4caf50'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .code-block {
+            position: relative;
+        }
+        .code-block::before {
+            content: "JavaScript/JSX";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #61dafb;
+            color: #2d3748;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .highlight {
+            background: #61dafb;
+            color: #2d3748;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #61dafb 0%, #21a3c4 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .chapter-nav {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .nav-btn {
+            background: #61dafb;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        .nav-btn:hover {
+            background: #21a3c4;
+        }
+        .nav-btn.secondary {
+            background: #28a745;
+        }
+        .nav-btn.secondary:hover {
+            background: #218838;
+        }
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #61dafb;
+        }
+        .section h2 {
+            color: #61dafb;
+            margin-top: 0;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+        .section h3 {
+            color: #333;
+            font-size: 1.4em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            position: relative;
+        }
+        .code-block::before {
+            content: "JavaScript/JSX";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #61dafb;
+            color: #2d3748;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .highlight {
+            background: #61dafb;
+            color: #2d3748;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .important {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .important h4 {
+            color: #856404;
+            margin-top: 0;
+        }
+        .practice-exercise {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #2196f3;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        .practice-exercise h3 {
+            color: #1976d2;
+            margin-top: 0;
+        }
+        .practice-exercise ul {
+            margin: 15px 0;
+        }
+        .practice-exercise li {
+            margin: 8px 0;
+        }
+        .quiz-section {
+            background: linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%);
+            border: 2px solid #9c27b0;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        .quiz-section h3 {
+            color: #7b1fa2;
+            margin-top: 0;
+        }
+        .quiz-question {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .quiz-question h4 {
+            color: #333;
+            margin-top: 0;
+        }
+        .quiz-options {
+            margin: 15px 0;
+        }
+        .quiz-option {
+            display: block;
+            margin: 8px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .quiz-option:hover {
+            background: #e8f5e8;
+        }
+        .quiz-answer {
+            background: #e8f5e8;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+        }
+        .show-answer-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .show-answer-btn:hover {
+            background: #45a049;
+        }
+        .summary-section {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 2px solid #4caf50;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        .summary-section h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .summary-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4caf50;
+        }
+        .summary-item h4 {
+            color: #2e7d32;
+            margin: 0 0 10px 0;
+        }
+        .summary-item p {
+            margin: 0;
+            color: #555;
+        }
+        .footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+        .footer p {
+            margin: 0;
+            opacity: 0.8;
+        }
+    </script>
+</head>
+<body class="font-sans m-0 p-5 bg-gradient-to-br from-blue-400 to-purple-600 min-h-screen text-gray-800">
+    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-primary to-secondary text-white p-8 text-center">
+            <h1 class="text-4xl font-light m-0">⚛️ React Chapter 4</h1>
+            <div class="text-xl opacity-90 mt-2.5">Hooks & Lifecycle - Advanced React Patterns</div>
+            <button id="chapter-complete" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300">✅ Mark Complete</button>
+        </div>
+
+        <div class="p-10">
+            <div class="bg-gray-50 p-5 rounded-lg mb-8 flex justify-between items-center flex-wrap gap-4">
+                <a href="react3.html" class="bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-lg no-underline font-medium transition-colors duration-300">⬅️ Chapter 3: State Management</a>
+                <a href="study-guide-progress.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg no-underline font-medium transition-colors duration-300">📊 Progress Dashboard</a>
+                <a href="react5.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg no-underline font-medium transition-colors duration-300">Chapter 5: React Router ➡️</a>
+            </div>
+
+            <div class="section">
+                <h2>🎯 Chapter Overview</h2>
+                <p>In this chapter, we'll explore advanced React hooks and lifecycle concepts that will take your React development skills to the next level. You'll learn how to optimize performance, manage complex state, and create reusable logic with custom hooks.</p>
+
+                <div class="important">
+                    <h4>📚 What You'll Learn</h4>
+                    <ul>
+                        <li>Advanced hooks: useContext, useReducer, useCallback, useMemo, useRef</li>
+                        <li>Creating and using custom hooks</li>
+                        <li>Lifecycle methods: class vs functional components</li>
+                        <li>Performance optimization techniques</li>
+                        <li>Error boundaries and error handling</li>
+                        <li>Hooks rules and best practices</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔧 Advanced React Hooks</h2>
+                <p>Beyond useState and useEffect, React provides several advanced hooks for complex scenarios.</p>
+
+                <h3>useContext Hook</h3>
+                <p><span class="highlight">useContext</span> allows you to consume context values without nesting Consumer components.</p>
+
+                <div class="code-block">// Create context
+const ThemeContext = React.createContext('light');
+
+// Provider component
+function App() {
+  const [theme, setTheme] = useState('light');
+
+  return (
+    &lt;ThemeContext.Provider value={{ theme, setTheme }}&gt;
+      &lt;Toolbar /&gt;
+    &lt;/ThemeContext.Provider&gt;
+  );
+}
+
+// Consumer using useContext
+function Toolbar() {
+  return (
+    &lt;div&gt;
+      &lt;ThemedButton /&gt;
+    &lt;/div&gt;
+  );
+}
+
+function ThemedButton() {
+  const { theme, setTheme } = useContext(ThemeContext);
+
+  return (
+    &lt;button
+      style={{
+        background: theme === 'dark' ? '#333' : '#fff',
+        color: theme === 'dark' ? '#fff' : '#333'
+      }}
+      onClick={() =&gt; setTheme(theme === 'dark' ? 'light' : 'dark')}
+    &gt;
+      Toggle Theme
+    &lt;/button&gt;
+  );
+}</div>
+
+                <h3>useReducer Hook</h3>
+                <p><span class="highlight">useReducer</span> is an alternative to useState for complex state logic with multiple sub-values.</p>
+
+                <div class="code-block">const initialState = { count: 0 };
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'increment':
+      return { count: state.count + 1 };
+    case 'decrement':
+      return { count: state.count - 1 };
+    case 'reset':
+      return initialState;
+    case 'set':
+      return { count: action.payload };
+    default:
+      return state;
+  }
+}
+
+function Counter() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count: {state.count}&lt;/p&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: 'increment' })}&gt;+&lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: 'decrement' })}&gt;-&lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: 'reset' })}&gt;Reset&lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: 'set', payload: 10 })}&gt;Set to 10&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3>useCallback Hook</h3>
+                <p><span class="highlight">useCallback</span> returns a memoized callback function that only changes when dependencies change.</p>
+
+                <div class="code-block">// Without useCallback - function recreated on every render
+function ParentComponent() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = () =&gt; {
+    console.log('Button clicked');
+  };
+
+  return &lt;ChildComponent onClick={handleClick} /&gt;;
+}
+
+// With useCallback - function only recreated when dependencies change
+function ParentComponent() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = useCallback(() =&gt; {
+    console.log('Button clicked, count:', count);
+  }, [count]); // Only recreate when count changes
+
+  return &lt;ChildComponent onClick={handleClick} /&gt;;
+}
+
+// Child component that might be memoized
+const ChildComponent = React.memo(({ onClick }) =&gt; {
+  console.log('ChildComponent rendered');
+  return &lt;button onClick={onClick}&gt;Click me&lt;/button&gt;;
+});</div>
+
+                <h3>useMemo Hook</h3>
+                <p><span class="highlight">useMemo</span> returns a memoized value that only recalculates when dependencies change.</p>
+
+                <div class="code-block">function ExpensiveCalculation({ numbers }) {
+  // Without useMemo - recalculates on every render
+  const sum = numbers.reduce((acc, num) =&gt; acc + num, 0);
+  const average = sum / numbers.length;
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Sum: {sum}&lt;/p&gt;
+      &lt;p&gt;Average: {average}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+// With useMemo - only recalculates when numbers change
+function ExpensiveCalculation({ numbers }) {
+  const sum = useMemo(() =&gt; {
+    console.log('Calculating sum...');
+    return numbers.reduce((acc, num) =&gt; acc + num, 0);
+  }, [numbers]);
+
+  const average = useMemo(() =&gt; {
+    console.log('Calculating average...');
+    return sum / numbers.length;
+  }, [sum, numbers.length]);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Sum: {sum}&lt;/p&gt;
+      &lt;p&gt;Average: {average}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3>useRef Hook</h3>
+                <p><span class="highlight">useRef</span> creates a mutable ref object that persists across renders and can hold any value.</p>
+
+                <div class="code-block">// Accessing DOM elements
+function TextInput() {
+  const inputRef = useRef(null);
+
+  const focusInput = () =&gt; {
+    inputRef.current.focus();
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;input ref={inputRef} type="text" /&gt;
+      &lt;button onClick={focusInput}&gt;Focus Input&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Storing mutable values
+function Timer() {
+  const intervalRef = useRef(null);
+  const [count, setCount] = useState(0);
+
+  const startTimer = () =&gt; {
+    intervalRef.current = setInterval(() =&gt; {
+      setCount(prevCount =&gt; prevCount + 1);
+    }, 1000);
+  };
+
+  const stopTimer = () =&gt; {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
+      &lt;button onClick={startTimer}&gt;Start&lt;/button&gt;
+      &lt;button onClick={stopTimer}&gt;Stop&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</div>
+            </div>
+
+            <div class="section">
+                <h2>🎣 Custom Hooks</h2>
+                <p>Custom hooks allow you to extract and reuse stateful logic between components.</p>
+
+                <h3>Creating Custom Hooks</h3>
+                <div class="code-block">// Custom hook for localStorage
+function useLocalStorage(key, initialValue) {
+  const [storedValue, setStoredValue] = useState(() =&gt; {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error(error);
+      return initialValue;
+    }
+  });
+
+  const setValue = (value) =&gt; {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return [storedValue, setValue];
+}
+
+// Usage
+function App() {
+  const [name, setName] = useLocalStorage('name', 'John');
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Name: {name}&lt;/p&gt;
+      &lt;input
+        value={name}
+        onChange={e =&gt; setName(e.target.value)}
+      /&gt;
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3>Custom Hook for API Calls</h3>
+                <div class="code-block">function useApi(endpoint) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() =&gt; {
+    if (!endpoint) return;
+
+    setLoading(true);
+    setError(null);
+
+    fetch(endpoint)
+      .then(response =&gt; {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data =&gt; {
+        setData(data);
+        setLoading(false);
+      })
+      .catch(error =&gt; {
+        setError(error.message);
+        setLoading(false);
+      });
+  }, [endpoint]);
+
+  return { data, loading, error };
+}
+
+// Usage
+function UserProfile({ userId }) {
+  const { data: user, loading, error } = useApi(`/api/users/${userId}`);
+
+  if (loading) return &lt;div&gt;Loading...&lt;/div&gt;;
+  if (error) return &lt;div&gt;Error: {error}&lt;/div&gt;;
+  if (!user) return &lt;div&gt;User not found&lt;/div&gt;;
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{user.name}&lt;/h2&gt;
+      &lt;p&gt;Email: {user.email}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3>Custom Hook for Form Handling</h3>
+                <div class="code-block">function useForm(initialValues, validate) {
+  const [values, setValues] = useState(initialValues);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  const handleChange = (e) =&gt; {
+    const { name, value } = e.target;
+    setValues(prevValues =&gt; ({
+      ...prevValues,
+      [name]: value
+    }));
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prevErrors =&gt; ({
+        ...prevErrors,
+        [name]: ''
+      }));
+    }
+  };
+
+  const handleBlur = (e) =&gt; {
+    const { name } = e.target;
+    setTouched(prevTouched =&gt; ({
+      ...prevTouched,
+      [name]: true
+    }));
+
+    // Validate field on blur
+    if (validate) {
+      const validationErrors = validate(values);
+      setErrors(validationErrors);
+    }
+  };
+
+  const handleSubmit = (onSubmit) =&gt; (e) =&gt; {
+    e.preventDefault();
+
+    if (validate) {
+      const validationErrors = validate(values);
+      setErrors(validationErrors);
+
+      if (Object.keys(validationErrors).length === 0) {
+        onSubmit(values);
+      }
+    } else {
+      onSubmit(values);
+    }
+  };
+
+  const reset = () =&gt; {
+    setValues(initialValues);
+    setErrors({});
+    setTouched({});
+  };
+
+  return {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    reset
+  };
+}
+
+// Usage
+function LoginForm() {
+  const validate = (values) =&gt; {
+    const errors = {};
+    if (!values.email) errors.email = 'Email is required';
+    if (!values.password) errors.password = 'Password is required';
+    return errors;
+  };
+
+  const {
+    values,
+    errors,
+    handleChange,
+    handleBlur,
+    handleSubmit
+  } = useForm({ email: '', password: '' }, validate);
+
+  const onSubmit = (formData) =&gt; {
+    console.log('Form submitted:', formData);
+  };
+
+  return (
+    &lt;form onSubmit={handleSubmit(onSubmit)}&gt;
+      &lt;div&gt;
+        &lt;input
+          name="email"
+          value={values.email}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder="Email"
+        /&gt;
+        {errors.email &amp;&amp; &lt;span&gt;{errors.email}&lt;/span&gt;}
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;input
+          name="password"
+          type="password"
+          value={values.password}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder="Password"
+        /&gt;
+        {errors.password &amp;&amp; &lt;span&gt;{errors.password}&lt;/span&gt;}
+      &lt;/div&gt;
+      &lt;button type="submit"&gt;Login&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</div>
+            </div>
+
+            <div class="section">
+                <h2>🔄 Lifecycle Methods Comparison</h2>
+                <p>Understanding the lifecycle methods in both class and functional components.</p>
+
+                <h3>Class Component Lifecycle</h3>
+                <div class="code-block">class LifecycleExample extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { count: 0 };
+    console.log('Constructor: Component is being created');
+  }
+
+  componentDidMount() {
+    console.log('componentDidMount: Component mounted');
+    // Good place for API calls, subscriptions
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    console.log('componentDidUpdate: Component updated');
+    // Good place for side effects based on prop/state changes
+  }
+
+  componentWillUnmount() {
+    console.log('componentWillUnmount: Component will unmount');
+    // Good place for cleanup (timers, subscriptions)
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    // Optimization: prevent unnecessary re-renders
+    return nextState.count !== this.state.count;
+  }
+
+  render() {
+    console.log('render: Component is rendering');
+    return (
+      &lt;div&gt;
+        &lt;p&gt;Count: {this.state.count}&lt;/p&gt;
+        &lt;button onClick={() =&gt; this.setState({ count: this.state.count + 1 })}&gt;
+          Increment
+        &lt;/button&gt;
+      &lt;/div&gt;
+    );
+  }
+}</div>
+
+                <h3>Functional Component Lifecycle with Hooks</h3>
+                <div class="code-block">function LifecycleExample() {
+  const [count, setCount] = useState(0);
+
+  // componentDidMount + componentDidUpdate
+  useEffect(() =&gt; {
+    console.log('Component mounted or updated');
+    return () =&gt; {
+      console.log('Cleanup before next effect or unmount');
+    };
+  });
+
+  // componentDidMount only
+  useEffect(() =&gt; {
+    console.log('Component mounted');
+    return () =&gt; {
+      console.log('Component will unmount');
+    };
+  }, []); // Empty dependency array
+
+  // componentDidUpdate for specific values
+  useEffect(() =&gt; {
+    console.log('Count changed:', count);
+  }, [count]);
+
+  console.log('render: Component is rendering');
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Increment
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</div>
+
+                <h3>Lifecycle Method Mapping</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 my-5">
+                    <div class="bg-blue-50 p-5 rounded-lg">
+                        <h4 class="text-blue-800 m-0">Class Component</h4>
+                        <ul>
+                            <li>constructor</li>
+                            <li>componentDidMount</li>
+                            <li>componentDidUpdate</li>
+                            <li>componentWillUnmount</li>
+                            <li>shouldComponentUpdate</li>
+                            <li>getDerivedStateFromProps</li>
+                        </ul>
+                    </div>
+                    <div class="bg-purple-50 p-5 rounded-lg">
+                        <h4 class="text-purple-800 m-0">Functional Component</h4>
+                        <ul>
+                            <li>useState (initial state)</li>
+                            <li>useEffect ([]) </li>
+                            <li>useEffect ([deps])</li>
+                            <li>useEffect cleanup</li>
+                            <li>React.memo</li>
+                            <li>useMemo/useCallback</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>⚡ Performance Optimization</h2>
+                <p>Techniques to optimize React component performance using hooks.</p>
+
+                <h3>React.memo for Component Memoization</h3>
+                <div class="code-block">// Without memoization - re-renders on every parent render
+function ChildComponent({ name, onClick }) {
+  console.log('ChildComponent rendered');
+  return &lt;button onClick={onClick}&gt;Hello {name}&lt;/button&gt;;
+}
+
+// With memoization - only re-renders when props change
+const ChildComponent = React.memo(function ChildComponent({ name, onClick }) {
+  console.log('ChildComponent rendered');
+  return &lt;button onClick={onClick}&gt;Hello {name}&lt;/button&gt;;
+});
+
+// Custom comparison function
+const ChildComponent = React.memo(
+  function ChildComponent({ name, onClick }) {
+    console.log('ChildComponent rendered');
+    return &lt;button onClick={onClick}&gt;Hello {name}&lt;/button&gt;;
+  },
+  (prevProps, nextProps) =&gt; {
+    // Only re-render if name changed
+    return prevProps.name === nextProps.name;
+  }
+);</div>
+
+                <h3>Optimizing Event Handlers</h3>
+                <div class="code-block">function ParentComponent() {
+  const [count, setCount] = useState(0);
+
+  // ❌ Bad: New function on every render
+  const handleClick = () =&gt; {
+    setCount(count + 1);
+  };
+
+  // ✅ Good: Memoized callback
+  const handleClick = useCallback(() =&gt; {
+    setCount(prevCount =&gt; prevCount + 1);
+  }, []); // No dependencies needed with functional update
+
+  // ✅ Better: Include dependencies if needed
+  const handleClick = useCallback(() =&gt; {
+    console.log('Current count:', count);
+    setCount(prevCount =&gt; prevCount + 1);
+  }, [count]); // Include count if used in callback
+
+  return &lt;ChildComponent onClick={handleClick} /&gt;;
+}</div>
+
+                <h3>Optimizing Expensive Calculations</h3>
+                <div class="code-block">function TodoList({ todos, filter }) {
+  // ❌ Bad: Recalculates on every render
+  const filteredTodos = todos.filter(todo =&gt; {
+    if (filter === 'all') return true;
+    if (filter === 'completed') return todo.completed;
+    if (filter === 'active') return !todo.completed;
+    return true;
+  });
+
+  // ✅ Good: Memoized calculation
+  const filteredTodos = useMemo(() =&gt; {
+    console.log('Filtering todos...');
+    return todos.filter(todo =&gt; {
+      if (filter === 'all') return true;
+      if (filter === 'completed') return todo.completed;
+      if (filter === 'active') return !todo.completed;
+      return true;
+    });
+  }, [todos, filter]);
+
+  return (
+    &lt;ul&gt;
+      {filteredTodos.map(todo =&gt; (
+        &lt;li key={todo.id}&gt;{todo.text}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</div>
+            </div>
+
+            <div class="section">
+                <h2>🚨 Error Boundaries</h2>
+                <p>Error boundaries catch JavaScript errors anywhere in the component tree and display fallback UI.</p>
+
+                <h3>Class Component Error Boundary</h3>
+                <div class="code-block">class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+    // Log error to service
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        &lt;div&gt;
+          &lt;h2&gt;Something went wrong.&lt;/h2&gt;
+          &lt;button onClick={() =&gt; this.setState({ hasError: false, error: null })}&gt;
+            Try again
+          &lt;/button&gt;
+        &lt;/div&gt;
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// Usage
+function App() {
+  return (
+    &lt;ErrorBoundary&gt;
+      &lt;MyComponent /&gt;
+    &lt;/ErrorBoundary&gt;
+  );
+}</div>
+
+                <h3>Functional Component Error Boundary (React 18+)</h3>
+                <div class="code-block">// Custom hook for error boundary
+function useErrorBoundary() {
+  const [error, setError] = useState(null);
+
+  const resetError = useCallback(() =&gt; {
+    setError(null);
+  }, []);
+
+  const captureError = useCallback((error) =&gt; {
+    setError(error);
+  }, []);
+
+  useEffect(() =&gt; {
+    if (error) {
+      // Log error to service
+      console.error('Error caught:', error);
+    }
+  }, [error]);
+
+  return { error, resetError, captureError };
+}
+
+// Error boundary component
+function ErrorBoundary({ children }) {
+  const { error, resetError } = useErrorBoundary();
+
+  if (error) {
+    return (
+      &lt;div&gt;
+        &lt;h2&gt;Something went wrong.&lt;/h2&gt;
+        &lt;p&gt;{error.message}&lt;/p&gt;
+        &lt;button onClick={resetError}&gt;Try again&lt;/button&gt;
+      &lt;/div&gt;
+    );
+  }
+
+  return children;
+}</div>
+            </div>
+
+            <div class="section">
+                <h2>📋 Rules of Hooks</h2>
+                <p>Hooks have strict rules that must be followed to ensure proper functionality.</p>
+
+                <h3>The Rules</h3>
+                <div class="important">
+                    <h4>1. Only Call Hooks at the Top Level</h4>
+                    <p>Don't call hooks inside loops, conditions, or nested functions.</p>
+                </div>
+
+                <div class="code-block">// ✅ Good
+function MyComponent() {
+  const [count, setCount] = useState(0);
+  const [name, setName] = useState('');
+
+  if (count &gt; 5) {
+    // ❌ Bad: Don't call hooks inside conditions
+    // const [bonus, setBonus] = useState(0);
+  }
+
+  for (let i = 0; i &lt; count; i++) {
+    // ❌ Bad: Don't call hooks inside loops
+    // const [item, setItem] = useState(i);
+  }
+
+  return &lt;div&gt;{count}&lt;/div&gt;;
+}</div>
+
+                <div class="important">
+                    <h4>2. Only Call Hooks from React Functions</h4>
+                    <p>Call hooks from React function components or custom hooks.</p>
+                </div>
+
+                <div class="code-block">// ✅ Good: React function component
+function MyComponent() {
+  const [count, setCount] = useState(0);
+  return &lt;div&gt;{count}&lt;/div&gt;;
+}
+
+// ✅ Good: Custom hook
+function useCounter() {
+  const [count, setCount] = useState(0);
+  return { count, setCount };
+}
+
+// ❌ Bad: Regular JavaScript function
+function getCount() {
+  const [count, setCount] = useState(0); // Error!
+  return count;
+}
+
+// ❌ Bad: Class component
+class MyComponent extends React.Component {
+  render() {
+    const [count, setCount] = useState(0); // Error!
+    return &lt;div&gt;{count}&lt;/div&gt;;
+  }
+}</div>
+
+                <h3>ESLint Plugin for Hooks</h3>
+                <div class="code-block">// Install the ESLint plugin
+npm install eslint-plugin-react-hooks --save-dev
+
+// Add to .eslintrc.js
+{
+  "plugins": ["react-hooks"],
+  "rules": {
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
+  }
+}</div>
+            </div>
+
+            <div class="practice-exercise">
+                <h3>💪 Practice Exercise: Advanced React Application</h3>
+                <p>Build a comprehensive React application that demonstrates advanced hooks and patterns.</p>
+
+                <h4>Requirements:</h4>
+                <ul>
+                    <li>Create a <strong>Theme Context</strong> using useContext for dark/light mode</li>
+                    <li>Implement a <strong>Todo App</strong> with useReducer for complex state</li>
+                    <li>Add <strong>localStorage persistence</strong> using a custom hook</li>
+                    <li>Use <strong>useMemo</strong> and <strong>useCallback</strong> for performance optimization</li>
+                    <li>Create an <strong>API hook</strong> for data fetching with loading/error states</li>
+                    <li>Implement <strong>error boundaries</strong> for error handling</li>
+                    <li>Add <strong>React.memo</strong> to prevent unnecessary re-renders</li>
+                </ul>
+
+                <h4>Bonus Challenges:</h4>
+                <ul>
+                    <li>Add <strong>undo/redo functionality</strong> using useReducer</li>
+                    <li>Implement <strong>search and filtering</strong> with debounced input</li>
+                    <li>Create a <strong>custom hook for window size</strong> detection</li>
+                    <li>Add <strong>keyboard shortcuts</strong> using useEffect</li>
+                    <li>Implement <strong>pagination</strong> with custom hooks</li>
+                </ul>
+            </div>
+
+            <div class="quiz-section">
+                <h3>🧠 Knowledge Check</h3>
+                <p>Test your understanding of advanced React hooks and lifecycle concepts.</p>
+
+                <div class="quiz-question">
+                    <h4>Question 1: useMemo vs useCallback</h4>
+                    <p>What's the main difference between useMemo and useCallback?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option">A) useMemo memoizes values, useCallback memoizes functions</div>
+                        <div class="quiz-option">B) useCallback is for components, useMemo is for hooks</div>
+                        <div class="quiz-option">C) useMemo runs on mount, useCallback runs on update</div>
+                        <div class="quiz-option">D) They are exactly the same</div>
+                    </div>
+                    <button class="show-answer-btn" onclick="showAnswer(1)">Show Answer</button>
+                    <div class="quiz-answer" id="answer1">
+                        <strong>Answer: A)</strong> useMemo memoizes values (results of calculations), useCallback memoizes functions. useMemo returns the result of a computation, while useCallback returns the function itself.
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 2: Custom Hooks</h4>
+                    <p>What is the naming convention for custom hooks?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option">A) They must start with 'use'</div>
+                        <div class="quiz-option">B) They must end with 'Hook'</div>
+                        <div class="quiz-option">C) They must be in PascalCase</div>
+                        <div class="quiz-option">D) There is no specific convention</div>
+                    </div>
+                    <button class="show-answer-btn" onclick="showAnswer(2)">Show Answer</button>
+                    <div class="quiz-answer" id="answer2">
+                        <strong>Answer: A)</strong> Custom hooks must start with 'use'. This is a convention that helps ESLint and other tools identify them as hooks and enforce the rules of hooks.
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Question 3: Error Boundaries</h4>
+                    <p>What types of errors do error boundaries catch?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option">A) Only JavaScript errors in the component tree</div>
+                        <div class="quiz-option">B) All errors including network errors</div>
+                        <div class="quiz-option">C) Only errors in event handlers</div>
+                        <div class="quiz-option">D) Only syntax errors</div>
+                    </div>
+                    <button class="show-answer-btn" onclick="showAnswer(3)">Show Answer</button>
+                    <div class="quiz-answer" id="answer3">
+                        <strong>Answer: A)</strong> Error boundaries only catch JavaScript errors in the component tree during rendering, lifecycle methods, and constructors. They don't catch errors in event handlers, async code, or server-side rendering.
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-section">
+                <h3>📚 Chapter Summary</h3>
+                <p>You've mastered advanced React hooks and lifecycle concepts. Here's what we covered:</p>
+
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <h4>🔧 Advanced Hooks</h4>
+                        <p>useContext for context consumption, useReducer for complex state, useCallback and useMemo for performance, useRef for DOM access and mutable values.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>🎣 Custom Hooks</h4>
+                        <p>Creating reusable hooks for localStorage, API calls, form handling, and other common patterns with proper naming conventions.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>🔄 Lifecycle Methods</h4>
+                        <p>Understanding lifecycle in both class and functional components, with useEffect replacing most class lifecycle methods.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>⚡ Performance Optimization</h4>
+                        <p>React.memo for component memoization, useCallback for stable functions, useMemo for expensive calculations.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>🚨 Error Boundaries</h4>
+                        <p>Catching and handling JavaScript errors in the component tree with fallback UI and error logging.</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>📋 Rules of Hooks</h4>
+                        <p>Strict rules for hook usage: top-level only, React functions only, with ESLint enforcement.</p>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-5 my-8">
+                    <h4 class="text-yellow-800 m-0">🚀 Next Steps</h4>
+                    <p>Now that you understand advanced React patterns, you're ready to explore:</p>
+                    <ul>
+                        <li><strong>Chapter 5:</strong> React Router - Client-side routing and navigation</li>
+                        <li><strong>Chapter 6:</strong> Advanced Patterns - Performance optimization and complex patterns</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-5 rounded-lg mt-10 flex justify-between items-center flex-wrap gap-4">
+                <a href="react3.html" class="bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-lg no-underline font-medium transition-colors duration-300">⬅️ Chapter 3: State Management</a>
+                <a href="study-guide-progress.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg no-underline font-medium transition-colors duration-300">📊 Progress Dashboard</a>
+                <a href="react5.html" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-lg no-underline font-medium transition-colors duration-300">Chapter 5: React Router ➡️</a>
+            </div>
+        </div>
+
+        <div class="bg-gray-800 text-white text-center p-5 mt-10">
+            <p class="m-0 opacity-80">© 2025 React Study Guide - Chapter 4: Hooks & Lifecycle | Created with ❤️ for learning</p>
+        </div>
+    </div>
+
+    <script src="study-guide/js/tts.js"></script>
+    <script>
+        // Chapter completion tracking
+        document.getElementById('chapter-complete').addEventListener('click', function() {
+            const button = this;
+            const isCompleted = button.textContent.includes('Mark Complete');
+
+            if (isCompleted) {
+                button.textContent = '✅ Completed';
+                button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                button.classList.add('bg-green-500', 'hover:bg-green-600');
+
+                // Store completion status
+                localStorage.setItem('react4-completed', 'true');
+
+                // Show success message
+                showNotification('Chapter marked as completed!', 'success');
+            } else {
+                button.textContent = '✅ Mark Complete';
+                button.classList.remove('bg-green-500', 'hover:bg-green-600');
+                button.classList.add('bg-blue-500', 'hover:bg-blue-600');
+
+                localStorage.removeItem('react4-completed');
+                showNotification('Chapter unmarked', 'info');
+            }
+        });
+
+        // Load completion status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const isCompleted = localStorage.getItem('react4-completed') === 'true';
+            const button = document.getElementById('chapter-complete');
+
+            if (isCompleted) {
+                button.textContent = '✅ Completed';
+                button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                button.classList.add('bg-green-500', 'hover:bg-green-600');
+            }
+        });
+
+        function showAnswer(questionNumber) {
+            const answer = document.getElementById(`answer${questionNumber}`);
+            if (answer.style.display === 'block') {
+                answer.style.display = 'none';
+            } else {
+                answer.style.display = 'block';
+            }
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-medium z-50 ${
+                type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+            }`;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Add some interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click tracking for navigation
+            const navButtons = document.querySelectorAll('a');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    console.log(`Navigating to: ${this.textContent}`);
+                });
+            });
+
+            // Add hover effects for code blocks
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                block.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.01)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                block.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\Admin\Sunil\Study\react4.html
