@@ -4,105 +4,224 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Full Stack Study Guide - Chapter 1: Understanding the Basics</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#61dafb',
+                        secondary: '#21a3c4',
+                        accent: '#4caf50'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e 0%, #f59e0b 60%, #6b7280 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+    </style>
 </head>
-<body>
-    <header>
-        <h1>Full Stack Web Development Study Guide</h1>
-        <nav aria-label="Chapter navigation">
-            <span>Chapter 1</span>
-            <a href="fullstack2.html">Chapter 2</a>
-            <a href="fullstack3.html">Chapter 3</a>
-            <span class="disabled">Chapters 4-23</span>
-        </nav>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Header with Navigation -->
+    <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                <div class="mb-4 lg:mb-0">
+                    <h1 class="text-3xl font-bold mb-2">📚 Full Stack Web Development Study Guide</h1>
+                    <p class="text-blue-100">Master modern web development from frontend to backend</p>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="flex flex-wrap gap-2" aria-label="Chapter navigation">
+                    <a href="fullstack1.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors">📖 Chapter 1</a>
+                    <a href="fullstack2.html" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm transition-colors">Chapter 2</a>
+                    <a href="fullstack3.html" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm transition-colors">Chapter 3</a>
+                    <span class="bg-gray-600 px-4 py-2 rounded-lg text-sm opacity-60">Chapters 4-23</span>
+                </nav>
+            </div>
+        </div>
     </header>
 
-    <main>
+    <!-- Progress Bar -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600">Chapter Progress:</span>
+                <span id="chapter-progress" class="font-medium text-gray-800">0%</span>
+            </div>
+            <div class="progress-bar mt-2">
+                <div id="progress-fill" class="progress-fill w-0"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TTS Controls -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <button id="play-pause-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                        <span id="play-icon">▶️</span>
+                        <span id="pause-icon" class="hidden">⏸️</span>
+                        Play
+                    </button>
+                    <button id="stop-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">⏹️ Stop</button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <label for="voice-select" class="text-sm font-medium text-gray-700">Voice:</label>
+                    <select id="voice-select" class="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"></select>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <label for="rate-slider" class="text-sm font-medium text-gray-700">Speed:</label>
+                    <input type="range" id="rate-slider" min="0.5" max="2" step="0.1" value="1" class="w-20">
+                    <span id="rate-value" class="text-sm font-medium text-gray-700 w-8">1.0x</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
         <article>
-            <header>
-                <h2>Chapter 1: Understanding the Basics</h2>
-                <p class="chapter-subtitle">Foundations of Modern Web Development</p>
-                <div class="chapter-meta">
-                    <span class="last-updated">Last Updated: September 2025</span>
-                    <span class="book-reference">Based on "Full Stack Web Development: The Comprehensive Guide"</span>
+            <!-- Chapter Header -->
+            <header class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Chapter 1: Understanding the Basics</h2>
+                <p class="text-xl text-gray-600 mb-6">Foundations of Modern Web Development</p>
+                <div class="flex flex-wrap gap-4 text-sm text-gray-500">
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">📅 Last Updated: September 2025</span>
+                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full">📖 Based on "Full Stack Web Development: The Comprehensive Guide"</span>
                 </div>
             </header>
 
-            <section id="introduction">
-                <h3>Introduction</h3>
-                <p>Welcome to the comprehensive guide to full stack web development. This chapter establishes the fundamental concepts and terminology that form the foundation of modern web development in 2025.</p>
+            <!-- Introduction Section -->
+            <section id="introduction" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                    Introduction
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">Welcome to the comprehensive guide to full stack web development. This chapter establishes the fundamental concepts and terminology that form the foundation of modern web development in 2025.</p>
 
-                <div class="learning-objectives">
-                    <h4>Learning Objectives</h4>
-                    <ul>
-                        <li>Understand client-server architecture and web application structure</li>
-                        <li>Master URL structure and DNS resolution</li>
-                        <li>Learn the roles of HTML, CSS, and JavaScript in web development</li>
-                        <li>Explore software stacks and full stack development</li>
-                        <li>Discover essential development tools and environments</li>
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        🎯 Learning Objectives
+                    </h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3">
+                            <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold mt-0.5">•</span>
+                            <span class="text-gray-700">Understand client-server architecture and web application structure</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold mt-0.5">•</span>
+                            <span class="text-gray-700">Master URL structure and DNS resolution</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold mt-0.5">•</span>
+                            <span class="text-gray-700">Learn the roles of HTML, CSS, and JavaScript in web development</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold mt-0.5">•</span>
+                            <span class="text-gray-700">Explore software stacks and full stack development</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold mt-0.5">•</span>
+                            <span class="text-gray-700">Discover essential development tools and environments</span>
+                        </li>
                     </ul>
                 </div>
             </section>
 
-            <section id="terminology">
-                <h3>Essential Terminology</h3>
-                <p>Before diving into full stack development, let's establish a clear understanding of key concepts:</p>
+            <!-- Essential Terminology Section -->
+            <section id="terminology" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-green-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                    Essential Terminology
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">Before diving into full stack development, let's establish a clear understanding of key concepts:</p>
 
-                <div class="key-terms">
-                    <h4>Core Concepts</h4>
-                    <dl>
-                        <dt>Client-Server Architecture</dt>
-                        <dd>The fundamental model where clients (browsers, mobile apps) request resources from servers that provide responses</dd>
-
-                        <dt>Frontend</dt>
-                        <dd>The client-side portion of web applications that users interact with directly</dd>
-
-                        <dt>Backend</dt>
-                        <dd>The server-side portion that handles business logic, data processing, and database operations</dd>
-
-                        <dt>Full Stack</dt>
-                        <dd>Development that encompasses both frontend and backend technologies</dd>
-
-                        <dt>Web Application</dt>
-                        <dd>Interactive websites that function like desktop applications (e.g., Google Docs, social media platforms)</dd>
-                    </dl>
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                        🔑 Core Concepts
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+                            <h5 class="text-blue-600 font-semibold mb-3">Client-Server Architecture</h5>
+                            <p class="text-gray-700">The fundamental model where clients (browsers, mobile apps) request resources from servers that provide responses</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
+                            <h5 class="text-green-600 font-semibold mb-3">Frontend</h5>
+                            <p class="text-gray-700">The client-side portion of web applications that users interact with directly</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
+                            <h5 class="text-purple-600 font-semibold mb-3">Backend</h5>
+                            <p class="text-gray-700">The server-side portion that handles business logic, data processing, and database operations</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
+                            <h5 class="text-red-600 font-semibold mb-3">Full Stack</h5>
+                            <p class="text-gray-700">Development that encompasses both frontend and backend technologies</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-orange-500">
+                            <h5 class="text-orange-600 font-semibold mb-3">Web Application</h5>
+                            <p class="text-gray-700">Interactive websites that function like desktop applications (e.g., Google Docs, social media platforms)</p>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            <section id="client-server">
-                <h3>Client-Server Architecture</h3>
-                <p>The client-server model is the backbone of modern web applications:</p>
+            <!-- Client-Server Architecture Section -->
+            <section id="client-server" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-purple-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                    Client-Server Architecture
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">The client-server model is the backbone of modern web applications:</p>
 
-                <div class="architecture-diagram">
-                    <h4>The Request-Response Cycle</h4>
-                    <div class="process-flow">
-                        <div class="step">
-                            <h5>1. User Action</h5>
-                            <p>User enters URL or interacts with web page</p>
+                <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 mb-8">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                        🔄 The Request-Response Cycle
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+                            <h5 class="text-blue-600 font-semibold mb-3">1. User Action</h5>
+                            <p class="text-gray-700 text-sm">User enters URL or interacts with web page</p>
                         </div>
-                        <div class="step">
-                            <h5>2. HTTP Request</h5>
-                            <p>Browser sends HTTP request to server</p>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
+                            <h5 class="text-green-600 font-semibold mb-3">2. HTTP Request</h5>
+                            <p class="text-gray-700 text-sm">Browser sends HTTP request to server</p>
                         </div>
-                        <div class="step">
-                            <h5>3. Server Processing</h5>
-                            <p>Server processes request and generates response</p>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
+                            <h5 class="text-purple-600 font-semibold mb-3">3. Server Processing</h5>
+                            <p class="text-gray-700 text-sm">Server processes request and generates response</p>
                         </div>
-                        <div class="step">
-                            <h5>4. HTTP Response</h5>
-                            <p>Server sends response back to client</p>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
+                            <h5 class="text-red-600 font-semibold mb-3">4. HTTP Response</h5>
+                            <p class="text-gray-700 text-sm">Server sends response back to client</p>
                         </div>
-                        <div class="step">
-                            <h5>5. Rendering</h5>
-                            <p>Browser renders the response content</p>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-orange-500">
+                            <h5 class="text-orange-600 font-semibold mb-3">5. Rendering</h5>
+                            <p class="text-gray-700 text-sm">Browser renders the response content</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="code-example">
-                    <h4>HTTP Request Structure</h4>
-                    <pre><code>GET /api/users HTTP/1.1
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg font-mono text-sm">
+                    <h4 class="text-white font-semibold mb-4 flex items-center gap-2">
+                        📡 HTTP Request Structure
+                    </h4>
+                    <pre class="overflow-x-auto"><code>GET /api/users HTTP/1.1
 Host: api.example.com
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 Accept: application/json
@@ -110,339 +229,579 @@ Authorization: Bearer your-token-here</code></pre>
                 </div>
             </section>
 
-            <section id="url-structure">
-                <h3>URL Structure and DNS</h3>
-                <p>Understanding URLs is crucial for web development:</p>
+            <!-- URL Structure and DNS Section -->
+            <section id="url-structure" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                    URL Structure and DNS
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">Understanding URLs is crucial for web development:</p>
 
-                <div class="url-components">
-                    <h4>URL Components Breakdown</h4>
-                    <div class="url-diagram">
-                        <code>https://www.example.com:8080/path/to/resource?param=value#section</code>
-                        <ul>
-                            <li><strong>Protocol/Scheme:</strong> https:// (secure HTTP)</li>
-                            <li><strong>Subdomain:</strong> www</li>
-                            <li><strong>Domain:</strong> example.com</li>
-                            <li><strong>Port:</strong> :8080 (optional, defaults to 443 for HTTPS)</li>
-                            <li><strong>Path:</strong> /path/to/resource</li>
-                            <li><strong>Query String:</strong> ?param=value</li>
-                            <li><strong>Fragment:</strong> #section</li>
-                        </ul>
+                <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-xl p-6 mb-8">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                        🔗 URL Components Breakdown
+                    </h4>
+                    <div class="bg-white p-6 rounded-lg shadow-md border-2 border-gray-200">
+                        <code class="text-lg font-mono text-blue-600 bg-gray-50 px-4 py-2 rounded block mb-4">https://www.example.com:8080/path/to/resource?param=value#section</code>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex items-start gap-3">
+                                <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">•</span>
+                                <div>
+                                    <strong class="text-blue-600">Protocol/Scheme:</strong>
+                                    <span class="text-gray-700">https:// (secure HTTP)</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">•</span>
+                                <div>
+                                    <strong class="text-green-600">Subdomain:</strong>
+                                    <span class="text-gray-700">www</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="bg-purple-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">•</span>
+                                <div>
+                                    <strong class="text-purple-600">Domain:</strong>
+                                    <span class="text-gray-700">example.com</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">•</span>
+                                <div>
+                                    <strong class="text-red-600">Port:</strong>
+                                    <span class="text-gray-700">:8080 (optional, defaults to 443 for HTTPS)</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">•</span>
+                                <div>
+                                    <strong class="text-orange-600">Path:</strong>
+                                    <span class="text-gray-700">/path/to/resource</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="bg-teal-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">•</span>
+                                <div>
+                                    <strong class="text-teal-600">Query String:</strong>
+                                    <span class="text-gray-700">?param=value</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="bg-pink-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">•</span>
+                                <div>
+                                    <strong class="text-pink-600">Fragment:</strong>
+                                    <span class="text-gray-700">#section</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="dns-explanation">
-                    <h4>DNS Resolution Process</h4>
-                    <ol>
-                        <li>User enters domain name in browser</li>
-                        <li>Browser queries DNS resolver</li>
-                        <li>DNS resolver checks local cache</li>
-                        <li>If not cached, queries root DNS servers</li>
-                        <li>Follows hierarchy: root → TLD → authoritative servers</li>
-                        <li>Receives IP address</li>
-                        <li>Browser initiates connection to IP address</li>
-                    </ol>
-                </div>
-            </section>
-
-            <section id="web-app-structure">
-                <h3>Web Application Structure</h3>
-                <p>Modern web applications consist of multiple layers working together:</p>
-
-                <div class="web-stack">
-                    <h4>The Three Pillars of Web Development</h4>
-
-                    <div class="pillar">
-                        <h5>HTML - Structure</h5>
-                        <p>Defines the semantic structure and content of web pages</p>
-                        <ul>
-                            <li>Semantic elements (header, nav, main, article, section, aside, footer)</li>
-                            <li>Accessibility features (ARIA attributes, alt text)</li>
-                            <li>Form elements and input types</li>
-                            <li>Multimedia embedding (video, audio, canvas)</li>
-                        </ul>
-                    </div>
-
-                    <div class="pillar">
-                        <h5>CSS - Presentation</h5>
-                        <p>Controls the visual appearance and layout of web pages</p>
-                        <ul>
-                            <li>Modern layout systems (Flexbox, Grid, Container Queries)</li>
-                            <li>Responsive design (media queries, viewport units)</li>
-                            <li>CSS custom properties (variables)</li>
-                            <li>Animations and transitions</li>
-                            <li>Typography and color systems</li>
-                        </ul>
-                    </div>
-
-                    <div class="pillar">
-                        <h5>JavaScript - Behavior</h5>
-                        <p>Adds interactivity and dynamic functionality</p>
-                        <ul>
-                            <li>ES2025+ features and modern syntax</li>
-                            <li>Asynchronous programming (Promises, async/await)</li>
-                            <li>DOM manipulation and event handling</li>
-                            <li>Web APIs (Fetch, WebSockets, Service Workers)</li>
-                            <li>Frameworks and libraries (React, Vue, Angular)</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
-
-            <section id="static-vs-dynamic">
-                <h3>Static vs Dynamic Web Applications</h3>
-
-                <div class="comparison-table">
-                    <h4>Static vs Dynamic Websites</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Aspect</th>
-                                <th>Static Websites</th>
-                                <th>Dynamic Websites</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Content Generation</td>
-                                <td>Pre-built HTML files served directly</td>
-                                <td>Generated on-demand from databases and templates</td>
-                            </tr>
-                            <tr>
-                                <td>User Interaction</td>
-                                <td>Limited to client-side JavaScript</td>
-                                <td>Full server-side processing and personalization</td>
-                            </tr>
-                            <tr>
-                                <td>Performance</td>
-                                <td>Fast loading, cached easily</td>
-                                <td>May require database queries, but highly interactive</td>
-                            </tr>
-                            <tr>
-                                <td>Use Cases</td>
-                                <td>Blogs, documentation, portfolios</td>
-                                <td>E-commerce, social media, web applications</td>
-                            </tr>
-                            <tr>
-                                <td>Technology Stack</td>
-                                <td>HTML, CSS, JavaScript</td>
-                                <td>Full stack: Frontend + Backend + Database</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section id="software-stacks">
-                <h3>Software Stacks</h3>
-                <p>A software stack is a collection of technologies that work together to build applications:</p>
-
-                <div class="popular-stacks">
-                    <h4>Popular Technology Stacks in 2025</h4>
-
-                    <div class="stack">
-                        <h5>MERN Stack</h5>
-                        <ul>
-                            <li><strong>M</strong>ongoDB - NoSQL database</li>
-                            <li><strong>E</strong>xpress.js - Node.js web framework</li>
-                            <li><strong>R</strong>eact - Frontend framework</li>
-                            <li><strong>N</strong>ode.js - JavaScript runtime</li>
-                        </ul>
-                        <p>Best for: Full-stack JavaScript applications, real-time apps</p>
-                    </div>
-
-                    <div class="stack">
-                        <h5>PERN Stack</h5>
-                        <ul>
-                            <li><strong>P</strong>ostgreSQL - Relational database</li>
-                            <li><strong>E</strong>xpress.js - Node.js web framework</li>
-                            <li><strong>R</strong>eact - Frontend framework</li>
-                            <li><strong>N</strong>ode.js - JavaScript runtime</li>
-                        </ul>
-                        <p>Best for: Data-intensive applications, complex queries</p>
-                    </div>
-
-                    <div class="stack">
-                        <h5>Next.js Stack</h5>
-                        <ul>
-                            <li><strong>Next.js</strong> - React framework with SSR</li>
-                            <li><strong>TypeScript</strong> - Typed JavaScript</li>
-                            <li><strong>Tailwind CSS</strong> - Utility-first CSS</li>
-                            <li><strong>Vercel/PlanetScale</strong> - Hosting/Database</li>
-                        </ul>
-                        <p>Best for: SEO-focused applications, rapid prototyping</p>
-                    </div>
-
-                    <div class="stack">
-                        <h5>Python Stack</h5>
-                        <ul>
-                            <li><strong>FastAPI/Django</strong> - Python web frameworks</li>
-                            <li><strong>PostgreSQL/MySQL</strong> - Databases</li>
-                            <li><strong>React/Vue</strong> - Frontend frameworks</li>
-                            <li><strong>Docker</strong> - Containerization</li>
-                        </ul>
-                        <p>Best for: Data science apps, ML/AI integration</p>
+                <div class="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl p-6">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                        🌐 DNS Resolution Process
+                    </h4>
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3">
+                            <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                            <span class="text-gray-700">User enters domain name in browser</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                            <span class="text-gray-700">Browser queries DNS resolver</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="bg-purple-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                            <span class="text-gray-700">DNS resolver checks local cache</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">4</span>
+                            <span class="text-gray-700">If not cached, queries root DNS servers</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">5</span>
+                            <span class="text-gray-700">Follows hierarchy: root → TLD → authoritative servers</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="bg-teal-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">6</span>
+                            <span class="text-gray-700">Receives IP address</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="bg-pink-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">7</span>
+                            <span class="text-gray-700">Browser initiates connection to IP address</span>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section id="full-stack-developer">
-                <h3>What is a Full Stack Developer?</h3>
-                <p>A full stack developer possesses expertise across the entire technology stack:</p>
+            <!-- Web Application Structure Section -->
+            <section id="web-app-structure" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-orange-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">5</span>
+                    Web Application Structure
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">Modern web applications consist of multiple layers working together:</p>
 
-                <div class="skill-matrix">
-                    <h4>Full Stack Skill Categories</h4>
+                <div class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl p-6 mb-8">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                        🏗️ The Three Pillars of Web Development
+                    </h4>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+                            <h5 class="text-blue-600 font-semibold mb-4 flex items-center gap-2">
+                                <span class="text-2xl">🏗️</span> HTML - Structure
+                            </h5>
+                            <p class="text-gray-700 mb-4">Defines the semantic structure and content of web pages</p>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• Semantic elements (header, nav, main, article, section, aside, footer)</li>
+                                <li>• Accessibility features (ARIA attributes, alt text)</li>
+                                <li>• Form elements and input types</li>
+                                <li>• Multimedia embedding (video, audio, canvas)</li>
+                            </ul>
+                        </div>
 
-                    <div class="skill-category">
-                        <h5>Frontend Development</h5>
-                        <ul>
-                            <li>HTML5 semantic markup</li>
-                            <li>CSS3 and modern layout systems</li>
-                            <li>JavaScript (ES6+)</li>
-                            <li>Frontend frameworks (React, Vue, Angular)</li>
-                            <li>State management</li>
-                            <li>Responsive design</li>
-                            <li>Web performance optimization</li>
-                        </ul>
-                    </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
+                            <h5 class="text-green-600 font-semibold mb-4 flex items-center gap-2">
+                                <span class="text-2xl">🎨</span> CSS - Presentation
+                            </h5>
+                            <p class="text-gray-700 mb-4">Controls the visual appearance and layout of web pages</p>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• Modern layout systems (Flexbox, Grid, Container Queries)</li>
+                                <li>• Responsive design (media queries, viewport units)</li>
+                                <li>• CSS custom properties (variables)</li>
+                                <li>• Animations and transitions</li>
+                                <li>• Typography and color systems</li>
+                            </ul>
+                        </div>
 
-                    <div class="skill-category">
-                        <h5>Backend Development</h5>
-                        <ul>
-                            <li>Server-side programming (Node.js, Python, PHP, Java)</li>
-                            <li>API design and development (REST, GraphQL)</li>
-                            <li>Database design and management</li>
-                            <li>Authentication and authorization</li>
-                            <li>Server deployment and scaling</li>
-                            <li>Microservices architecture</li>
-                        </ul>
-                    </div>
-
-                    <div class="skill-category">
-                        <h5>DevOps & Tools</h5>
-                        <ul>
-                            <li>Version control (Git)</li>
-                            <li>Containerization (Docker)</li>
-                            <li>CI/CD pipelines</li>
-                            <li>Cloud platforms (AWS, GCP, Azure)</li>
-                            <li>Monitoring and logging</li>
-                            <li>Security best practices</li>
-                        </ul>
-                    </div>
-
-                    <div class="skill-category">
-                        <h5>Soft Skills</h5>
-                        <ul>
-                            <li>Problem-solving</li>
-                            <li>System design</li>
-                            <li>Project management</li>
-                            <li>Communication</li>
-                            <li>Continuous learning</li>
-                            <li>Team collaboration</li>
-                        </ul>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
+                            <h5 class="text-purple-600 font-semibold mb-4 flex items-center gap-2">
+                                <span class="text-2xl">⚡</span> JavaScript - Behavior
+                            </h5>
+                            <p class="text-gray-700 mb-4">Adds interactivity and dynamic functionality</p>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• ES2025+ features and modern syntax</li>
+                                <li>• Asynchronous programming (Promises, async/await)</li>
+                                <li>• DOM manipulation and event handling</li>
+                                <li>• Web APIs (Fetch, WebSockets, Service Workers)</li>
+                                <li>• Frameworks and libraries (React, Vue, Angular)</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section id="development-tools">
-                <h3>Essential Development Tools</h3>
-                <p>The right tools can significantly improve your development workflow:</p>
+            <!-- Static vs Dynamic Section -->
+            <section id="static-vs-dynamic" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-teal-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">6</span>
+                    Static vs Dynamic Web Applications
+                </h3>
 
-                <div class="tool-categories">
-                    <h4>Code Editors & IDEs</h4>
-                    <ul>
-                        <li><strong>Visual Studio Code</strong> - Lightweight, extensible editor with excellent JavaScript support</li>
-                        <li><strong>WebStorm</strong> - Full-featured IDE for web development</li>
-                        <li><strong>Sublime Text</strong> - Fast, customizable text editor</li>
-                        <li><strong>Vim/Neovim</strong> - Powerful terminal-based editors</li>
+                <div class="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl p-6 mb-8">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                        📊 Static vs Dynamic Websites Comparison
+                    </h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse bg-white rounded-lg shadow-md">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Aspect</th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Static Websites</th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Dynamic Websites</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">Content Generation</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-gray-700">Pre-built HTML files served directly</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-gray-700">Generated on-demand from databases and templates</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">User Interaction</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-gray-700">Limited to client-side JavaScript</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-gray-700">Full server-side processing and personalization</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">Performance</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-gray-700">Fast loading, cached easily</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-gray-700">May require database queries, but highly interactive</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">Use Cases</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-gray-700">Blogs, documentation, portfolios</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-gray-700">E-commerce, social media, web applications</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">Technology Stack</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-gray-700">HTML, CSS, JavaScript</td>
+                                    <td class="border border-gray-300 px-4 py-3 text-gray-700">Full stack: Frontend + Backend + Database</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Software Stacks Section -->
+            <section id="software-stacks" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-pink-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">7</span>
+                    Software Stacks
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">A software stack is a collection of technologies that work together to build applications:</p>
+
+                <div class="bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl p-6 mb-8">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                        🏗️ Popular Technology Stacks in 2025
+                    </h4>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
+                            <h5 class="text-green-600 font-semibold mb-4 flex items-center gap-2">
+                                <span class="text-2xl">🌿</span> MERN Stack
+                            </h5>
+                            <ul class="space-y-2 text-sm text-gray-700 mb-4">
+                                <li><strong>M</strong>ongoDB - NoSQL database</li>
+                                <li><strong>E</strong>xpress.js - Node.js web framework</li>
+                                <li><strong>R</strong>eact - Frontend framework</li>
+                                <li><strong>N</strong>ode.js - JavaScript runtime</li>
+                            </ul>
+                            <p class="text-green-600 font-medium">Best for: Full-stack JavaScript applications, real-time apps</p>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+                            <h5 class="text-blue-600 font-semibold mb-4 flex items-center gap-2">
+                                <span class="text-2xl">🐘</span> PERN Stack
+                            </h5>
+                            <ul class="space-y-2 text-sm text-gray-700 mb-4">
+                                <li><strong>P</strong>ostgreSQL - Relational database</li>
+                                <li><strong>E</strong>xpress.js - Node.js web framework</li>
+                                <li><strong>R</strong>eact - Frontend framework</li>
+                                <li><strong>N</strong>ode.js - JavaScript runtime</li>
+                            </ul>
+                            <p class="text-blue-600 font-medium">Best for: Data-intensive applications, complex queries</p>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
+                            <h5 class="text-purple-600 font-semibold mb-4 flex items-center gap-2">
+                                <span class="text-2xl">⚡</span> Next.js Stack
+                            </h5>
+                            <ul class="space-y-2 text-sm text-gray-700 mb-4">
+                                <li><strong>Next.js</strong> - React framework with SSR</li>
+                                <li><strong>TypeScript</strong> - Typed JavaScript</li>
+                                <li><strong>Tailwind CSS</strong> - Utility-first CSS</li>
+                                <li><strong>Vercel/PlanetScale</strong> - Hosting/Database</li>
+                            </ul>
+                            <p class="text-purple-600 font-medium">Best for: SEO-focused applications, rapid prototyping</p>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-orange-500">
+                            <h5 class="text-orange-600 font-semibold mb-4 flex items-center gap-2">
+                                <span class="text-2xl">🐍</span> Python Stack
+                            </h5>
+                            <ul class="space-y-2 text-sm text-gray-700 mb-4">
+                                <li><strong>FastAPI/Django</strong> - Python web frameworks</li>
+                                <li><strong>PostgreSQL/MySQL</strong> - Databases</li>
+                                <li><strong>React/Vue</strong> - Frontend frameworks</li>
+                                <li><strong>Docker</strong> - Containerization</li>
+                            </ul>
+                            <p class="text-orange-600 font-medium">Best for: Data science apps, ML/AI integration</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Full Stack Developer Section -->
+            <section id="full-stack-developer" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">8</span>
+                    What is a Full Stack Developer?
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">A full stack developer possesses expertise across the entire technology stack:</p>
+
+                <div class="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-6 mb-8">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                        🎯 Full Stack Skill Categories
+                    </h4>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+                            <h5 class="text-blue-600 font-semibold mb-4 flex items-center gap-2">
+                                <span class="text-2xl">🎨</span> Frontend Development
+                            </h5>
+                            <ul class="space-y-2 text-sm text-gray-700">
+                                <li>• HTML5 semantic markup</li>
+                                <li>• CSS3 and modern layout systems</li>
+                                <li>• JavaScript (ES6+)</li>
+                                <li>• Frontend frameworks (React, Vue, Angular)</li>
+                                <li>• State management</li>
+                                <li>• Responsive design</li>
+                                <li>• Web performance optimization</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
+                            <h5 class="text-green-600 font-semibold mb-4 flex items-center gap-2">
+                                <span class="text-2xl">⚙️</span> Backend Development
+                            </h5>
+                            <ul class="space-y-2 text-sm text-gray-700">
+                                <li>• Server-side programming (Node.js, Python, PHP, Java)</li>
+                                <li>• API design and development (REST, GraphQL)</li>
+                                <li>• Database design and management</li>
+                                <li>• Authentication and authorization</li>
+                                <li>• Server deployment and scaling</li>
+                                <li>• Microservices architecture</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
+                            <h5 class="text-purple-600 font-semibold mb-4 flex items-center gap-2">
+                                <span class="text-2xl">🚀</span> DevOps & Tools
+                            </h5>
+                            <ul class="space-y-2 text-sm text-gray-700">
+                                <li>• Version control (Git)</li>
+                                <li>• Containerization (Docker)</li>
+                                <li>• CI/CD pipelines</li>
+                                <li>• Cloud platforms (AWS, GCP, Azure)</li>
+                                <li>• Monitoring and logging</li>
+                                <li>• Security best practices</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-orange-500">
+                            <h5 class="text-orange-600 font-semibold mb-4 flex items-center gap-2">
+                                <span class="text-2xl">🤝</span> Soft Skills
+                            </h5>
+                            <ul class="space-y-2 text-sm text-gray-700">
+                                <li>• Problem-solving</li>
+                                <li>• System design</li>
+                                <li>• Project management</li>
+                                <li>• Communication</li>
+                                <li>• Continuous learning</li>
+                                <li>• Team collaboration</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Development Tools Section -->
+            <section id="development-tools" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-cyan-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">9</span>
+                    Essential Development Tools
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">The right tools can significantly improve your development workflow:</p>
+
+                <div class="bg-gradient-to-r from-cyan-50 to-teal-50 rounded-xl p-6 mb-8">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                        🛠️ Code Editors & IDEs
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
+                            <h5 class="text-blue-600 font-semibold mb-2">Visual Studio Code</h5>
+                            <p class="text-gray-700 text-sm">Lightweight, extensible editor with excellent JavaScript support</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
+                            <h5 class="text-purple-600 font-semibold mb-2">WebStorm</h5>
+                            <p class="text-gray-700 text-sm">Full-featured IDE for web development</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-500">
+                            <h5 class="text-orange-600 font-semibold mb-2">Sublime Text</h5>
+                            <p class="text-gray-700 text-sm">Fast, customizable text editor</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
+                            <h5 class="text-green-600 font-semibold mb-2">Vim/Neovim</h5>
+                            <p class="text-gray-700 text-sm">Powerful terminal-based editors</p>
+                        </div>
+                    </div>
+
+                    <h4 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                        🔄 Version Control
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-red-500">
+                            <h5 class="text-red-600 font-semibold mb-2">Git</h5>
+                            <p class="text-gray-700 text-sm">Distributed version control system</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
+                            <h5 class="text-blue-600 font-semibold mb-2">GitHub/GitLab</h5>
+                            <p class="text-gray-700 text-sm">Code hosting and collaboration platforms</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
+                            <h5 class="text-purple-600 font-semibold mb-2">GitKraken</h5>
+                            <p class="text-gray-700 text-sm">Visual Git client</p>
+                        </div>
+                    </div>
+
+                    <h4 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                        🌐 Development Environments
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
+                            <h5 class="text-green-600 font-semibold mb-2">Node.js</h5>
+                            <p class="text-gray-700 text-sm">JavaScript runtime for server-side development</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
+                            <h5 class="text-blue-600 font-semibold mb-2">Docker</h5>
+                            <p class="text-gray-700 text-sm">Containerization platform</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-500">
+                            <h5 class="text-orange-600 font-semibold mb-2">Local Dev Servers</h5>
+                            <p class="text-gray-700 text-sm">Live reload and hot module replacement</p>
+                        </div>
+                    </div>
+
+                    <h4 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                        🌐 Browsers & Debugging
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
+                            <h5 class="text-blue-600 font-semibold mb-2">Chrome DevTools</h5>
+                            <p class="text-gray-700 text-sm">Comprehensive debugging and development tools</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-500">
+                            <h5 class="text-orange-600 font-semibold mb-2">Firefox Developer Edition</h5>
+                            <p class="text-gray-700 text-sm">Specialized for web developers</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
+                            <h5 class="text-purple-600 font-semibold mb-2">BrowserStack</h5>
+                            <p class="text-gray-700 text-sm">Cross-browser testing platform</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Modern Workflow Section -->
+            <section id="modern-workflow" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-emerald-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">10</span>
+                    Modern Development Workflow
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">A typical full stack development workflow in 2025:</p>
+
+                <div class="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <span class="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
+                            <div>
+                                <h5 class="text-blue-600 font-semibold mb-2">Planning & Design</h5>
+                                <p class="text-gray-700">Define requirements, create wireframes, design system architecture</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <span class="bg-green-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
+                            <div>
+                                <h5 class="text-green-600 font-semibold mb-2">Setup Development Environment</h5>
+                                <p class="text-gray-700">Initialize project, configure tools, set up version control</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <span class="bg-purple-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">3</span>
+                            <div>
+                                <h5 class="text-purple-600 font-semibold mb-2">Frontend Development</h5>
+                                <p class="text-gray-700">Build user interfaces with modern frameworks and responsive design</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <span class="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">4</span>
+                            <div>
+                                <h5 class="text-red-600 font-semibold mb-2">Backend Development</h5>
+                                <p class="text-gray-700">Implement APIs, business logic, and database operations</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <span class="bg-orange-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">5</span>
+                            <div>
+                                <h5 class="text-orange-600 font-semibold mb-2">Testing</h5>
+                                <p class="text-gray-700">Write unit tests, integration tests, and end-to-end tests</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <span class="bg-teal-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">6</span>
+                            <div>
+                                <h5 class="text-teal-600 font-semibold mb-2">Deployment</h5>
+                                <p class="text-gray-700">Containerize application, set up CI/CD, deploy to production</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <span class="bg-pink-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">7</span>
+                            <div>
+                                <h5 class="text-pink-600 font-semibold mb-2">Monitoring & Maintenance</h5>
+                                <p class="text-gray-700">Monitor performance, fix bugs, plan feature updates</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary Section -->
+            <section id="summary" class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">11</span>
+                    Summary
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">This chapter provided a comprehensive foundation for understanding modern web development:</p>
+
+                <div class="bg-white rounded-lg p-6 shadow-md mb-6">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-4">Key Takeaways</h4>
+                    <ul class="space-y-3 text-gray-700">
+                        <li class="flex items-start gap-3">
+                            <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">•</span>
+                            <span>Client-server architecture forms the basis of all web applications</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">•</span>
+                            <span>URLs consist of multiple components that work together to locate resources</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-purple-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">•</span>
+                            <span>DNS translates human-readable domain names to IP addresses</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">•</span>
+                            <span>HTML provides structure, CSS handles presentation, JavaScript manages behavior</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">•</span>
+                            <span>Static websites serve pre-built content, dynamic websites generate content on-demand</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-teal-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">•</span>
+                            <span>Software stacks combine technologies to build complete applications</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-pink-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">•</span>
+                            <span>Full stack developers work across the entire technology stack</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-indigo-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">•</span>
+                            <span>Modern development requires proficiency in multiple tools and frameworks</span>
+                        </li>
                     </ul>
-
-                    <h4>Version Control</h4>
-                    <ul>
-                        <li><strong>Git</strong> - Distributed version control system</li>
-                        <li><strong>GitHub/GitLab</strong> - Code hosting and collaboration platforms</li>
-                        <li><strong>GitKraken</strong> - Visual Git client</li>
-                    </ul>
-
-                    <h4>Development Environments</h4>
-                    <ul>
-                        <li><strong>Node.js</strong> - JavaScript runtime for server-side development</li>
-                        <li><strong>Docker</strong> - Containerization platform</li>
-                        <li><strong>Local development servers</strong> - Live reload and hot module replacement</li>
-                    </ul>
-
-                    <h4>Browsers & Debugging</h4>
-                    <ul>
-                        <li><strong>Chrome DevTools</strong> - Comprehensive debugging and development tools</li>
-                        <li><strong>Firefox Developer Edition</strong> - Specialized for web developers</li>
-                        <li><strong>BrowserStack</strong> - Cross-browser testing platform</li>
-                    </ul>
-                </div>
-            </section>
-
-            <section id="modern-workflow">
-                <h3>Modern Development Workflow</h3>
-                <p>A typical full stack development workflow in 2025:</p>
-
-                <div class="workflow-steps">
-                    <ol>
-                        <li>
-                            <h5>Planning & Design</h5>
-                            <p>Define requirements, create wireframes, design system architecture</p>
-                        </li>
-                        <li>
-                            <h5>Setup Development Environment</h5>
-                            <p>Initialize project, configure tools, set up version control</p>
-                        </li>
-                        <li>
-                            <h5>Frontend Development</h5>
-                            <p>Build user interfaces with modern frameworks and responsive design</p>
-                        </li>
-                        <li>
-                            <h5>Backend Development</h5>
-                            <p>Implement APIs, business logic, and database operations</p>
-                        </li>
-                        <li>
-                            <h5>Testing</h5>
-                            <p>Write unit tests, integration tests, and end-to-end tests</p>
-                        </li>
-                        <li>
-                            <h5>Deployment</h5>
-                            <p>Containerize application, set up CI/CD, deploy to production</p>
-                        </li>
-                        <li>
-                            <h5>Monitoring & Maintenance</h5>
-                            <p>Monitor performance, fix bugs, plan feature updates</p>
-                        </li>
-                    </ol>
-                </div>
-            </section>
-
-            <section id="summary">
-                <h3>Summary</h3>
-                <p>This chapter provided a comprehensive foundation for understanding modern web development:</p>
-
-                <div class="key-takeaways">
-                    <h4>Key Takeaways</h4>
-                    <ul>
-                        <li>Client-server architecture forms the basis of all web applications</li>
-                        <li>URLs consist of multiple components that work together to locate resources</li>
-                        <li>DNS translates human-readable domain names to IP addresses</li>
-                        <li>HTML provides structure, CSS handles presentation, JavaScript manages behavior</li>
-                        <li>Static websites serve pre-built content, dynamic websites generate content on-demand</li>
-                        <li>Software stacks combine technologies to build complete applications</li>
-                        <li>Full stack developers work across the entire technology stack</li>
-                        <li>Modern development requires proficiency in multiple tools and frameworks</li>
-                    </ul>
                 </div>
 
-                <div class="next-steps">
-                    <h4>Next Steps</h4>
-                    <p>With these fundamentals in place, you're ready to dive deeper into:</p>
-                    <ul>
-                        <li>HTML structure and semantic markup</li>
-                        <li>CSS styling and modern layout techniques</li>
-                        <li>JavaScript programming fundamentals</li>
-                        <li>Building your first web applications</li>
+                <div class="bg-white rounded-lg p-6 shadow-md">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-4">Next Steps</h4>
+                    <p class="text-gray-700 mb-4">With these fundamentals in place, you're ready to dive deeper into:</p>
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-start gap-3">
+                            <span class="bg-emerald-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">→</span>
+                            <span>HTML structure and semantic markup</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-emerald-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">→</span>
+                            <span>CSS styling and modern layout techniques</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-emerald-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">→</span>
+                            <span>JavaScript programming fundamentals</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-emerald-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">→</span>
+                            <span>Building your first web applications</span>
+                        </li>
                     </ul>
                 </div>
             </section>
@@ -456,5 +815,243 @@ Authorization: Bearer your-token-here</code></pre>
             <button id="progress-toggle" aria-label="Toggle progress tracking">📊 Progress</button>
         </div>
     </footer>
+
+    <script>
+        // Text-to-Speech functionality
+        class TTSController {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.isPlaying = false;
+                this.currentUtterance = null;
+                this.voices = [];
+                this.currentSection = 0;
+                this.sections = document.querySelectorAll('section[id]');
+                
+                this.init();
+            }
+            
+            init() {
+                this.loadVoices();
+                this.setupEventListeners();
+                this.updateVoiceSelect();
+            }
+            
+            loadVoices() {
+                this.voices = this.synth.getVoices();
+                if (this.voices.length === 0) {
+                    this.synth.onvoiceschanged = () => {
+                        this.voices = this.synth.getVoices();
+                        this.updateVoiceSelect();
+                    };
+                } else {
+                    this.updateVoiceSelect();
+                }
+            }
+            
+            updateVoiceSelect() {
+                const voiceSelect = document.getElementById('voice-select');
+                voiceSelect.innerHTML = '';
+                
+                this.voices.forEach((voice, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    voiceSelect.appendChild(option);
+                });
+                
+                // Set default voice (prefer English voices)
+                const englishVoice = this.voices.findIndex(voice => voice.lang.startsWith('en'));
+                if (englishVoice !== -1) {
+                    voiceSelect.value = englishVoice;
+                }
+            }
+            
+            setupEventListeners() {
+                document.getElementById('play-pause-btn').addEventListener('click', () => this.togglePlayback());
+                document.getElementById('stop-btn').addEventListener('click', () => this.stop());
+                document.getElementById('voice-select').addEventListener('change', (e) => this.changeVoice(e.target.value));
+                document.getElementById('rate-slider').addEventListener('input', (e) => this.changeRate(e.target.value));
+            }
+            
+            togglePlayback() {
+                if (this.isPlaying) {
+                    this.pause();
+                } else {
+                    this.play();
+                }
+            }
+            
+            play() {
+                if (this.currentSection >= this.sections.length) {
+                    this.currentSection = 0;
+                }
+                
+                const section = this.sections[this.currentSection];
+                const text = this.extractTextFromSection(section);
+                
+                if (text) {
+                    this.speak(text, () => {
+                        this.currentSection++;
+                        if (this.currentSection < this.sections.length) {
+                            setTimeout(() => this.play(), 1000);
+                        } else {
+                            this.stop();
+                        }
+                    });
+                }
+            }
+            
+            pause() {
+                if (this.synth.speaking) {
+                    this.synth.pause();
+                    this.isPlaying = false;
+                    this.updatePlayButton();
+                }
+            }
+            
+            stop() {
+                this.synth.cancel();
+                this.isPlaying = false;
+                this.currentSection = 0;
+                this.updatePlayButton();
+            }
+            
+            speak(text, onEnd) {
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.voice = this.voices[document.getElementById('voice-select').value];
+                this.currentUtterance.rate = parseFloat(document.getElementById('rate-slider').value);
+                
+                this.currentUtterance.onend = () => {
+                    this.isPlaying = false;
+                    this.updatePlayButton();
+                    if (onEnd) onEnd();
+                };
+                
+                this.currentUtterance.onerror = () => {
+                    this.isPlaying = false;
+                    this.updatePlayButton();
+                };
+                
+                this.synth.speak(this.currentUtterance);
+                this.isPlaying = true;
+                this.updatePlayButton();
+            }
+            
+            changeVoice(voiceIndex) {
+                if (this.currentUtterance) {
+                    this.currentUtterance.voice = this.voices[voiceIndex];
+                }
+            }
+            
+            changeRate(rate) {
+                document.getElementById('rate-value').textContent = rate + 'x';
+                if (this.currentUtterance) {
+                    this.currentUtterance.rate = parseFloat(rate);
+                }
+            }
+            
+            updatePlayButton() {
+                const playIcon = document.getElementById('play-icon');
+                const pauseIcon = document.getElementById('pause-icon');
+                
+                if (this.isPlaying) {
+                    playIcon.classList.add('hidden');
+                    pauseIcon.classList.remove('hidden');
+                } else {
+                    playIcon.classList.remove('hidden');
+                    pauseIcon.classList.add('hidden');
+                }
+            }
+            
+            extractTextFromSection(section) {
+                const clone = section.cloneNode(true);
+                const elementsToRemove = clone.querySelectorAll('script, style, nav, header, footer, .progress-controls');
+                elementsToRemove.forEach(el => el.remove());
+                
+                return clone.textContent.trim();
+            }
+        }
+        
+        // Progress tracking functionality
+        class ProgressTracker {
+            constructor() {
+                this.totalSections = document.querySelectorAll('section[id]').length;
+                this.completedSections = new Set();
+                this.storageKey = 'fullstack1-progress';
+                
+                this.init();
+            }
+            
+            init() {
+                this.loadProgress();
+                this.setupIntersectionObserver();
+                this.updateProgressDisplay();
+            }
+            
+            loadProgress() {
+                const saved = localStorage.getItem(this.storageKey);
+                if (saved) {
+                    this.completedSections = new Set(JSON.parse(saved));
+                }
+            }
+            
+            saveProgress() {
+                localStorage.setItem(this.storageKey, JSON.stringify([...this.completedSections]));
+            }
+            
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const sectionId = entry.target.id;
+                            this.markSectionComplete(sectionId);
+                        }
+                    });
+                }, {
+                    threshold: 0.5,
+                    rootMargin: '-50px 0px -50px 0px'
+                });
+                
+                document.querySelectorAll('section[id]').forEach(section => {
+                    observer.observe(section);
+                });
+            }
+            
+            markSectionComplete(sectionId) {
+                if (!this.completedSections.has(sectionId)) {
+                    this.completedSections.add(sectionId);
+                    this.saveProgress();
+                    this.updateProgressDisplay();
+                }
+            }
+            
+            updateProgressDisplay() {
+                const progress = (this.completedSections.size / this.totalSections) * 100;
+                const progressFill = document.getElementById('progress-fill');
+                const progressText = document.getElementById('chapter-progress');
+                
+                progressFill.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+            }
+            
+            getProgress() {
+                return {
+                    completed: this.completedSections.size,
+                    total: this.totalSections,
+                    percentage: Math.round((this.completedSections.size / this.totalSections) * 100)
+                };
+            }
+        }
+        
+        // Initialize controllers when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const tts = new TTSController();
+            const progress = new ProgressTracker();
+            
+            // Make controllers globally available for debugging
+            window.ttsController = tts;
+            window.progressTracker = progress;
+        });
+    </script>
 </body>
 </html>

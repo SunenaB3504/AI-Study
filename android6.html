@@ -54,6 +54,154 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
     </style>
+
+    <!-- TTS Controller -->
+    <script>
+        class TTSController {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.voices = [];
+                this.currentVoice = null;
+                this.isPlaying = false;
+                this.currentUtterance = null;
+
+                this.init();
+            }
+
+            init() {
+                this.loadVoices();
+                if (speechSynthesis.onvoiceschanged !== undefined) {
+                    speechSynthesis.onvoiceschanged = () => this.loadVoices();
+                }
+            }
+
+            loadVoices() {
+                this.voices = this.synth.getVoices();
+                this.currentVoice = this.voices.find(voice => voice.lang.startsWith('en')) || this.voices[0];
+            }
+
+            speak(text, button) {
+                if (this.isPlaying) {
+                    this.stop();
+                    return;
+                }
+
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.voice = this.currentVoice;
+                this.currentUtterance.rate = 0.9;
+                this.currentUtterance.pitch = 1;
+
+                this.currentUtterance.onstart = () => {
+                    this.isPlaying = true;
+                    button.innerHTML = '⏸️ Stop';
+                    button.classList.add('playing');
+                };
+
+                this.currentUtterance.onend = () => {
+                    this.isPlaying = false;
+                    button.innerHTML = '🔊 Read Aloud';
+                    button.classList.remove('playing');
+                };
+
+                this.currentUtterance.onerror = () => {
+                    this.isPlaying = false;
+                    button.innerHTML = '🔊 Read Aloud';
+                    button.classList.remove('playing');
+                };
+
+                this.synth.speak(this.currentUtterance);
+            }
+
+            stop() {
+                if (this.synth.speaking) {
+                    this.synth.cancel();
+                }
+                this.isPlaying = false;
+                document.querySelectorAll('.tts-button.playing').forEach(btn => {
+                    btn.innerHTML = '🔊 Read Aloud';
+                    btn.classList.remove('playing');
+                });
+            }
+        }
+
+        // Chapter Progress Tracker
+        class ChapterProgressTracker {
+            constructor(chapterId) {
+                this.chapterId = chapterId;
+                this.progressKey = `progress_${chapterId}`;
+                this.loadProgress();
+            }
+
+            loadProgress() {
+                const saved = localStorage.getItem(this.progressKey);
+                if (saved) {
+                    const progress = JSON.parse(saved);
+                    Object.keys(progress).forEach(sectionId => {
+                        const checkbox = document.getElementById(sectionId);
+                        if (checkbox) {
+                            checkbox.checked = progress[sectionId];
+                        }
+                    });
+                }
+            }
+
+            saveProgress() {
+                const progress = {};
+                document.querySelectorAll('.progress-checkbox').forEach(checkbox => {
+                    progress[checkbox.id] = checkbox.checked;
+                });
+                localStorage.setItem(this.progressKey, JSON.stringify(progress));
+            }
+
+            updateOverallProgress() {
+                const checkboxes = document.querySelectorAll('.progress-checkbox');
+                const completed = document.querySelectorAll('.progress-checkbox:checked').length;
+                const total = checkboxes.length;
+                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                // Update progress display if it exists
+                const progressDisplay = document.getElementById('chapter-progress');
+                if (progressDisplay) {
+                    progressDisplay.textContent = `${completed}/${total} sections completed (${percentage}%)`;
+                }
+            }
+        }
+
+        // Global instances
+        let ttsController;
+        let progressTracker;
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            ttsController = new TTSController();
+            progressTracker = new ChapterProgressTracker('android6');
+
+            // Update progress on checkbox changes
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('progress-checkbox')) {
+                    progressTracker.saveProgress();
+                    progressTracker.updateOverallProgress();
+                }
+            });
+
+            // Initial progress update
+            progressTracker.updateOverallProgress();
+        });
+
+        // Global functions for HTML onclick handlers
+        function toggleTTS(button) {
+            const section = button.closest('section');
+            const text = section ? section.textContent.replace('Read Aloud', '').replace('Mark as Complete', '').trim() : '';
+            ttsController.speak(text, button);
+        }
+
+        function updateProgress() {
+            if (progressTracker) {
+                progressTracker.saveProgress();
+                progressTracker.updateOverallProgress();
+            }
+        }
+    </script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
     <header class="hero-gradient text-white py-16 px-6 text-center mb-12">
@@ -64,61 +212,418 @@
     </header>
 
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
-            <h2 class="text-primary-600 text-3xl font-light mb-6">Overview of Data Storage</h2>
-            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
-                <p class="text-lg text-gray-700">Android provides several options for storing data: SharedPreferences, Internal/External Storage, and databases like SQLite and Room.</p>
+        <!-- Progress Overview -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-bold text-gray-800">Chapter Progress</h2>
+                <div id="chapter-progress" class="text-sm text-gray-600">Loading...</div>
             </div>
-
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">SharedPreferences</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);<br>
-SharedPreferences.Editor editor = prefs.edit();<br>
-editor.putString("username", "sunil");<br>
-editor.apply();<br>
-String user = prefs.getString("username", "");
-            </div>
-
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Internal Storage</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-FileOutputStream fos = openFileOutput("data.txt", Context.MODE_PRIVATE);<br>
-fos.write(data.getBytes());<br>
-fos.close();
-            </div>
-
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">External Storage</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-File file = new File(getExternalFilesDir(null), "data.txt");<br>
-FileOutputStream fos = new FileOutputStream(file);<br>
-fos.write(data.getBytes());<br>
-fos.close();
-            </div>
-
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">SQLite Database</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-SQLiteDatabase db = openOrCreateDatabase("mydb", MODE_PRIVATE, null);<br>
-db.execSQL("CREATE TABLE IF NOT EXISTS users(id INTEGER, name TEXT)");<br>
-db.execSQL("INSERT INTO users VALUES(1, 'Sunil')");
-            </div>
-
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Room Database (Recommended)</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-@Entity<br>
-public class User {<br>
-    @PrimaryKey public int id;<br>
-    public String name;<br>
-}<br>
-@Dao<br>
-public interface UserDao {<br>
-    @Insert void insert(User user);<br>
-    @Query("SELECT * FROM user") List&lt;User&gt; getAll();<br>
-}<br>
-@Database(entities = {User.class}, version = 1)<br>
-public abstract class AppDatabase extends RoomDatabase {<br>
-    public abstract UserDao userDao();<br>
-}
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-4">
+                <div class="bg-primary-500 h-2 rounded-full transition-all duration-300 w-0"></div>
             </div>
         </div>
+
+        <article class="space-y-8">
+            <!-- Section 1: Data Storage Overview -->
+            <section id="storage-overview" class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <h2 class="text-primary-600 text-3xl font-light mb-6">Data Storage Overview</h2>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                        <p class="mb-4">Android provides several options for storing data: SharedPreferences, Internal/External Storage, and databases like SQLite and Room.</p>
+                        <p>Choose the appropriate storage method based on your data type, size, and access patterns.</p>
+                    </div>
+
+                    <div class="storage-options grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+                        <div class="option-card bg-blue-50 p-6 rounded-lg">
+                            <h4 class="text-blue-800 font-semibold mb-3">SharedPreferences</h4>
+                            <p class="text-blue-700 text-sm">Key-value pairs for small amounts of primitive data</p>
+                            <ul class="list-disc list-inside mt-3 space-y-1 text-blue-600 text-xs">
+                                <li>Simple key-value storage</li>
+                                <li>Private to the app</li>
+                                <li>Not suitable for large data</li>
+                            </ul>
+                        </div>
+
+                        <div class="option-card bg-green-50 p-6 rounded-lg">
+                            <h4 class="text-green-800 font-semibold mb-3">Internal Storage</h4>
+                            <p class="text-green-700 text-sm">Private files stored on device memory</p>
+                            <ul class="list-disc list-inside mt-3 space-y-1 text-green-600 text-xs">
+                                <li>Always available</li>
+                                <li>Automatically deleted on uninstall</li>
+                                <li>Private to the app</li>
+                            </ul>
+                        </div>
+
+                        <div class="option-card bg-purple-50 p-6 rounded-lg">
+                            <h4 class="text-purple-800 font-semibold mb-3">External Storage</h4>
+                            <p class="text-purple-700 text-sm">Files stored on shared/external storage</p>
+                            <ul class="list-disc list-inside mt-3 space-y-1 text-purple-600 text-xs">
+                                <li>Can be removed by user</li>
+                                <li>Requires permissions</li>
+                                <li>Visible to other apps</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="section1" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 1 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Section 2: SharedPreferences -->
+            <section id="shared-preferences" class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <h3 class="text-secondary-600 text-2xl font-medium mb-6">SharedPreferences</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">SharedPreferences is Android's lightweight mechanism for storing small amounts of key-value data. It's perfect for storing user preferences, settings, and small configuration data.</p>
+
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                        <h4 class="text-white text-lg font-semibold mb-3">Basic SharedPreferences Usage</h4>
+                        <pre><code class="language-java">// Get SharedPreferences instance
+SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+
+// Create editor to modify preferences
+SharedPreferences.Editor editor = prefs.edit();
+
+// Store data
+editor.putString("username", "sunil");
+editor.putInt("user_age", 25);
+editor.putBoolean("notifications_enabled", true);
+
+// Apply changes
+editor.apply(); // Asynchronous
+// or editor.commit(); // Synchronous
+
+// Retrieve data
+String username = prefs.getString("username", "default_value");
+int age = prefs.getInt("user_age", 0);
+boolean notifications = prefs.getBoolean("notifications_enabled", false);</code></pre>
+                    </div>
+
+                    <div class="features-grid grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="features bg-green-50 p-6 rounded-lg">
+                            <h4 class="text-green-800 font-semibold mb-3">✅ Advantages</h4>
+                            <ul class="list-disc list-inside space-y-2 text-green-700">
+                                <li>Simple to use</li>
+                                <li>Fast access to data</li>
+                                <li>Thread-safe operations</li>
+                                <li>Automatic data persistence</li>
+                            </ul>
+                        </div>
+
+                        <div class="limitations bg-red-50 p-6 rounded-lg">
+                            <h4 class="text-red-800 font-semibold mb-3">⚠️ Limitations</h4>
+                            <ul class="list-disc list-inside space-y-2 text-red-700">
+                                <li>Not suitable for large data</li>
+                                <li>No complex queries</li>
+                                <li>Only primitive data types</li>
+                                <li>Not encrypted by default</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="section2" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 2 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Section 3: Internal Storage -->
+            <section id="internal-storage" class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <h3 class="text-secondary-600 text-2xl font-medium mb-6">Internal Storage</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Internal storage provides private file storage that's accessible only to your app. Files are automatically deleted when the app is uninstalled.</p>
+
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                        <h4 class="text-white text-lg font-semibold mb-3">Writing to Internal Storage</h4>
+                        <pre><code class="language-java">String filename = "myfile.txt";
+String data = "Hello, Internal Storage!";
+
+try {
+    FileOutputStream fos = openFileOutput(filename, Context.MODE_PRIVATE);
+    fos.write(data.getBytes());
+    fos.close();
+    Toast.makeText(this, "File saved", Toast.LENGTH_SHORT).show();
+} catch (Exception e) {
+    e.printStackTrace();
+}</code></pre>
+                    </div>
+
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto mt-6">
+                        <h4 class="text-white text-lg font-semibold mb-3">Reading from Internal Storage</h4>
+                        <pre><code class="language-java">String filename = "myfile.txt";
+
+try {
+    FileInputStream fis = openFileInput(filename);
+    StringBuilder sb = new StringBuilder();
+    int ch;
+    while ((ch = fis.read()) != -1) {
+        sb.append((char) ch);
+    }
+    fis.close();
+    String content = sb.toString();
+    Toast.makeText(this, content, Toast.LENGTH_SHORT).show();
+} catch (Exception e) {
+    e.printStackTrace();
+}</code></pre>
+                    </div>
+
+                    <div class="file-modes bg-blue-50 p-6 rounded-lg mt-6">
+                        <h4 class="text-blue-800 font-semibold mb-3">File Access Modes</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <h5 class="font-medium mb-2">MODE_PRIVATE</h5>
+                                <p class="text-sm text-blue-700">File can only be accessed by the calling app</p>
+                            </div>
+                            <div>
+                                <h5 class="font-medium mb-2">MODE_APPEND</h5>
+                                <p class="text-sm text-blue-700">Append to existing file instead of overwriting</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="section3" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 3 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Section 4: External Storage -->
+            <section id="external-storage" class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <h3 class="text-secondary-600 text-2xl font-medium mb-6">External Storage</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">External storage refers to shared storage that can be accessed by all apps and the user. It requires proper permissions and should be used carefully.</p>
+
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                        <h4 class="text-white text-lg font-semibold mb-3">Writing to External Storage</h4>
+                        <pre><code class="language-java">// Check permission
+if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    != PackageManager.PERMISSION_GRANTED) {
+    ActivityCompat.requestPermissions(this,
+        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+        REQUEST_WRITE_PERMISSION);
+}
+
+// Write file
+File file = new File(getExternalFilesDir(null), "data.txt");
+try {
+    FileOutputStream fos = new FileOutputStream(file);
+    fos.write("Hello, External Storage!".getBytes());
+    fos.close();
+} catch (IOException e) {
+    e.printStackTrace();
+}</code></pre>
+                    </div>
+
+                    <div class="permissions-notice bg-yellow-50 p-6 rounded-lg mt-6">
+                        <h4 class="text-yellow-800 font-semibold mb-3">📱 Permission Requirements</h4>
+                        <ul class="list-disc list-inside space-y-2 text-yellow-700">
+                            <li>Android 6.0+: Request WRITE_EXTERNAL_STORAGE at runtime</li>
+                            <li>Android 10+: Use scoped storage for better privacy</li>
+                            <li>Android 11+: No permission needed for app-specific directory</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="section4" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 4 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Section 5: SQLite Database -->
+            <section id="sqlite-database" class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <h3 class="text-secondary-600 text-2xl font-medium mb-6">SQLite Database</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">SQLite is a lightweight, embedded SQL database engine that's included with Android. It's suitable for structured data that requires complex queries.</p>
+
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                        <h4 class="text-white text-lg font-semibold mb-3">Basic SQLite Operations</h4>
+                        <pre><code class="language-java">// Open or create database
+SQLiteDatabase db = openOrCreateDatabase("mydb", MODE_PRIVATE, null);
+
+// Create table
+db.execSQL("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT, email TEXT)");
+
+// Insert data
+db.execSQL("INSERT INTO users VALUES(1, 'Sunil', 'sunil@example.com')");
+
+// Query data
+Cursor cursor = db.rawQuery("SELECT * FROM users", null);
+if (cursor.moveToFirst()) {
+    do {
+        String name = cursor.getString(cursor.getColumnIndex("name"));
+        String email = cursor.getString(cursor.getColumnIndex("email"));
+        // Process data
+    } while (cursor.moveToNext());
+}
+cursor.close();
+
+// Close database
+db.close();</code></pre>
+                    </div>
+
+                    <div class="sqlite-features bg-indigo-50 p-6 rounded-lg mt-6">
+                        <h4 class="text-indigo-800 font-semibold mb-3">SQLite Features</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <ul class="list-disc list-inside space-y-1 text-indigo-700">
+                                <li>ACID compliance</li>
+                                <li>SQL query support</li>
+                                <li>Transactions</li>
+                                <li>Views and triggers</li>
+                            </ul>
+                            <ul class="list-disc list-inside space-y-1 text-indigo-700">
+                                <li>Small footprint</li>
+                                <li>Cross-platform</li>
+                                <li>No configuration needed</li>
+                                <li>Built into Android</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="section5" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 5 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Section 6: Room Database -->
+            <section id="room-database" class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <h3 class="text-secondary-600 text-2xl font-medium mb-6">Room Database (Recommended)</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Room is Google's recommended persistence library for Android. It provides an abstraction layer over SQLite that makes database operations easier and more robust.</p>
+
+                    <div class="room-components grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="component bg-blue-50 p-4 rounded-lg">
+                            <h4 class="text-blue-800 font-semibold mb-2">Entity</h4>
+                            <p class="text-blue-700 text-sm">Represents a database table</p>
+                        </div>
+                        <div class="component bg-green-50 p-4 rounded-lg">
+                            <h4 class="text-green-800 font-semibold mb-2">DAO</h4>
+                            <p class="text-green-700 text-sm">Data Access Object for queries</p>
+                        </div>
+                        <div class="component bg-purple-50 p-4 rounded-lg">
+                            <h4 class="text-purple-800 font-semibold mb-2">Database</h4>
+                            <p class="text-purple-700 text-sm">Main database holder</p>
+                        </div>
+                    </div>
+
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                        <h4 class="text-white text-lg font-semibold mb-3">Room Entity</h4>
+                        <pre><code class="language-java">@Entity(tableName = "users")
+public class User {
+    @PrimaryKey(autoGenerate = true)
+    public int id;
+
+    @ColumnInfo(name = "full_name")
+    public String name;
+
+    @ColumnInfo(name = "user_email")
+    public String email;
+
+    public User(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto mt-6">
+                        <h4 class="text-white text-lg font-semibold mb-3">Room DAO</h4>
+                        <pre><code class="language-java">@Dao
+public interface UserDao {
+    @Insert
+    void insert(User user);
+
+    @Update
+    void update(User user);
+
+    @Delete
+    void delete(User user);
+
+    @Query("SELECT * FROM users ORDER BY name ASC")
+    List&lt;User&gt; getAllUsers();
+
+    @Query("SELECT * FROM users WHERE id = :userId")
+    User getUserById(int userId);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto mt-6">
+                        <h4 class="text-white text-lg font-semibold mb-3">Room Database</h4>
+                        <pre><code class="language-java">@Database(entities = {User.class}, version = 1, exportSchema = false)
+public abstract class AppDatabase extends RoomDatabase {
+    public abstract UserDao userDao();
+
+    private static volatile AppDatabase INSTANCE;
+
+    public static AppDatabase getDatabase(final Context context) {
+        if (INSTANCE == null) {
+            synchronized (AppDatabase.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
+                            AppDatabase.class, "user_database")
+                            .build();
+                }
+            }
+        }
+        return INSTANCE;
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="room-benefits bg-green-50 p-6 rounded-lg mt-6">
+                        <h4 class="text-green-800 font-semibold mb-3">Why Use Room?</h4>
+                        <ul class="list-disc list-inside space-y-2 text-green-700">
+                            <li>Compile-time SQL validation</li>
+                            <li>Reduces boilerplate code</li>
+                            <li>Built-in threading support</li>
+                            <li>Easy testing with Hilt/Dagger</li>
+                            <li>LiveData and Flow integration</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="section6" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 6 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+        </article>
 
         <div class="bg-white rounded-2xl shadow-xl p-6 mt-12">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">

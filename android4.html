@@ -43,6 +43,237 @@
         }
     </script>
     <script src="script.js" defer></script>
+    <script>
+        // TTS Controller Class
+        class TTSController {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.isPlaying = false;
+                this.currentUtterance = null;
+                this.voice = null;
+                this.rate = 1;
+                this.pitch = 1;
+                this.volume = 1;
+                this.initializeVoices();
+            }
+
+            initializeVoices() {
+                const loadVoices = () => {
+                    const voices = this.synth.getVoices();
+                    this.voice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+                };
+                
+                loadVoices();
+                if (speechSynthesis.onvoiceschanged !== undefined) {
+                    speechSynthesis.onvoiceschanged = loadVoices;
+                }
+            }
+
+            speak(text, onEnd = null) {
+                if (this.isPlaying) {
+                    this.stop();
+                }
+
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.voice = this.voice;
+                this.currentUtterance.rate = this.rate;
+                this.currentUtterance.pitch = this.pitch;
+                this.currentUtterance.volume = this.volume;
+
+                this.currentUtterance.onend = () => {
+                    this.isPlaying = false;
+                    if (onEnd) onEnd();
+                };
+
+                this.currentUtterance.onerror = () => {
+                    this.isPlaying = false;
+                };
+
+                this.isPlaying = true;
+                this.synth.speak(this.currentUtterance);
+            }
+
+            stop() {
+                if (this.synth.speaking) {
+                    this.synth.cancel();
+                }
+                this.isPlaying = false;
+                this.currentUtterance = null;
+            }
+
+            setVoice(voice) {
+                this.voice = voice;
+            }
+
+            setRate(rate) {
+                this.rate = rate;
+            }
+
+            setPitch(pitch) {
+                this.pitch = pitch;
+            }
+
+            setVolume(volume) {
+                this.volume = volume;
+            }
+        }
+
+        // Chapter Progress Tracker Class
+        class ChapterProgressTracker {
+            constructor(chapterId, totalSections) {
+                this.chapterId = chapterId;
+                this.totalSections = totalSections;
+                this.completedSections = new Set();
+                this.loadProgress();
+            }
+
+            loadProgress() {
+                const saved = localStorage.getItem(`chapter_${this.chapterId}_progress`);
+                if (saved) {
+                    this.completedSections = new Set(JSON.parse(saved));
+                }
+            }
+
+            saveProgress() {
+                localStorage.setItem(`chapter_${this.chapterId}_progress`, 
+                    JSON.stringify([...this.completedSections]));
+            }
+
+            markSectionComplete(sectionId) {
+                this.completedSections.add(sectionId);
+                this.saveProgress();
+                this.updateUI();
+            }
+
+            markSectionIncomplete(sectionId) {
+                this.completedSections.delete(sectionId);
+                this.saveProgress();
+                this.updateUI();
+            }
+
+            isSectionComplete(sectionId) {
+                return this.completedSections.has(sectionId);
+            }
+
+            getProgressPercentage() {
+                return Math.round((this.completedSections.size / this.totalSections) * 100);
+            }
+
+            updateUI() {
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+                
+                if (progressFill && progressText) {
+                    const percentage = this.getProgressPercentage();
+                    progressFill.style.width = `${percentage}%`;
+                    progressText.textContent = `${percentage}% Complete`;
+                }
+            }
+        }
+
+        // Global instances
+        let ttsController;
+        let progressTracker;
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            ttsController = new TTSController();
+            progressTracker = new ChapterProgressTracker('android4', 12);
+            progressTracker.updateUI();
+            
+            // Mark checkboxes based on saved progress
+            document.querySelectorAll('.progress-checkbox').forEach((checkbox, index) => {
+                const sectionId = `section-${index + 1}`;
+                checkbox.checked = progressTracker.isSectionComplete(sectionId);
+            });
+
+            // Populate voice select
+            populateVoiceSelect();
+        });
+
+        function populateVoiceSelect() {
+            const voiceSelect = document.getElementById('voiceSelect');
+            const voices = ttsController.synth.getVoices();
+            
+            // Clear existing options except the first one
+            while (voiceSelect.options.length > 1) {
+                voiceSelect.remove(1);
+            }
+            
+            // Add available voices
+            voices.forEach(voice => {
+                const option = document.createElement('option');
+                option.value = voice.name;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+            });
+        }
+
+        // TTS Functions
+        function toggleTTS(button) {
+            const section = button.closest('section');
+            const content = section.querySelector('.section-content') || section;
+            
+            if (!content) return;
+            
+            if (ttsController.isPlaying) {
+                ttsController.stop();
+                button.textContent = '🔊 Read Aloud';
+                button.classList.remove('bg-red-500', 'hover:bg-red-600');
+                button.classList.add('bg-primary-500', 'hover:bg-primary-600');
+            } else {
+                const text = content.textContent || content.innerText;
+                ttsController.speak(text, () => {
+                    button.textContent = '🔊 Read Aloud';
+                    button.classList.remove('bg-red-500', 'hover:bg-red-600');
+                    button.classList.add('bg-primary-500', 'hover:bg-primary-600');
+                });
+                button.textContent = '⏹️ Stop';
+                button.classList.remove('bg-primary-500', 'hover:bg-primary-600');
+                button.classList.add('bg-red-500', 'hover:bg-red-600');
+            }
+        }
+
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('.progress-checkbox');
+            checkboxes.forEach((checkbox, index) => {
+                const sectionId = `section-${index + 1}`;
+                if (checkbox.checked) {
+                    progressTracker.markSectionComplete(sectionId);
+                } else {
+                    progressTracker.markSectionIncomplete(sectionId);
+                }
+            });
+        }
+
+        // Voice control functions
+        function changeVoice() {
+            const voiceSelect = document.getElementById('voiceSelect');
+            const voices = ttsController.synth.getVoices();
+            const selectedVoice = voices.find(voice => voice.name === voiceSelect.value);
+            if (selectedVoice) {
+                ttsController.setVoice(selectedVoice);
+            }
+        }
+
+        function changeRate() {
+            const rateSlider = document.getElementById('rateSlider');
+            ttsController.setRate(parseFloat(rateSlider.value));
+            document.getElementById('rateValue').textContent = rateSlider.value;
+        }
+
+        function changePitch() {
+            const pitchSlider = document.getElementById('pitchSlider');
+            ttsController.setPitch(parseFloat(pitchSlider.value));
+            document.getElementById('pitchValue').textContent = pitchSlider.value;
+        }
+
+        function changeVolume() {
+            const volumeSlider = document.getElementById('volumeSlider');
+            ttsController.setVolume(parseFloat(volumeSlider.value));
+            document.getElementById('volumeValue').textContent = volumeSlider.value;
+        }
+    </script>
     <style>
         .hero-gradient {
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
@@ -54,17 +285,55 @@
             transform: translateY(-2px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+        .progress-fill {
+            background: linear-gradient(90deg, #3b82f6 0%, #22c55e 100%);
+            width: 0%;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
     <header class="hero-gradient text-white py-12 px-6 text-center mb-12 rounded-3xl shadow-xl">
         <h1 class="text-3xl md:text-4xl font-light mb-6">Android Study Guide</h1>
-        <nav class="flex justify-center items-center space-x-4" aria-label="Chapter navigation">
+        <nav class="flex justify-center items-center space-x-4 mb-6" aria-label="Chapter navigation">
             <a href="android2.html" class="text-white hover:text-blue-200 px-4 py-2 rounded-lg transition-colors duration-200">Chapter 2</a>
             <a href="android3.html" class="text-white hover:text-blue-200 px-4 py-2 rounded-lg transition-colors duration-200">Chapter 3</a>
             <span class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg">Chapter 4</span>
             <span class="text-gray-300 px-4 py-2 rounded-lg opacity-50">Chapter 5</span>
         </nav>
+        
+        <div class="max-w-md mx-auto">
+            <div class="bg-white bg-opacity-20 rounded-full h-3 mb-3">
+                <div class="progress-fill h-3 rounded-full transition-all duration-300" id="progressFill"></div>
+            </div>
+            <span class="text-white text-sm font-medium" id="progressText">0% Complete</span>
+        </div>
+        
+        <!-- TTS Controls -->
+        <div class="mt-6 bg-white bg-opacity-10 rounded-xl p-4 backdrop-blur-sm">
+            <h3 class="text-white text-lg font-medium mb-3 flex items-center">
+                <span class="mr-2">🎵</span> Text-to-Speech Controls
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="space-y-2">
+                    <label for="voiceSelect" class="text-white text-sm font-medium">Voice</label>
+                    <select id="voiceSelect" onchange="changeVoice()" title="Select TTS Voice" class="w-full bg-white bg-opacity-20 text-white border border-white border-opacity-30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-white focus:border-transparent">
+                        <option value="">Default Voice</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label for="rateSlider" class="text-white text-sm font-medium">Speed: <span id="rateValue">1.0</span>x</label>
+                    <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1" onchange="changeRate()" title="Adjust speech rate" class="w-full h-2 bg-white bg-opacity-20 rounded-lg appearance-none cursor-pointer">
+                </div>
+                <div class="space-y-2">
+                    <label for="pitchSlider" class="text-white text-sm font-medium">Pitch: <span id="pitchValue">1.0</span></label>
+                    <input type="range" id="pitchSlider" min="0" max="2" step="0.1" value="1" onchange="changePitch()" title="Adjust speech pitch" class="w-full h-2 bg-white bg-opacity-20 rounded-lg appearance-none cursor-pointer">
+                </div>
+                <div class="space-y-2">
+                    <label for="volumeSlider" class="text-white text-sm font-medium">Volume: <span id="volumeValue">1.0</span></label>
+                    <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1" onchange="changeVolume()" title="Adjust speech volume" class="w-full h-2 bg-white bg-opacity-20 rounded-lg appearance-none cursor-pointer">
+                </div>
+            </div>
+        </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-8">
@@ -78,61 +347,86 @@
                 </div>
             </header>
 
-            <section id="introduction">
-                <h3>Introduction</h3>
-                <p>In modern Android development, creating intuitive and beautiful user interfaces is crucial for app success. This chapter covers the fundamental concepts of Android UI development using contemporary approaches including Jetpack Compose, Material Design 3, and modern View systems.</p>
+            <section id="introduction" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h3 class="text-primary-600 text-3xl font-light mb-6">Introduction</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">In modern Android development, creating intuitive and beautiful user interfaces is crucial for app success. This chapter covers the fundamental concepts of Android UI development using contemporary approaches including Jetpack Compose, Material Design 3, and modern View systems.</p>
 
-                <div class="learning-objectives">
-                    <h4>Learning Objectives</h4>
-                    <ul>
-                        <li>Understand modern Android UI architecture</li>
-                        <li>Master Jetpack Compose for declarative UI development</li>
-                        <li>Implement Material Design 3 components</li>
-                        <li>Create responsive layouts for multiple screen sizes</li>
-                        <li>Build custom composables and views</li>
-                        <li>Implement modern navigation patterns</li>
-                    </ul>
-                </div>
-            </section>
-
-            <section id="ui-architecture">
-                <h3>Modern Android UI Architecture</h3>
-                <p>Android 15 provides multiple UI frameworks to choose from based on your needs:</p>
-
-                <div class="framework-comparison">
-                    <div class="framework">
-                        <h4>Jetpack Compose</h4>
-                        <p><strong>Recommended for new apps</strong></p>
-                        <ul>
-                            <li>Declarative UI programming</li>
-                            <li>Kotlin-first approach</li>
-                            <li>Modern reactive patterns</li>
-                            <li>Built-in Material Design 3</li>
-                            <li>Excellent testing support</li>
-                        </ul>
-                    </div>
-
-                    <div class="framework">
-                        <h4>View System</h4>
-                        <p><strong>For existing apps and specific needs</strong></p>
-                        <ul>
-                            <li>Imperative UI programming</li>
-                            <li>XML layouts with data binding</li>
-                            <li>Extensive legacy support</li>
-                            <li>Fine-grained control</li>
-                            <li>Established patterns</li>
+                    <div class="learning-objectives">
+                        <h4 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Learning Objectives</h4>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li>Understand modern Android UI architecture</li>
+                            <li>Master Jetpack Compose for declarative UI development</li>
+                            <li>Implement Material Design 3 components</li>
+                            <li>Create responsive layouts for multiple screen sizes</li>
+                            <li>Build custom composables and views</li>
+                            <li>Implement modern navigation patterns</li>
                         </ul>
                     </div>
                 </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
             </section>
 
-            <section id="jetpack-compose">
-                <h3>Jetpack Compose Fundamentals</h3>
-                <p>Jetpack Compose revolutionizes Android UI development with a declarative approach:</p>
+            <section id="ui-architecture" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h3 class="text-primary-600 text-3xl font-light mb-6">Modern Android UI Architecture</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Android 15 provides multiple UI frameworks to choose from based on your needs:</p>
 
-                <div class="code-example">
-                    <h4>Basic Composable Function</h4>
-                    <pre><code class="language-kotlin">@Composable
+                    <div class="framework-comparison grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="framework bg-gray-50 p-6 rounded-lg">
+                            <h4 class="text-secondary-600 text-xl font-semibold mb-3">Jetpack Compose</h4>
+                            <p class="font-medium mb-4"><strong>Recommended for new apps</strong></p>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>Declarative UI programming</li>
+                                <li>Kotlin-first approach</li>
+                                <li>Modern reactive patterns</li>
+                                <li>Built-in Material Design 3</li>
+                                <li>Excellent testing support</li>
+                            </ul>
+                        </div>
+
+                        <div class="framework bg-gray-50 p-6 rounded-lg">
+                            <h4 class="text-secondary-600 text-xl font-semibold mb-3">View System</h4>
+                            <p class="font-medium mb-4"><strong>For existing apps and specific needs</strong></p>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>Imperative UI programming</li>
+                                <li>XML layouts with data binding</li>
+                                <li>Extensive legacy support</li>
+                                <li>Fine-grained control</li>
+                                <li>Established patterns</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 2 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <section id="jetpack-compose" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h3 class="text-primary-600 text-3xl font-light mb-6">Jetpack Compose Fundamentals</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Jetpack Compose revolutionizes Android UI development with a declarative approach:</p>
+
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg mb-6 overflow-x-auto">
+                        <h4 class="text-white text-lg font-semibold mb-3">Basic Composable Function</h4>
+                        <pre><code class="language-kotlin">@Composable
 fun Greeting(name: String) {
     Text(
         text = "Hello $name!",
@@ -153,28 +447,41 @@ fun GreetingScreen() {
         Greeting("Android")
     }
 }</code></pre>
-                </div>
+                    </div>
 
-                <div class="key-concepts">
-                    <h4>Key Concepts</h4>
-                    <ul>
-                        <li><strong>@Composable</strong>: Marks functions that describe UI</li>
-                        <li><strong>Modifier</strong>: Configures layout, appearance, and behavior</li>
-                        <li><strong>State</strong>: Manages UI state with observable patterns</li>
-                        <li><strong>MaterialTheme</strong>: Provides consistent theming</li>
-                    </ul>
+                    <div class="key-concepts">
+                        <h4 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Key Concepts</h4>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li><strong>@Composable</strong>: Marks functions that describe UI</li>
+                            <li><strong>Modifier</strong>: Configures layout, appearance, and behavior</li>
+                            <li><strong>State</strong>: Manages UI state with observable patterns</li>
+                            <li><strong>MaterialTheme</strong>: Provides consistent theming</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 3 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
                 </div>
             </section>
 
-            <section id="material-design-3">
-                <h3>Material Design 3 Components</h3>
-                <p>Material Design 3 provides modern, adaptive components that work across all Android devices:</p>
+            <section id="material-design-3" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h3 class="text-primary-600 text-3xl font-light mb-6">Material Design 3 Components</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Material Design 3 provides modern, adaptive components that work across all Android devices:</p>
 
-                <div class="component-showcase">
-                    <div class="component">
-                        <h4>Dynamic Color</h4>
-                        <p>Colors that adapt to user's wallpaper and system theme</p>
-                        <pre><code class="language-kotlin">val colorScheme = dynamicDarkColorScheme(context)
+                    <div class="component-showcase grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="component bg-gray-50 p-6 rounded-lg">
+                            <h4 class="text-secondary-600 text-xl font-semibold mb-3">Dynamic Color</h4>
+                            <p class="mb-4">Colors that adapt to user's wallpaper and system theme</p>
+                            <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                                <pre><code class="language-kotlin">val colorScheme = dynamicDarkColorScheme(context)
 MaterialTheme(
     colorScheme = colorScheme,
     typography = Typography,
@@ -182,11 +489,13 @@ MaterialTheme(
 ) {
     // Your content here
 }</code></pre>
-                    </div>
+                            </div>
+                        </div>
 
-                    <div class="component">
-                        <h4>Modern Buttons</h4>
-                        <pre><code class="language-kotlin">Button(
+                        <div class="component bg-gray-50 p-6 rounded-lg">
+                            <h4 class="text-secondary-600 text-xl font-semibold mb-3">Modern Buttons</h4>
+                            <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                                <pre><code class="language-kotlin">Button(
     onClick = { /* Handle click */ },
     modifier = Modifier.fillMaxWidth()
 ) {
@@ -200,69 +509,97 @@ FilledTonalButton(onClick = { }) {
 OutlinedButton(onClick = { }) {
     Text("Tertiary action")
 }</code></pre>
+                            </div>
+                        </div>
                     </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 4 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
                 </div>
             </section>
 
-            <section id="layouts">
-                <h3>Modern Layout Systems</h3>
-                <p>Android provides flexible layout systems for different use cases:</p>
+            <section id="layouts" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h3 class="text-primary-600 text-3xl font-light mb-6">Modern Layout Systems</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Android provides flexible layout systems for different use cases:</p>
 
-                <div class="layout-types">
-                    <h4>Compose Layouts</h4>
-                    <ul>
-                        <li><strong>Column</strong>: Vertical arrangement</li>
-                        <li><strong>Row</strong>: Horizontal arrangement</li>
-                        <li><strong>Box</strong>: Layered positioning</li>
-                        <li><strong>ConstraintLayout</strong>: Complex relationships</li>
-                    </ul>
+                    <div class="layout-types">
+                        <h4 class="text-secondary-600 text-2xl font-medium mb-4">Compose Layouts</h4>
+                        <ul class="list-disc list-inside space-y-2 mb-6">
+                            <li><strong>Column</strong>: Vertical arrangement</li>
+                            <li><strong>Row</strong>: Horizontal arrangement</li>
+                            <li><strong>Box</strong>: Layered positioning</li>
+                            <li><strong>ConstraintLayout</strong>: Complex relationships</li>
+                        </ul>
 
-                    <div class="code-example">
-                        <h4>Responsive Layout with ConstraintLayout</h4>
-                        <pre><code class="language-kotlin">ConstraintLayout(
-    modifier = Modifier.fillMaxSize()
-) {
-    val (title, content, button) = createRefs()
-
-    Text(
-        "Title",
-        modifier = Modifier.constrainAs(title) {
-            top.linkTo(parent.top, margin = 16.dp)
-            start.linkTo(parent.start, margin = 16.dp)
-        }
-    )
-
-    Text(
-        "Content",
-        modifier = Modifier.constrainAs(content) {
-            top.linkTo(title.bottom, margin = 8.dp)
-            start.linkTo(parent.start, margin = 16.dp)
-            end.linkTo(parent.end, margin = 16.dp)
-        }
-    )
-
-    Button(
-        onClick = {},
-        modifier = Modifier.constrainAs(button) {
-            bottom.linkTo(parent.bottom, margin = 16.dp)
-            start.linkTo(parent.start, margin = 16.dp)
-            end.linkTo(parent.end, margin = 16.dp)
-        }
+                        <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                            <h4 class="text-white text-lg font-semibold mb-3">Responsive Layout with ConstraintLayout</h4>
+                            <pre><code class="language-kotlin">@Composable
+fun ResponsiveLayout() {
+    ConstraintLayout(
+        modifier = Modifier.fillMaxSize()
     ) {
-        Text("Action")
+        val (title, content, button) = createRefs()
+
+        Text(
+            "Title",
+            modifier = Modifier.constrainAs(title) {
+                top.linkTo(parent.top, margin = 16.dp)
+                start.linkTo(parent.start, margin = 16.dp)
+            }
+        )
+
+        Text(
+            "Content",
+            modifier = Modifier.constrainAs(content) {
+                top.linkTo(title.bottom, margin = 8.dp)
+                start.linkTo(parent.start, margin = 16.dp)
+                end.linkTo(parent.end, margin = 16.dp)
+            }
+        )
+
+        Button(
+            onClick = {},
+            modifier = Modifier.constrainAs(button) {
+                bottom.linkTo(parent.bottom, margin = 16.dp)
+                start.linkTo(parent.start, margin = 16.dp)
+                end.linkTo(parent.end, margin = 16.dp)
+            }
+        ) {
+            Text("Action")
+        }
     }
 }</code></pre>
+                        </div>
                     </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 5 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
                 </div>
             </section>
 
-            <section id="state-management">
-                <h3>State Management in Compose</h3>
-                <p>Modern Android apps use reactive state management:</p>
+            <section id="state-management" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h3 class="text-primary-600 text-3xl font-light mb-6">State Management in Compose</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Modern Android apps use reactive state management:</p>
 
-                <div class="code-example">
-                    <h4>State Management Example</h4>
-                    <pre><code class="language-kotlin">@Composable
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                        <h4 class="text-white text-lg font-semibold mb-3">State Management Example</h4>
+                        <pre><code class="language-kotlin">@Composable
 fun CounterScreen() {
     var count by remember { mutableStateOf(0) }
 
@@ -290,16 +627,28 @@ fun CounterScreen() {
         }
     }
 }</code></pre>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 6 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
                 </div>
             </section>
 
-            <section id="custom-components">
-                <h3>Creating Custom Components</h3>
-                <p>Build reusable UI components with Compose:</p>
+            <section id="custom-components" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h3 class="text-primary-600 text-3xl font-light mb-6">Creating Custom Components</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Build reusable UI components with Compose:</p>
 
-                <div class="code-example">
-                    <h4>Custom Card Component</h4>
-                    <pre><code class="language-kotlin">@Composable
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                        <h4 class="text-white text-lg font-semibold mb-3">Custom Card Component</h4>
+                        <pre><code class="language-kotlin">@Composable
 fun TaskCard(
     task: Task,
     onComplete: (Task) -> Unit,
@@ -336,26 +685,38 @@ fun TaskCard(
         }
     }
 }</code></pre>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 7 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
                 </div>
             </section>
 
-            <section id="accessibility">
-                <h3>Accessibility and Inclusive Design</h3>
-                <p>Modern Android apps must be accessible to all users:</p>
+            <section id="accessibility" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h3 class="text-primary-600 text-3xl font-light mb-6">Accessibility and Inclusive Design</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Modern Android apps must be accessible to all users:</p>
 
-                <div class="accessibility-features">
-                    <h4>Key Accessibility Features</h4>
-                    <ul>
-                        <li><strong>Semantic properties</strong>: contentDescription, heading, role</li>
-                        <li><strong>Touch targets</strong>: Minimum 48dp size</li>
-                        <li><strong>Color contrast</strong>: WCAG compliance</li>
-                        <li><strong>Screen readers</strong>: TalkBack support</li>
-                        <li><strong>Keyboard navigation</strong>: Focus management</li>
-                    </ul>
+                    <div class="accessibility-features">
+                        <h4 class="text-secondary-600 text-2xl font-medium mb-4">Key Accessibility Features</h4>
+                        <ul class="list-disc list-inside space-y-2 mb-6">
+                            <li><strong>Semantic properties</strong>: contentDescription, heading, role</li>
+                            <li><strong>Touch targets</strong>: Minimum 48dp size</li>
+                            <li><strong>Color contrast</strong>: WCAG compliance</li>
+                            <li><strong>Screen readers</strong>: TalkBack support</li>
+                            <li><strong>Keyboard navigation</strong>: Focus management</li>
+                        </ul>
 
-                    <div class="code-example">
-                        <h4>Accessible Button</h4>
-                        <pre><code class="language-kotlin">Button(
+                        <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                            <h4 class="text-white text-lg font-semibold mb-3">Accessible Button</h4>
+                            <pre><code class="language-kotlin">Button(
     onClick = { /* handle click */ },
     modifier = Modifier
         .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
@@ -371,17 +732,30 @@ fun TaskCard(
     Spacer(modifier = Modifier.width(8.dp))
     Text("Save")
 }</code></pre>
+                        </div>
                     </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 8 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
                 </div>
             </section>
 
-            <section id="responsive-design">
-                <h3>Responsive Design</h3>
-                <p>Create apps that work on all screen sizes:</p>
+            <section id="responsive-design" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h3 class="text-primary-600 text-3xl font-light mb-6">Responsive Design</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Create apps that work on all screen sizes:</p>
 
-                <div class="responsive-patterns">
-                    <h4>Window Size Classes</h4>
-                    <pre><code class="language-kotlin">val windowSizeClass = calculateWindowSizeClass(activity)
+                    <div class="responsive-patterns">
+                        <h4 class="text-secondary-600 text-2xl font-medium mb-4">Window Size Classes</h4>
+                        <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                            <pre><code class="language-kotlin">val windowSizeClass = calculateWindowSizeClass(activity)
 
 when (windowSizeClass.widthSizeClass) {
     WindowWidthSizeClass.Compact -> {
@@ -397,16 +771,29 @@ when (windowSizeClass.widthSizeClass) {
         MultiPaneLayout()
     }
 }</code></pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 9 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
                 </div>
             </section>
 
-            <section id="modern-navigation">
-                <h3>Modern Navigation Patterns</h3>
-                <p>Use Navigation Compose for structured navigation:</p>
+            <section id="modern-navigation" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h3 class="text-primary-600 text-3xl font-light mb-6">Modern Navigation Patterns</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Use Navigation Compose for structured navigation:</p>
 
-                <div class="code-example">
-                    <h4>Navigation Setup</h4>
-                    <pre><code class="language-kotlin">val navController = rememberNavController()
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                        <h4 class="text-white text-lg font-semibold mb-3">Navigation Setup</h4>
+                        <pre><code class="language-kotlin">val navController = rememberNavController()
 
 NavHost(navController = navController, startDestination = "home") {
     composable("home") {
@@ -427,64 +814,104 @@ NavHost(navController = navController, startDestination = "home") {
         )
     }
 }</code></pre>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 10 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
                 </div>
             </section>
 
-            <section id="best-practices">
-                <h3>Best Practices for Modern UI Development</h3>
+            <section id="best-practices" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h3 class="text-primary-600 text-3xl font-light mb-6">Best Practices for Modern UI Development</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <div class="best-practices grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="practice-category bg-gray-50 p-6 rounded-lg">
+                            <h4 class="text-secondary-600 text-xl font-semibold mb-4">Performance</h4>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>Use remember for expensive computations</li>
+                                <li>Avoid unnecessary recompositions</li>
+                                <li>Use derivedStateOf for computed values</li>
+                                <li>Profile with Layout Inspector</li>
+                            </ul>
+                        </div>
 
-                <div class="best-practices">
-                    <h4>Performance</h4>
-                    <ul>
-                        <li>Use remember for expensive computations</li>
-                        <li>Avoid unnecessary recompositions</li>
-                        <li>Use derivedStateOf for computed values</li>
-                        <li>Profile with Layout Inspector</li>
-                    </ul>
+                        <div class="practice-category bg-gray-50 p-6 rounded-lg">
+                            <h4 class="text-secondary-600 text-xl font-semibold mb-4">Architecture</h4>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>Separate UI from business logic</li>
+                                <li>Use ViewModels for state management</li>
+                                <li>Implement proper error handling</li>
+                                <li>Follow single responsibility principle</li>
+                            </ul>
+                        </div>
 
-                    <h4>Architecture</h4>
-                    <ul>
-                        <li>Separate UI from business logic</li>
-                        <li>Use ViewModels for state management</li>
-                        <li>Implement proper error handling</li>
-                        <li>Follow single responsibility principle</li>
-                    </ul>
-
-                    <h4>Testing</h4>
-                    <ul>
-                        <li>Write composable tests with Compose Test Rule</li>
-                        <li>Test user interactions</li>
-                        <li>Verify accessibility</li>
-                        <li>Use screenshot testing</li>
-                    </ul>
+                        <div class="practice-category bg-gray-50 p-6 rounded-lg">
+                            <h4 class="text-secondary-600 text-xl font-semibold mb-4">Testing</h4>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>Write composable tests with Compose Test Rule</li>
+                                <li>Test user interactions</li>
+                                <li>Verify accessibility</li>
+                                <li>Use screenshot testing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 11 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
                 </div>
             </section>
 
-            <section id="summary">
-                <h3>Summary</h3>
-                <p>This chapter covered modern Android UI development practices for Android 15:</p>
+            <section id="summary" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <h3 class="text-primary-600 text-3xl font-light mb-6">Summary</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">This chapter covered modern Android UI development practices for Android 15:</p>
 
-                <div class="key-takeaways">
-                    <h4>Key Takeaways</h4>
-                    <ul>
-                        <li>Jetpack Compose is the recommended approach for new Android UIs</li>
-                        <li>Material Design 3 provides modern, adaptive components</li>
-                        <li>State management is crucial for reactive UIs</li>
-                        <li>Accessibility and responsive design are essential</li>
-                        <li>Navigation Compose simplifies complex navigation patterns</li>
-                        <li>Performance optimization requires careful state management</li>
-                    </ul>
+                    <div class="key-takeaways bg-blue-50 p-6 rounded-lg mb-6">
+                        <h4 class="text-secondary-600 text-2xl font-medium mb-4">Key Takeaways</h4>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li>Jetpack Compose is the recommended approach for new Android UIs</li>
+                            <li>Material Design 3 provides modern, adaptive components</li>
+                            <li>State management is crucial for reactive UIs</li>
+                            <li>Accessibility and responsive design are essential</li>
+                            <li>Navigation Compose simplifies complex navigation patterns</li>
+                            <li>Performance optimization requires careful state management</li>
+                        </ul>
+                    </div>
+
+                    <div class="next-steps bg-green-50 p-6 rounded-lg">
+                        <h4 class="text-secondary-600 text-2xl font-medium mb-4">Next Steps</h4>
+                        <p class="mb-4">With a solid understanding of Android UI development, you're ready to:</p>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li>Build complete Android applications</li>
+                            <li>Implement complex navigation patterns</li>
+                            <li>Create custom design systems</li>
+                            <li>Optimize for performance and accessibility</li>
+                        </ul>
+                    </div>
                 </div>
-
-                <div class="next-steps">
-                    <h4>Next Steps</h4>
-                    <p>With a solid understanding of Android UI development, you're ready to:</p>
-                    <ul>
-                        <li>Build complete Android applications</li>
-                        <li>Implement complex navigation patterns</li>
-                        <li>Create custom design systems</li>
-                        <li>Optimize for performance and accessibility</li>
-                    </ul>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 12 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
                 </div>
             </section>
         </article>

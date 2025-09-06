@@ -53,7 +53,165 @@
             transform: translateY(-2px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+        .progress-bar-fill {
+            width: 0%;
+            transition: width 0.3s ease;
+        }
     </style>
+
+    <!-- TTS Controller -->
+    <script>
+        class TTSController {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.voices = [];
+                this.currentVoice = null;
+                this.isPlaying = false;
+                this.currentUtterance = null;
+
+                this.init();
+            }
+
+            init() {
+                this.loadVoices();
+                if (speechSynthesis.onvoiceschanged !== undefined) {
+                    speechSynthesis.onvoiceschanged = () => this.loadVoices();
+                }
+            }
+
+            loadVoices() {
+                this.voices = this.synth.getVoices();
+                this.currentVoice = this.voices.find(voice => voice.lang.startsWith('en')) || this.voices[0];
+            }
+
+            speak(text, button) {
+                if (this.isPlaying) {
+                    this.stop();
+                    return;
+                }
+
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.voice = this.currentVoice;
+                this.currentUtterance.rate = 0.9;
+                this.currentUtterance.pitch = 1;
+
+                this.currentUtterance.onstart = () => {
+                    this.isPlaying = true;
+                    button.innerHTML = '⏸️ Stop';
+                    button.classList.add('playing');
+                };
+
+                this.currentUtterance.onend = () => {
+                    this.isPlaying = false;
+                    button.innerHTML = '🔊 Read Aloud';
+                    button.classList.remove('playing');
+                };
+
+                this.currentUtterance.onerror = () => {
+                    this.isPlaying = false;
+                    button.innerHTML = '🔊 Read Aloud';
+                    button.classList.remove('playing');
+                };
+
+                this.synth.speak(this.currentUtterance);
+            }
+
+            stop() {
+                if (this.synth.speaking) {
+                    this.synth.cancel();
+                }
+                this.isPlaying = false;
+                document.querySelectorAll('.tts-button.playing').forEach(btn => {
+                    btn.innerHTML = '🔊 Read Aloud';
+                    btn.classList.remove('playing');
+                });
+            }
+        }
+
+        // Chapter Progress Tracker
+        class ChapterProgressTracker {
+            constructor(chapterId) {
+                this.chapterId = chapterId;
+                this.progressKey = `progress_${chapterId}`;
+                this.loadProgress();
+            }
+
+            loadProgress() {
+                const saved = localStorage.getItem(this.progressKey);
+                if (saved) {
+                    const progress = JSON.parse(saved);
+                    Object.keys(progress).forEach(sectionId => {
+                        const checkbox = document.getElementById(sectionId);
+                        if (checkbox) {
+                            checkbox.checked = progress[sectionId];
+                        }
+                    });
+                }
+            }
+
+            saveProgress() {
+                const progress = {};
+                document.querySelectorAll('.progress-checkbox').forEach(checkbox => {
+                    progress[checkbox.id] = checkbox.checked;
+                });
+                localStorage.setItem(this.progressKey, JSON.stringify(progress));
+            }
+
+            updateOverallProgress() {
+                const checkboxes = document.querySelectorAll('.progress-checkbox');
+                const completed = document.querySelectorAll('.progress-checkbox:checked').length;
+                const total = checkboxes.length;
+                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                // Update progress display if it exists
+                const progressDisplay = document.getElementById('chapter-progress');
+                if (progressDisplay) {
+                    progressDisplay.textContent = `${completed}/${total} sections completed (${percentage}%)`;
+                }
+
+                // Update progress bar
+                const progressBar = document.querySelector('.progress-bar-fill');
+                if (progressBar) {
+                    progressBar.style.width = `${percentage}%`;
+                }
+            }
+        }
+
+        // Global instances
+        let ttsController;
+        let progressTracker;
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            ttsController = new TTSController();
+            progressTracker = new ChapterProgressTracker('android7');
+
+            // Update progress on checkbox changes
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('progress-checkbox')) {
+                    progressTracker.saveProgress();
+                    progressTracker.updateOverallProgress();
+                }
+            });
+
+            // Initial progress update
+            progressTracker.updateOverallProgress();
+        });
+
+        // Global functions for HTML onclick handlers
+        function toggleTTS(button) {
+            const section = button.closest('section');
+            const text = section ? section.textContent.replace('Read Aloud', '').replace('Mark as Complete', '').trim() : '';
+            ttsController.speak(text, button);
+        }
+
+        function updateProgress() {
+            if (progressTracker) {
+                progressTracker.saveProgress();
+                progressTracker.updateOverallProgress();
+            }
+        }
+    </script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
     <header class="hero-gradient text-white py-16 px-6 text-center mb-12">
@@ -64,13 +222,58 @@
     </header>
 
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
-            <h2 class="text-primary-600 text-3xl font-light mb-6">What are Content Providers?</h2>
+        <!-- Progress Display -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-semibold text-gray-800">Chapter Progress</h2>
+                <div id="chapter-progress" class="text-lg font-medium text-primary-600">0/6 sections completed (0%)</div>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 mt-4">
+                <div class="bg-primary-600 h-3 rounded-full progress-bar-fill"></div>
+            </div>
+        </div>
+
+        <!-- Section 1: What are Content Providers? -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 1: What are Content Providers?</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section1" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
                 <p class="text-lg text-gray-700">Content Providers manage access to a central repository of data. They encapsulate data and provide mechanisms for defining data security.</p>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Creating a Content Provider</h3>
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg">
+                <h3 class="text-blue-800 font-semibold mb-2">Key Benefits:</h3>
+                <ul class="text-blue-700 space-y-2">
+                    <li>• Encapsulate data access and security</li>
+                    <li>• Enable data sharing between applications</li>
+                    <li>• Provide a standard interface for data operations</li>
+                    <li>• Support content URI addressing</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 2: Creating a Content Provider -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 2: Creating a Content Provider</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section2" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 public class MyContentProvider extends ContentProvider {<br>
     private static final String AUTHORITY = "com.example.myapp.provider";<br>
@@ -117,7 +320,32 @@ public class MyContentProvider extends ContentProvider {<br>
 }
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Content Provider Contract</h3>
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-lg">
+                <h3 class="text-yellow-800 font-semibold mb-2">Required Methods:</h3>
+                <ul class="text-yellow-700 space-y-1">
+                    <li><strong>onCreate():</strong> Initialize your data source</li>
+                    <li><strong>query():</strong> Retrieve data from your provider</li>
+                    <li><strong>insert():</strong> Add new data to your provider</li>
+                    <li><strong>update():</strong> Modify existing data</li>
+                    <li><strong>delete():</strong> Remove data from your provider</li>
+                    <li><strong>getType():</strong> Return the MIME type of data</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 3: Content Provider Contract -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 3: Content Provider Contract</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section3" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 public final class UserContract {<br>
     public static final String AUTHORITY = "com.example.myapp.provider";<br>
@@ -132,32 +360,78 @@ public final class UserContract {<br>
 }
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Using Content Providers</h3>
+            <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-r-lg">
+                <h3 class="text-green-800 font-semibold mb-2">Contract Class Benefits:</h3>
+                <ul class="text-green-700 space-y-2">
+                    <li>• Centralizes URI and column name constants</li>
+                    <li>• Makes code more maintainable</li>
+                    <li>• Prevents typos in column names</li>
+                    <li>• Provides a single source of truth for data schema</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 4: Using Content Providers -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 4: Using Content Providers</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section4" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-// Query data<br>
+<span class="text-green-400">// Query data</span><br>
 ContentResolver resolver = getContentResolver();<br>
 Cursor cursor = resolver.query(UserContract.CONTENT_URI,<br>
     new String[]{UserContract.UserEntry.COLUMN_NAME},<br>
     null, null, null);<br>
 <br>
-// Insert data<br>
+<span class="text-blue-400">// Insert data</span><br>
 ContentValues values = new ContentValues();<br>
 values.put(UserContract.UserEntry.COLUMN_NAME, "John Doe");<br>
 values.put(UserContract.UserEntry.COLUMN_EMAIL, "john@example.com");<br>
 Uri newUri = resolver.insert(UserContract.CONTENT_URI, values);<br>
 <br>
-// Update data<br>
+<span class="text-yellow-400">// Update data</span><br>
 ContentValues updateValues = new ContentValues();<br>
 updateValues.put(UserContract.UserEntry.COLUMN_NAME, "Jane Doe");<br>
 resolver.update(UserContract.CONTENT_URI, updateValues,<br>
     UserContract.UserEntry.COLUMN_NAME + " = ?", new String[]{"John Doe"});<br>
 <br>
-// Delete data<br>
+<span class="text-red-400">// Delete data</span><br>
 resolver.delete(UserContract.CONTENT_URI,<br>
     UserContract.UserEntry.COLUMN_NAME + " = ?", new String[]{"Jane Doe"});
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Content Provider Permissions</h3>
+            <div class="bg-purple-50 border-l-4 border-purple-500 p-6 rounded-r-lg">
+                <h3 class="text-purple-800 font-semibold mb-2">CRUD Operations:</h3>
+                <ul class="text-purple-700 space-y-1">
+                    <li><strong>Create:</strong> Use insert() to add new records</li>
+                    <li><strong>Read:</strong> Use query() to retrieve data</li>
+                    <li><strong>Update:</strong> Use update() to modify existing records</li>
+                    <li><strong>Delete:</strong> Use delete() to remove records</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 5: Content Provider Permissions -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 5: Content Provider Permissions</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section5" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 &lt;!-- AndroidManifest.xml --&gt;<br>
 &lt;manifest&gt;<br>
@@ -172,22 +446,57 @@ resolver.delete(UserContract.CONTENT_URI,<br>
 &lt;/manifest&gt;
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Built-in Content Providers</h3>
+            <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg">
+                <h3 class="text-red-800 font-semibold mb-2">Security Considerations:</h3>
+                <ul class="text-red-700 space-y-2">
+                    <li>• Always define appropriate permissions</li>
+                    <li>• Use readPermission and writePermission attributes</li>
+                    <li>• Consider using exported="false" for internal providers</li>
+                    <li>• Validate all input data to prevent SQL injection</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 6: Built-in Content Providers -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 6: Built-in Content Providers</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section6" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
                 <p class="text-lg text-gray-700">Android provides several built-in content providers for accessing system data like contacts, calendar, media files, etc.</p>
             </div>
+
             <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-// Access contacts<br>
+<span class="text-green-400">// Access contacts</span><br>
 Cursor cursor = getContentResolver().query(<br>
     ContactsContract.Contacts.CONTENT_URI,<br>
     null, null, null, null);<br>
 <br>
-// Access media files<br>
+<span class="text-blue-400">// Access media files</span><br>
 Cursor mediaCursor = getContentResolver().query(<br>
     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,<br>
     null, null, null, null);
             </div>
-        </div>
+
+            <div class="bg-indigo-50 border-l-4 border-indigo-500 p-6 rounded-r-lg">
+                <h3 class="text-indigo-800 font-semibold mb-2">Common Built-in Providers:</h3>
+                <ul class="text-indigo-700 space-y-1">
+                    <li><strong>ContactsContract:</strong> Access device contacts</li>
+                    <li><strong>CalendarContract:</strong> Access calendar events</li>
+                    <li><strong>MediaStore:</strong> Access media files (images, videos, audio)</li>
+                    <li><strong>CallLog:</strong> Access call history</li>
+                    <li><strong>SMS:</strong> Access SMS messages</li>
+                </ul>
+            </div>
+        </section>
 
         <div class="bg-white rounded-2xl shadow-xl p-6 mt-12">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">

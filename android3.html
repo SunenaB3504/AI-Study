@@ -45,6 +45,237 @@
     <script src="js/tts.js"></script>
     <script src="js/progress-tracker.js"></script>
     <script src="js/chapter.js"></script>
+    <script>
+        // TTS Controller Class
+        class TTSController {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.isPlaying = false;
+                this.currentUtterance = null;
+                this.voice = null;
+                this.rate = 1;
+                this.pitch = 1;
+                this.volume = 1;
+                this.initializeVoices();
+            }
+
+            initializeVoices() {
+                const loadVoices = () => {
+                    const voices = this.synth.getVoices();
+                    this.voice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+                };
+                
+                loadVoices();
+                if (speechSynthesis.onvoiceschanged !== undefined) {
+                    speechSynthesis.onvoiceschanged = loadVoices;
+                }
+            }
+
+            speak(text, onEnd = null) {
+                if (this.isPlaying) {
+                    this.stop();
+                }
+
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.voice = this.voice;
+                this.currentUtterance.rate = this.rate;
+                this.currentUtterance.pitch = this.pitch;
+                this.currentUtterance.volume = this.volume;
+
+                this.currentUtterance.onend = () => {
+                    this.isPlaying = false;
+                    if (onEnd) onEnd();
+                };
+
+                this.currentUtterance.onerror = () => {
+                    this.isPlaying = false;
+                };
+
+                this.isPlaying = true;
+                this.synth.speak(this.currentUtterance);
+            }
+
+            stop() {
+                if (this.synth.speaking) {
+                    this.synth.cancel();
+                }
+                this.isPlaying = false;
+                this.currentUtterance = null;
+            }
+
+            setVoice(voice) {
+                this.voice = voice;
+            }
+
+            setRate(rate) {
+                this.rate = rate;
+            }
+
+            setPitch(pitch) {
+                this.pitch = pitch;
+            }
+
+            setVolume(volume) {
+                this.volume = volume;
+            }
+        }
+
+        // Chapter Progress Tracker Class
+        class ChapterProgressTracker {
+            constructor(chapterId, totalSections) {
+                this.chapterId = chapterId;
+                this.totalSections = totalSections;
+                this.completedSections = new Set();
+                this.loadProgress();
+            }
+
+            loadProgress() {
+                const saved = localStorage.getItem(`chapter_${this.chapterId}_progress`);
+                if (saved) {
+                    this.completedSections = new Set(JSON.parse(saved));
+                }
+            }
+
+            saveProgress() {
+                localStorage.setItem(`chapter_${this.chapterId}_progress`, 
+                    JSON.stringify([...this.completedSections]));
+            }
+
+            markSectionComplete(sectionId) {
+                this.completedSections.add(sectionId);
+                this.saveProgress();
+                this.updateUI();
+            }
+
+            markSectionIncomplete(sectionId) {
+                this.completedSections.delete(sectionId);
+                this.saveProgress();
+                this.updateUI();
+            }
+
+            isSectionComplete(sectionId) {
+                return this.completedSections.has(sectionId);
+            }
+
+            getProgressPercentage() {
+                return Math.round((this.completedSections.size / this.totalSections) * 100);
+            }
+
+            updateUI() {
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+                
+                if (progressFill && progressText) {
+                    const percentage = this.getProgressPercentage();
+                    progressFill.style.width = `${percentage}%`;
+                    progressText.textContent = `${percentage}% Complete`;
+                }
+            }
+        }
+
+        // Global instances
+        let ttsController;
+        let progressTracker;
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            ttsController = new TTSController();
+            progressTracker = new ChapterProgressTracker('android3', 8);
+            progressTracker.updateUI();
+            
+            // Mark checkboxes based on saved progress
+            document.querySelectorAll('.progress-checkbox').forEach((checkbox, index) => {
+                const sectionId = `section-${index + 1}`;
+                checkbox.checked = progressTracker.isSectionComplete(sectionId);
+            });
+
+            // Populate voice select
+            populateVoiceSelect();
+        });
+
+        function populateVoiceSelect() {
+            const voiceSelect = document.getElementById('voiceSelect');
+            const voices = ttsController.synth.getVoices();
+            
+            // Clear existing options except the first one
+            while (voiceSelect.options.length > 1) {
+                voiceSelect.remove(1);
+            }
+            
+            // Add available voices
+            voices.forEach(voice => {
+                const option = document.createElement('option');
+                option.value = voice.name;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+            });
+        }
+
+        // TTS Functions
+        function toggleTTS(button) {
+            const section = button.closest('section');
+            const content = section.querySelector('.section-content');
+            
+            if (!content) return;
+            
+            if (ttsController.isPlaying) {
+                ttsController.stop();
+                button.textContent = '🔊 Read Aloud';
+                button.classList.remove('bg-red-500', 'hover:bg-red-600');
+                button.classList.add('bg-primary-500', 'hover:bg-primary-600');
+            } else {
+                const text = content.textContent || content.innerText;
+                ttsController.speak(text, () => {
+                    button.textContent = '🔊 Read Aloud';
+                    button.classList.remove('bg-red-500', 'hover:bg-red-600');
+                    button.classList.add('bg-primary-500', 'hover:bg-primary-600');
+                });
+                button.textContent = '⏹️ Stop';
+                button.classList.remove('bg-primary-500', 'hover:bg-primary-600');
+                button.classList.add('bg-red-500', 'hover:bg-red-600');
+            }
+        }
+
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('.progress-checkbox');
+            checkboxes.forEach((checkbox, index) => {
+                const sectionId = `section-${index + 1}`;
+                if (checkbox.checked) {
+                    progressTracker.markSectionComplete(sectionId);
+                } else {
+                    progressTracker.markSectionIncomplete(sectionId);
+                }
+            });
+        }
+
+        // Voice control functions
+        function changeVoice() {
+            const voiceSelect = document.getElementById('voiceSelect');
+            const voices = ttsController.synth.getVoices();
+            const selectedVoice = voices.find(voice => voice.name === voiceSelect.value);
+            if (selectedVoice) {
+                ttsController.setVoice(selectedVoice);
+            }
+        }
+
+        function changeRate() {
+            const rateSlider = document.getElementById('rateSlider');
+            ttsController.setRate(parseFloat(rateSlider.value));
+            document.getElementById('rateValue').textContent = rateSlider.value;
+        }
+
+        function changePitch() {
+            const pitchSlider = document.getElementById('pitchSlider');
+            ttsController.setPitch(parseFloat(pitchSlider.value));
+            document.getElementById('pitchValue').textContent = pitchSlider.value;
+        }
+
+        function changeVolume() {
+            const volumeSlider = document.getElementById('volumeSlider');
+            ttsController.setVolume(parseFloat(volumeSlider.value));
+            document.getElementById('volumeValue').textContent = volumeSlider.value;
+        }
+    </script>
     <style>
         .hero-gradient {
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
@@ -71,6 +302,33 @@
                     <div class="progress-fill h-3 rounded-full transition-all duration-300" id="progressFill"></div>
                 </div>
                 <span class="text-white text-sm font-medium" id="progressText">0% Complete</span>
+            </div>
+            
+            <!-- TTS Controls -->
+            <div class="mt-6 bg-white bg-opacity-10 rounded-xl p-4 backdrop-blur-sm">
+                <h3 class="text-white text-lg font-medium mb-3 flex items-center">
+                    <span class="mr-2">🎵</span> Text-to-Speech Controls
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="space-y-2">
+                        <label for="voiceSelect" class="text-white text-sm font-medium">Voice</label>
+                        <select id="voiceSelect" onchange="changeVoice()" title="Select TTS Voice" class="w-full bg-white bg-opacity-20 text-white border border-white border-opacity-30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-white focus:border-transparent">
+                            <option value="">Default Voice</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="rateSlider" class="text-white text-sm font-medium">Speed: <span id="rateValue">1.0</span>x</label>
+                        <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1" onchange="changeRate()" title="Adjust speech rate" class="w-full h-2 bg-white bg-opacity-20 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="pitchSlider" class="text-white text-sm font-medium">Pitch: <span id="pitchValue">1.0</span></label>
+                        <input type="range" id="pitchSlider" min="0" max="2" step="0.1" value="1" onchange="changePitch()" title="Adjust speech pitch" class="w-full h-2 bg-white bg-opacity-20 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="volumeSlider" class="text-white text-sm font-medium">Volume: <span id="volumeValue">1.0</span></label>
+                        <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1" onchange="changeVolume()" title="Adjust speech volume" class="w-full h-2 bg-white bg-opacity-20 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -103,8 +361,11 @@
 
                     <p>By decoupling the dependencies between application components, you can share and interchange individual pieces, such as Content Providers or Services, with other applications — both your own and those of third parties.</p>
                 </div>
-                <div class="flex items-center justify-between">
-                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section as complete">
                         <span class="text-gray-700 font-medium">Mark as Complete</span>
@@ -147,8 +408,16 @@
 
                     <p>Modern Android development emphasizes privacy-first design, with granular permissions and user consent requirements.</p>
                 </div>
-                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
-                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section 2 as complete">
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 2 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
             </section>
 
             <section id="section-3">
@@ -175,8 +444,16 @@
 
                     <p>Android aggressively manages its resources, doing whatever it takes to ensure that the device remains responsive. This means that processes (and their hosted applications) will be killed, without warning if necessary, to free resources for higher-priority applications.</p>
                 </div>
-                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
-                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section 3 as complete">
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 3 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
             </section>
 
             <section id="section-4">
@@ -216,8 +493,16 @@ int primaryColor = getColor(R.color.primary_color);
 // Access a drawable resource
 Drawable icon = getDrawable(R.drawable.app_icon);</code></pre>
                 </div>
-                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
-                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section 4 as complete">
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 4 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
             </section>
 
             <section id="section-5">
@@ -258,8 +543,16 @@ Drawable icon = getDrawable(R.drawable.app_icon);</code></pre>
                         <li><code>onDestroy()</code> - Called before the activity is destroyed</li>
                     </ul>
                 </div>
-                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
-                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section 5 as complete">
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 5 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
             </section>
 
             <section id="section-6">
@@ -298,8 +591,16 @@ Drawable icon = getDrawable(R.drawable.app_icon);</code></pre>
                         <li>Modern language features</li>
                     </ul>
                 </div>
-                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
-                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section 6 as complete">
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 6 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
             </section>
 
             <section id="section-7">
@@ -366,8 +667,16 @@ fun GreetingPreview() {
 
                     <p>This separation makes apps more testable, maintainable, and scalable.</p>
                 </div>
-                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
-                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section 7 as complete">
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 7 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
             </section>
 
             <section id="section-8">
@@ -390,8 +699,16 @@ fun GreetingPreview() {
 
                     <p>The next chapter focuses on User Interfaces. You'll learn how to use layouts to design your UI before introducing native widgets and showing you how to extend, modify, and group them to create specialized controls.</p>
                 </div>
-                <button class="tts-button" onclick="toggleTTS(this.previousElementSibling)">🔊 Read Aloud</button>
-                <input type="checkbox" class="progress-checkbox" onchange="updateProgress()" aria-label="Mark section 8 as complete">
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 8 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
             </section>
         </main>
     </div>

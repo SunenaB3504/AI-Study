@@ -54,6 +54,154 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
     </style>
+
+    <!-- TTS Controller -->
+    <script>
+        class TTSController {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.voices = [];
+                this.currentVoice = null;
+                this.isPlaying = false;
+                this.currentUtterance = null;
+
+                this.init();
+            }
+
+            init() {
+                this.loadVoices();
+                if (speechSynthesis.onvoiceschanged !== undefined) {
+                    speechSynthesis.onvoiceschanged = () => this.loadVoices();
+                }
+            }
+
+            loadVoices() {
+                this.voices = this.synth.getVoices();
+                this.currentVoice = this.voices.find(voice => voice.lang.startsWith('en')) || this.voices[0];
+            }
+
+            speak(text, button) {
+                if (this.isPlaying) {
+                    this.stop();
+                    return;
+                }
+
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.voice = this.currentVoice;
+                this.currentUtterance.rate = 0.9;
+                this.currentUtterance.pitch = 1;
+
+                this.currentUtterance.onstart = () => {
+                    this.isPlaying = true;
+                    button.innerHTML = '⏸️ Stop';
+                    button.classList.add('playing');
+                };
+
+                this.currentUtterance.onend = () => {
+                    this.isPlaying = false;
+                    button.innerHTML = '🔊 Read Aloud';
+                    button.classList.remove('playing');
+                };
+
+                this.currentUtterance.onerror = () => {
+                    this.isPlaying = false;
+                    button.innerHTML = '🔊 Read Aloud';
+                    button.classList.remove('playing');
+                };
+
+                this.synth.speak(this.currentUtterance);
+            }
+
+            stop() {
+                if (this.synth.speaking) {
+                    this.synth.cancel();
+                }
+                this.isPlaying = false;
+                document.querySelectorAll('.tts-button.playing').forEach(btn => {
+                    btn.innerHTML = '🔊 Read Aloud';
+                    btn.classList.remove('playing');
+                });
+            }
+        }
+
+        // Chapter Progress Tracker
+        class ChapterProgressTracker {
+            constructor(chapterId) {
+                this.chapterId = chapterId;
+                this.progressKey = `progress_${chapterId}`;
+                this.loadProgress();
+            }
+
+            loadProgress() {
+                const saved = localStorage.getItem(this.progressKey);
+                if (saved) {
+                    const progress = JSON.parse(saved);
+                    Object.keys(progress).forEach(sectionId => {
+                        const checkbox = document.getElementById(sectionId);
+                        if (checkbox) {
+                            checkbox.checked = progress[sectionId];
+                        }
+                    });
+                }
+            }
+
+            saveProgress() {
+                const progress = {};
+                document.querySelectorAll('.progress-checkbox').forEach(checkbox => {
+                    progress[checkbox.id] = checkbox.checked;
+                });
+                localStorage.setItem(this.progressKey, JSON.stringify(progress));
+            }
+
+            updateOverallProgress() {
+                const checkboxes = document.querySelectorAll('.progress-checkbox');
+                const completed = document.querySelectorAll('.progress-checkbox:checked').length;
+                const total = checkboxes.length;
+                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                // Update progress display if it exists
+                const progressDisplay = document.getElementById('chapter-progress');
+                if (progressDisplay) {
+                    progressDisplay.textContent = `${completed}/${total} sections completed (${percentage}%)`;
+                }
+            }
+        }
+
+        // Global instances
+        let ttsController;
+        let progressTracker;
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            ttsController = new TTSController();
+            progressTracker = new ChapterProgressTracker('android5');
+
+            // Update progress on checkbox changes
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('progress-checkbox')) {
+                    progressTracker.saveProgress();
+                    progressTracker.updateOverallProgress();
+                }
+            });
+
+            // Initial progress update
+            progressTracker.updateOverallProgress();
+        });
+
+        // Global functions for HTML onclick handlers
+        function toggleTTS(button) {
+            const section = button.closest('section');
+            const text = section ? section.textContent.replace('Read Aloud', '').replace('Mark as Complete', '').trim() : '';
+            ttsController.speak(text, button);
+        }
+
+        function updateProgress() {
+            if (progressTracker) {
+                progressTracker.saveProgress();
+                progressTracker.updateOverallProgress();
+            }
+        }
+    </script>
 </head>
         @media (max-width: 768px) { .container { padding: 10px; } .nav-links { flex-direction: column; gap: 10px; } }
     </style>
@@ -67,45 +215,313 @@
     </header>
 
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
-            <h2 class="text-primary-600 text-3xl font-light mb-6">Intents</h2>
-            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
-                <p class="text-lg text-gray-700">Intents are messaging objects used to request an action from another app component. They enable communication between activities, services, and broadcast receivers.</p>
+        <!-- Progress Overview -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-bold text-gray-800">Chapter Progress</h2>
+                <div id="chapter-progress" class="text-sm text-gray-600">Loading...</div>
             </div>
-
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Explicit Intent Example</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-Intent intent = new Intent(this, TargetActivity.class);<br>
-startActivity(intent);
-            </div>
-
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Implicit Intent Example</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.example.com"));<br>
-startActivity(intent);
-            </div>
-
-            <h2 class="text-primary-600 text-3xl font-light mb-6 mt-12">Broadcast Receivers</h2>
-            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
-                <p class="text-lg text-gray-700">Broadcast Receivers respond to broadcast messages from other apps or the system. They are used for system events (like battery low) or custom app events.</p>
-            </div>
-
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Static Registration (Manifest)</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-&lt;receiver android:name=".MyReceiver"&gt;<br>
-    &lt;intent-filter&gt;<br>
-        &lt;action android:name="android.intent.action.BOOT_COMPLETED" /&gt;<br>
-    &lt;/intent-filter&gt;<br>
-&lt;/receiver&gt;
-            </div>
-
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Dynamic Registration (Code)</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-BroadcastReceiver receiver = new MyReceiver();<br>
-IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_LOW);<br>
-registerReceiver(receiver, filter);
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-4">
+                <div class="bg-primary-500 h-2 rounded-full transition-all duration-300 w-0"></div>
             </div>
         </div>
+
+        <article class="space-y-8">
+            <!-- Section 1: Introduction to Intents -->
+            <section id="intents-intro" class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <h2 class="text-primary-600 text-3xl font-light mb-6">Introduction to Intents</h2>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                        <p class="mb-4">Intents are messaging objects used to request an action from another app component. They enable communication between activities, services, and broadcast receivers.</p>
+                        <p>Intents can be either <strong>explicit</strong> (targeting a specific component) or <strong>implicit</strong> (declaring a general action to be performed).</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="section1" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 1 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Section 2: Explicit Intents -->
+            <section id="explicit-intents" class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <h3 class="text-secondary-600 text-2xl font-medium mb-6">Explicit Intents</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Explicit intents specify the exact component to start by naming the target class. They're used when you know exactly which component should handle the intent.</p>
+
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                        <h4 class="text-white text-lg font-semibold mb-3">Creating an Explicit Intent</h4>
+                        <pre><code class="language-java">// Create intent targeting a specific activity
+Intent intent = new Intent(this, TargetActivity.class);
+
+// Add extra data
+intent.putExtra("user_id", 12345);
+intent.putExtra("user_name", "John Doe");
+
+// Start the activity
+startActivity(intent);</code></pre>
+                    </div>
+
+                    <div class="key-points bg-blue-50 p-6 rounded-lg mt-6">
+                        <h4 class="text-blue-800 font-semibold mb-3">Key Points:</h4>
+                        <ul class="list-disc list-inside space-y-2 text-blue-700">
+                            <li>Specify the target component by class name</li>
+                            <li>Used for internal app navigation</li>
+                            <li>Can carry data via extras</li>
+                            <li>Guaranteed delivery to the specified component</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="section2" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 2 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Section 3: Implicit Intents -->
+            <section id="implicit-intents" class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <h3 class="text-secondary-600 text-2xl font-medium mb-6">Implicit Intents</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Implicit intents declare a general action to perform without specifying the target component. The Android system finds the appropriate component to handle the action.</p>
+
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                        <h4 class="text-white text-lg font-semibold mb-3">Creating an Implicit Intent</h4>
+                        <pre><code class="language-java">// Open a URL in a browser
+Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.example.com"));
+startActivity(intent);
+
+// Share text content
+Intent shareIntent = new Intent(Intent.ACTION_SEND);
+shareIntent.setType("text/plain");
+shareIntent.putExtra(Intent.EXTRA_TEXT, "Hello World!");
+startActivity(Intent.createChooser(shareIntent, "Share via"));
+
+// Take a photo
+Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+startActivityForResult(cameraIntent, REQUEST_IMAGE_CAPTURE);</code></pre>
+                    </div>
+
+                    <div class="common-actions bg-green-50 p-6 rounded-lg mt-6">
+                        <h4 class="text-green-800 font-semibold mb-3">Common Implicit Intent Actions:</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <ul class="list-disc list-inside space-y-1 text-green-700">
+                                <li>ACTION_VIEW - Display data</li>
+                                <li>ACTION_SEND - Share content</li>
+                                <li>ACTION_DIAL - Make phone call</li>
+                                <li>ACTION_PICK - Pick from data</li>
+                            </ul>
+                            <ul class="list-disc list-inside space-y-1 text-green-700">
+                                <li>ACTION_EDIT - Edit data</li>
+                                <li>ACTION_DELETE - Delete data</li>
+                                <li>ACTION_SEARCH - Perform search</li>
+                                <li>ACTION_MAIN - Launch app</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="section3" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 3 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Section 4: Broadcast Receivers -->
+            <section id="broadcast-receivers" class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <h2 class="text-primary-600 text-3xl font-light mb-6">Broadcast Receivers</h2>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                        <p class="mb-4">Broadcast Receivers respond to broadcast messages from other apps or the system. They are used for system events (like battery low) or custom app events.</p>
+                        <p>Broadcast receivers can be registered either statically in the manifest or dynamically in code.</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="section4" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 4 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Section 5: Static Registration -->
+            <section id="static-registration" class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <h3 class="text-secondary-600 text-2xl font-medium mb-6">Static Registration (Manifest)</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Static registration happens in the AndroidManifest.xml file. These receivers are always available, even when the app is not running.</p>
+
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                        <h4 class="text-white text-lg font-semibold mb-3">AndroidManifest.xml</h4>
+                        <pre><code class="language-xml">&lt;receiver android:name=".MyReceiver"&gt;
+    &lt;intent-filter&gt;
+        &lt;action android:name="android.intent.action.BOOT_COMPLETED" /&gt;
+        &lt;action android:name="android.intent.action.BATTERY_LOW" /&gt;
+    &lt;/intent-filter&gt;
+&lt;/receiver&gt;</code></pre>
+                    </div>
+
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto mt-6">
+                        <h4 class="text-white text-lg font-semibold mb-3">BroadcastReceiver Implementation</h4>
+                        <pre><code class="language-java">public class MyReceiver extends BroadcastReceiver {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        String action = intent.getAction();
+        if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
+            // Handle boot completed
+            Toast.makeText(context, "Boot completed!", Toast.LENGTH_SHORT).show();
+        } else if (Intent.ACTION_BATTERY_LOW.equals(action)) {
+            // Handle low battery
+            Toast.makeText(context, "Battery low!", Toast.LENGTH_SHORT).show();
+        }
+    }
+}</code></pre>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="section5" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 5 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Section 6: Dynamic Registration -->
+            <section id="dynamic-registration" class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <h3 class="text-secondary-600 text-2xl font-medium mb-6">Dynamic Registration (Runtime)</h3>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <p class="mb-6">Dynamic registration happens in code and allows receivers to be registered and unregistered at runtime. These receivers only work when the app is running.</p>
+
+                    <div class="code-example bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                        <h4 class="text-white text-lg font-semibold mb-3">Dynamic Registration Example</h4>
+                        <pre><code class="language-java">public class MainActivity extends AppCompatActivity {
+    private BroadcastReceiver receiver;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Create receiver
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (Intent.ACTION_BATTERY_LOW.equals(intent.getAction())) {
+                    Toast.makeText(context, "Battery Low!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Register receiver
+        IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_LOW);
+        registerReceiver(receiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Unregister receiver
+        unregisterReceiver(receiver);
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="important-notes bg-yellow-50 p-6 rounded-lg mt-6">
+                        <h4 class="text-yellow-800 font-semibold mb-3">⚠️ Important Notes:</h4>
+                        <ul class="list-disc list-inside space-y-2 text-yellow-700">
+                            <li>Always unregister dynamically registered receivers in onPause()</li>
+                            <li>Static receivers can wake up a stopped app</li>
+                            <li>Dynamic receivers only work while the app is running</li>
+                            <li>Consider battery life when using broadcast receivers</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="section6" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 6 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Section 7: Best Practices -->
+            <section id="best-practices" class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <h2 class="text-primary-600 text-3xl font-light mb-6">Best Practices</h2>
+                <div class="section-content text-lg text-gray-700 mb-6">
+                    <div class="best-practices-grid grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="practice-card bg-blue-50 p-6 rounded-lg">
+                            <h4 class="text-blue-800 font-semibold mb-3">Intent Security</h4>
+                            <ul class="list-disc list-inside space-y-2 text-blue-700">
+                                <li>Use explicit intents when possible</li>
+                                <li>Validate intent data before use</li>
+                                <li>Check calling package for sensitive operations</li>
+                                <li>Use permissions appropriately</li>
+                            </ul>
+                        </div>
+
+                        <div class="practice-card bg-green-50 p-6 rounded-lg">
+                            <h4 class="text-green-800 font-semibold mb-3">Broadcast Receiver Optimization</h4>
+                            <ul class="list-disc list-inside space-y-2 text-green-700">
+                                <li>Keep processing in onReceive() minimal</li>
+                                <li>Use LocalBroadcastManager for internal broadcasts</li>
+                                <li>Register/unregister at appropriate lifecycle points</li>
+                                <li>Consider using WorkManager for background work</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="common-pitfalls bg-red-50 p-6 rounded-lg mt-6">
+                        <h4 class="text-red-800 font-semibold mb-3">Common Pitfalls to Avoid</h4>
+                        <ul class="list-disc list-inside space-y-2 text-red-700">
+                            <li>Don't perform long operations in onReceive()</li>
+                            <li>Avoid registering receivers in onCreate()</li>
+                            <li>Don't forget to unregister dynamic receivers</li>
+                            <li>Be careful with implicit intents and data exposure</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" onclick="toggleTTS(this)">
+                        <span>🔊</span>
+                        <span>Read Aloud</span>
+                    </button>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="section7" class="progress-checkbox w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 mr-3" onchange="updateProgress()" aria-label="Mark section 7 as complete">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </section>
+        </article>
 
         <div class="bg-white rounded-2xl shadow-xl p-6 mt-12">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">

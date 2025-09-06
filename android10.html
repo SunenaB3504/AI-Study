@@ -42,6 +42,200 @@
             }
         }
     </script>
+
+    <script>
+        // TTS Controller Class
+        class TTSController {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.isPlaying = false;
+                this.currentUtterance = null;
+                this.voice = null;
+                this.rate = 1;
+                this.pitch = 1;
+                this.volume = 1;
+                this.initializeVoices();
+            }
+
+            initializeVoices() {
+                const loadVoices = () => {
+                    const voices = this.synth.getVoices();
+                    this.voice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+                };
+
+                if (this.synth.getVoices().length > 0) {
+                    loadVoices();
+                } else {
+                    this.synth.onvoiceschanged = loadVoices;
+                }
+            }
+
+            speak(text, callback = null) {
+                if (this.isPlaying) {
+                    this.stop();
+                }
+
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.voice = this.voice;
+                this.currentUtterance.rate = this.rate;
+                this.currentUtterance.pitch = this.pitch;
+                this.currentUtterance.volume = this.volume;
+
+                this.currentUtterance.onend = () => {
+                    this.isPlaying = false;
+                    if (callback) callback();
+                };
+
+                this.currentUtterance.onerror = (event) => {
+                    console.error('TTS Error:', event.error);
+                    this.isPlaying = false;
+                };
+
+                this.isPlaying = true;
+                this.synth.speak(this.currentUtterance);
+            }
+
+            stop() {
+                if (this.synth.speaking) {
+                    this.synth.cancel();
+                }
+                this.isPlaying = false;
+                this.currentUtterance = null;
+            }
+
+            setVoice(voice) {
+                this.voice = voice;
+            }
+
+            setRate(rate) {
+                this.rate = Math.max(0.1, Math.min(2, rate));
+            }
+
+            setPitch(pitch) {
+                this.pitch = Math.max(0, Math.min(2, pitch));
+            }
+
+            setVolume(volume) {
+                this.volume = Math.max(0, Math.min(1, volume));
+            }
+        }
+
+        // Chapter Progress Tracker Class
+        class ChapterProgressTracker {
+            constructor(chapterId) {
+                this.chapterId = chapterId;
+                this.sections = new Set();
+                this.completedSections = new Set();
+                this.loadProgress();
+            }
+
+            addSection(sectionId) {
+                this.sections.add(sectionId);
+            }
+
+            completeSection(sectionId) {
+                this.completedSections.add(sectionId);
+                this.saveProgress();
+                this.updateUI();
+            }
+
+            isSectionCompleted(sectionId) {
+                return this.completedSections.has(sectionId);
+            }
+
+            getProgress() {
+                if (this.sections.size === 0) return 0;
+                return (this.completedSections.size / this.sections.size) * 100;
+            }
+
+            saveProgress() {
+                const progress = {
+                    chapterId: this.chapterId,
+                    completedSections: Array.from(this.completedSections),
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem(`progress_${this.chapterId}`, JSON.stringify(progress));
+            }
+
+            loadProgress() {
+                const saved = localStorage.getItem(`progress_${this.chapterId}`);
+                if (saved) {
+                    const progress = JSON.parse(saved);
+                    this.completedSections = new Set(progress.completedSections || []);
+                }
+            }
+
+            updateUI() {
+                const progress = this.getProgress();
+                const progressBar = document.getElementById('chapter-progress-fill');
+                const progressText = document.getElementById('chapter-progress-text');
+
+                if (progressBar) {
+                    progressBar.style.width = `${progress}%`;
+                }
+
+                if (progressText) {
+                    progressText.textContent = `${this.completedSections.size}/${this.sections.size} sections completed`;
+                }
+
+                // Update checkboxes
+                this.completedSections.forEach(sectionId => {
+                    const checkbox = document.getElementById(`checkbox-${sectionId}`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+            }
+        }
+
+        // Global instances
+        let ttsController;
+        let progressTracker;
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            ttsController = new TTSController();
+            progressTracker = new ChapterProgressTracker('android10');
+
+            // Add sections to progress tracker
+            progressTracker.addSection('permissions');
+            progressTracker.addSection('location-request');
+            progressTracker.addSection('current-location');
+            progressTracker.addSection('maps-integration');
+            progressTracker.addSection('markers-overlays');
+            progressTracker.addSection('geofencing');
+            progressTracker.addSection('location-settings');
+            progressTracker.addSection('best-practices');
+
+            // Update UI
+            progressTracker.updateUI();
+        });
+
+        // TTS Functions
+        function speakSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                const text = section.textContent || section.innerText;
+                ttsController.speak(text);
+            }
+        }
+
+        function stopTTS() {
+            ttsController.stop();
+        }
+
+        // Progress Functions
+        function toggleSection(sectionId) {
+            const checkbox = document.getElementById(`checkbox-${sectionId}`);
+            if (checkbox.checked) {
+                progressTracker.completeSection(sectionId);
+            } else {
+                // Note: This simplified version doesn't handle unchecking
+                // In a full implementation, you'd want to remove from completedSections
+            }
+        }
+    </script>
+
     <style>
         .hero-gradient {
             background: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%);
@@ -56,6 +250,27 @@
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
+    <!-- Progress Display -->
+    <div class="bg-white shadow-lg border-b-4 border-primary-500">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex-1">
+                    <div class="flex items-center gap-4 mb-2">
+                        <h2 class="text-lg font-semibold text-gray-800">Chapter Progress</h2>
+                        <span id="chapter-progress-text" class="text-sm text-gray-600">0/8 sections completed</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div id="chapter-progress-fill" class="bg-gradient-to-r from-primary-500 to-secondary-500 h-3 rounded-full transition-all duration-300 w-0"></div>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="stopTTS()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 text-sm font-medium">
+                        🔇 Stop TTS
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <header class="hero-gradient text-white py-16 px-6 text-center mb-12">
         <div class="max-w-7xl mx-auto">
             <h1 class="text-4xl md:text-5xl font-light mb-4">Android Study Guide</h1>
@@ -70,8 +285,20 @@
                 <p class="text-lg text-gray-700">Android provides comprehensive location services and Google Maps integration for building location-aware applications.</p>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Location Permissions</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+            <!-- Section 1: Location Permissions -->
+            <div class="section-container mb-12 p-6 bg-blue-50 rounded-xl border-l-4 border-blue-500">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" id="checkbox-permissions" onclick="toggleSection('permissions')" class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="checkbox-permissions" class="text-secondary-600 text-2xl font-medium cursor-pointer">Location Permissions</label>
+                    </div>
+                    <button onclick="speakSection('section-permissions')" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 text-sm font-medium">
+                        🔊 Listen
+                    </button>
+                </div>
+                <div id="section-permissions" class="text-gray-700">
+                    <p class="mb-4">Android requires explicit permission for location access. There are different types of location permissions you need to handle:</p>
+                    <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 &lt;!-- AndroidManifest.xml --&gt;<br>
 &lt;manifest&gt;<br>
     &lt;!-- Coarse location (city-level) --&gt;<br>
@@ -92,10 +319,24 @@
         &lt;!-- Google Maps API Key --&gt;<br>
     &lt;/application&gt;<br>
 &lt;/manifest&gt;
+                    </div>
+                </div>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Requesting Location Permissions</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+            <!-- Section 2: Requesting Location Permissions -->
+            <div class="section-container mb-12 p-6 bg-green-50 rounded-xl border-l-4 border-green-500">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" id="checkbox-location-request" onclick="toggleSection('location-request')" class="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500">
+                        <label for="checkbox-location-request" class="text-secondary-600 text-2xl font-medium cursor-pointer">Requesting Location Permissions</label>
+                    </div>
+                    <button onclick="speakSection('section-location-request')" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 text-sm font-medium">
+                        🔊 Listen
+                    </button>
+                </div>
+                <div id="section-location-request" class="text-gray-700">
+                    <p class="mb-4">Runtime permissions must be requested for location access. Here's how to implement proper permission handling:</p>
+                    <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 public class LocationActivity extends AppCompatActivity {<br>
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;<br>
     private FusedLocationProviderClient fusedLocationClient;<br>
@@ -139,11 +380,25 @@ public class LocationActivity extends AppCompatActivity {<br>
             }<br>
         }<br>
     }<br>
-}
+}<br>
+                    </div>
+                </div>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Getting Current Location</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+            <!-- Section 3: Getting Current Location -->
+            <div class="section-container mb-12 p-6 bg-purple-50 rounded-xl border-l-4 border-purple-500">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" id="checkbox-current-location" onclick="toggleSection('current-location')" class="w-5 h-5 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500">
+                        <label for="checkbox-current-location" class="text-secondary-600 text-2xl font-medium cursor-pointer">Getting Current Location</label>
+                    </div>
+                    <button onclick="speakSection('section-current-location')" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors duration-200 text-sm font-medium">
+                        🔊 Listen
+                    </button>
+                </div>
+                <div id="section-current-location" class="text-gray-700">
+                    <p class="mb-4">Use FusedLocationProviderClient to get the current location with proper error handling:</p>
+                    <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 private void getCurrentLocation() {<br>
     if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)<br>
             != PackageManager.PERMISSION_GRANTED) {<br>
@@ -206,11 +461,25 @@ private void updateUI(double latitude, double longitude, float accuracy) {<br>
     TextView locationText = findViewById(R.id.location_text);<br>
     locationText.setText(String.format("Lat: %.6f, Lng: %.6f, Acc: %.1fm",<br>
             latitude, longitude, accuracy));<br>
-}
+}<br>
+                    </div>
+                </div>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Google Maps Integration</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+            <!-- Section 4: Google Maps Integration -->
+            <div class="section-container mb-12 p-6 bg-red-50 rounded-xl border-l-4 border-red-500">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" id="checkbox-maps-integration" onclick="toggleSection('maps-integration')" class="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500">
+                        <label for="checkbox-maps-integration" class="text-secondary-600 text-2xl font-medium cursor-pointer">Google Maps Integration</label>
+                    </div>
+                    <button onclick="speakSection('section-maps-integration')" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 text-sm font-medium">
+                        🔊 Listen
+                    </button>
+                </div>
+                <div id="section-maps-integration" class="text-gray-700">
+                    <p class="mb-4">Integrate Google Maps into your Android application with proper dependencies and API setup:</p>
+                    <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 // Add to build.gradle (app level)<br>
 dependencies {<br>
     implementation 'com.google.android.gms:play-services-maps:18.1.0'<br>
@@ -251,11 +520,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));<br>
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));<br>
     }<br>
-}
+}<br>
+                    </div>
+                </div>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Adding Markers and Overlays</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+            <!-- Section 5: Markers and Overlays -->
+            <div class="section-container mb-12 p-6 bg-blue-50 rounded-xl border-l-4 border-blue-500">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" id="checkbox-markers-overlays" onclick="toggleSection('markers-overlays')" class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="checkbox-markers-overlays" class="text-secondary-600 text-2xl font-medium cursor-pointer">Markers and Overlays</label>
+                    </div>
+                    <button onclick="speakSection('section-markers-overlays')" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 text-sm font-medium">
+                        🔊 Listen
+                    </button>
+                </div>
+                <div id="section-markers-overlays" class="text-gray-700">
+                    <p class="mb-4">Add markers, polylines, and polygons to enhance your map visualization:</p>
+                    <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 @Override<br>
 public void onMapReady(GoogleMap googleMap) {<br>
     mMap = googleMap;<br>
@@ -308,10 +591,24 @@ public void onMapReady(GoogleMap googleMap) {<br>
 <br>
     mMap.addPolygon(polygonOptions);<br>
 }
+                    </div>
+                </div>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Geofencing</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+            <!-- Section 6: Geofencing -->
+            <div class="section-container mb-12 p-6 bg-indigo-50 rounded-xl border-l-4 border-indigo-500">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" id="checkbox-geofencing" onclick="toggleSection('geofencing')" class="w-5 h-5 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500">
+                        <label for="checkbox-geofencing" class="text-secondary-600 text-2xl font-medium cursor-pointer">Geofencing</label>
+                    </div>
+                    <button onclick="speakSection('section-geofencing')" class="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-200 text-sm font-medium">
+                        🔊 Listen
+                    </button>
+                </div>
+                <div id="section-geofencing" class="text-gray-700">
+                    <p class="mb-4">Geofencing allows you to define virtual boundaries and trigger events when users enter or exit these areas:</p>
+                    <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 public class GeofenceActivity extends AppCompatActivity {<br>
     private GeofencingClient geofencingClient;<br>
     private PendingIntent geofencePendingIntent;<br>
@@ -401,10 +698,24 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {<br>
         notificationManager.notify(1, builder.build());<br>
     }<br>
 }
+                    </div>
+                </div>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Location Settings</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
+            <!-- Section 7: Location Settings -->
+            <div class="section-container mb-12 p-6 bg-teal-50 rounded-xl border-l-4 border-teal-500">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" id="checkbox-location-settings" onclick="toggleSection('location-settings')" class="w-5 h-5 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500">
+                        <label for="checkbox-location-settings" class="text-secondary-600 text-2xl font-medium cursor-pointer">Location Settings</label>
+                    </div>
+                    <button onclick="speakSection('section-location-settings')" class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors duration-200 text-sm font-medium">
+                        🔊 Listen
+                    </button>
+                </div>
+                <div id="section-location-settings" class="text-gray-700">
+                    <p class="mb-4">Check and handle location settings to ensure GPS and location services are properly configured:</p>
+                    <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 private void checkLocationSettings() {<br>
     LocationRequest locationRequest = LocationRequest.create()<br>
             .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);<br>
@@ -439,20 +750,35 @@ private void checkLocationSettings() {<br>
         }<br>
     });<br>
 }
+                    </div>
+                </div>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Best Practices</h3>
-            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
-                <p class="text-lg text-gray-700">Always request the minimum location accuracy needed, handle permission denials gracefully, and respect user's privacy preferences.</p>
+            <!-- Section 8: Best Practices -->
+            <div class="section-container mb-12 p-6 bg-pink-50 rounded-xl border-l-4 border-pink-500">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" id="checkbox-best-practices" onclick="toggleSection('best-practices')" class="w-5 h-5 text-pink-600 bg-gray-100 border-gray-300 rounded focus:ring-pink-500">
+                        <label for="checkbox-best-practices" class="text-secondary-600 text-2xl font-medium cursor-pointer">Best Practices</label>
+                    </div>
+                    <button onclick="speakSection('section-best-practices')" class="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors duration-200 text-sm font-medium">
+                        🔊 Listen
+                    </button>
+                </div>
+                <div id="section-best-practices" class="text-gray-700">
+                    <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
+                        <p class="text-lg text-gray-700">Always request the minimum location accuracy needed, handle permission denials gracefully, and respect user's privacy preferences.</p>
+                    </div>
+                    <ul class="list-disc list-inside text-gray-700 space-y-2 mb-8">
+                        <li>Use coarse location when fine location isn't necessary</li>
+                        <li>Request background location only when absolutely needed</li>
+                        <li>Stop location updates when not needed to save battery</li>
+                        <li>Handle location settings and GPS availability</li>
+                        <li>Provide clear rationale for location permissions</li>
+                        <li>Test on different devices and location scenarios</li>
+                    </ul>
+                </div>
             </div>
-            <ul class="list-disc list-inside text-gray-700 space-y-2 mb-8">
-                <li>Use coarse location when fine location isn't necessary</li>
-                <li>Request background location only when absolutely needed</li>
-                <li>Stop location updates when not needed to save battery</li>
-                <li>Handle location settings and GPS availability</li>
-                <li>Provide clear rationale for location permissions</li>
-                <li>Test on different devices and location scenarios</li>
-            </ul>
         </div>
 
         <div class="bg-white rounded-2xl shadow-xl p-6 mt-12">

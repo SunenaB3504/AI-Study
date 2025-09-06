@@ -53,6 +53,33 @@
             transform: translateY(-2px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+        .tts-highlight {
+            background-color: #fef3c7;
+            padding: 2px 4px;
+            border-radius: 3px;
+            animation: highlight 2s ease-out;
+        }
+
+        @keyframes highlight {
+            0% { background-color: #fef3c7; }
+            100% { background-color: transparent; }
+        }
+
+        .code-block {
+            position: relative;
+        }
+
+        .code-block:hover .copy-btn {
+            opacity: 1;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
@@ -63,18 +90,60 @@
         </div>
     </header>
 
+    <!-- Progress Bar -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600">Chapter Progress:</span>
+                <span id="progress-text" class="font-medium text-gray-800">0/12 sections completed</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
+                <div id="chapter-progress" class="bg-green-500 h-3 rounded-full transition-all duration-300 w-0"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TTS Controls -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <button id="play-pause-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                        <i class="fas fa-play"></i>
+                        <span>Play</span>
+                    </button>
+                    <button id="stop-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <label for="tts-rate" class="text-sm font-medium text-gray-700">Speed:</label>
+                    <input type="range" id="tts-rate" min="0.5" max="2" step="0.1" value="1" class="w-20">
+                    <span id="rate-value" class="text-sm font-medium text-gray-700 w-8">1.0x</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <label for="tts-pitch" class="text-sm font-medium text-gray-700">Pitch:</label>
+                    <input type="range" id="tts-pitch" min="0.5" max="2" step="0.1" value="1" class="w-20">
+                    <span id="pitch-value" class="text-sm font-medium text-gray-700 w-8">1.0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
-            <div class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+            <section id="introduction" class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
                 <h2 class="text-primary-600 text-3xl font-light mb-6">Introduction to Android</h2>
                 <p class="text-lg text-gray-700 mb-6">Android is an open source software stack that includes the operating system, middleware, and key applications along with a set of API libraries for writing mobile applications that can shape the look, feel, and function of mobile handsets.</p>
                 
                 <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
                     <strong class="text-primary-700">What Android Is:</strong> A comprehensive platform for mobile devices, all of the software to run a mobile phone but without the proprietary obstacles that have hindered mobile innovation.
                 </div>
-            </div>
+            </section>
 
-            <div class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+            <section id="background" class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
                 <h2 class="text-primary-600 text-3xl font-light mb-6">A Little Background</h2>
                 <p class="text-lg text-gray-700 mb-6">Mobile phones have evolved from simple communication devices to powerful multifunctional tools incorporating cameras, media players, GPS systems, and touch screens. However, the software platforms have struggled to keep pace with this hardware evolution.</p>
                 
@@ -83,9 +152,9 @@
                 
                 <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">The Future</h3>
                 <p class="text-lg text-gray-700 mb-6">Android represents a new wave of mobile operating systems designed for increasingly powerful mobile hardware. It provides an open development environment built on an open source Linux kernel with total access to device hardware and capabilities.</p>
-            </div>
+            </section>
 
-            <div class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+            <section id="what-android-isnt" class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
                 <h2 class="text-primary-600 text-3xl font-light mb-6">What Android Isn't</h2>
                 <ul class="text-lg text-gray-700 space-y-3">
                     <li><strong class="text-primary-700">Not a Java ME implementation:</strong> Android applications are written in Java but run on Dalvik VM, not Java ME</li>
@@ -94,9 +163,9 @@
                     <li><strong class="text-primary-700">Not a single handset:</strong> Android is a platform that can run on many different devices</li>
                     <li><strong class="text-primary-700">Not iPhone's answer:</strong> Android is open source and equal, not proprietary like iPhone</li>
                 </ul>
-            </div>
+            </section>
 
-            <div class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+            <section id="open-platform" class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
                 <h2 class="text-primary-600 text-3xl font-light mb-6">An Open Platform for Mobile Development</h2>
                 <p class="text-lg text-gray-700 mb-6">Android consists of several essential and dependent parts:</p>
                 <ul class="text-lg text-gray-700 space-y-3">
@@ -109,9 +178,9 @@
                     <li><strong class="text-primary-700">Preinstalled applications</strong> - Shipped as part of the stack</li>
                     <li><strong class="text-primary-700">Software development kit</strong> - Tools, APIs, documentation for creating applications</li>
                 </ul>
-            </div>
+            </section>
 
-            <div class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+            <section id="native-applications" class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
                 <h2 class="text-primary-600 text-3xl font-light mb-6">Native Android Applications</h2>
                 <p class="text-lg text-gray-700 mb-8">Android ships with a suite of preinstalled applications including:</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -148,9 +217,9 @@
                         <p class="text-gray-700">Android Market for downloading third-party applications</p>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+            <section id="sdk-features" class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
                 <h2 class="text-primary-600 text-3xl font-light mb-6">Android SDK Features</h2>
                 <p class="text-lg text-gray-700 mb-8">The true appeal of Android lies in its comprehensive APIs:</p>
                 
@@ -188,9 +257,9 @@
                         <p class="text-gray-700">2D canvas drawing and 3D graphics with OpenGL</p>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+            <section id="software-stack" class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
                 <h2 class="text-primary-600 text-3xl font-light mb-6">Understanding the Android Software Stack</h2>
                 <div class="text-center my-12">
                     <div class="inline-block bg-primary-500 text-white px-6 py-3 mx-2 my-2 rounded-full text-lg font-medium shadow-lg">Applications</div>
@@ -214,9 +283,9 @@
                 
                 <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Application Layer</h3>
                 <p class="text-lg text-gray-700 mb-6">All applications, both native and third-party, built on the same API libraries and executed on the same run time.</p>
-            </div>
+            </section>
 
-            <div class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+            <section id="dalvik-vm" class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
                 <h2 class="text-primary-600 text-3xl font-light mb-6">The Dalvik Virtual Machine</h2>
                 <p class="text-lg text-gray-700 mb-6">Dalvik is Android's custom virtual machine optimized for mobile devices:</p>
                 <ul class="text-lg text-gray-700 space-y-3">
@@ -225,9 +294,9 @@
                     <li><strong class="text-primary-700">Linux kernel integration</strong> - Uses kernel for threading and memory management</li>
                     <li><strong class="text-primary-700">Dex format</strong> - Optimized executable format for minimal memory footprint</li>
                 </ul>
-            </div>
+            </section>
 
-            <div class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+            <section id="app-architecture" class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
                 <h2 class="text-primary-600 text-3xl font-light mb-6">Android Application Architecture</h2>
                 <p class="text-lg text-gray-700 mb-6">Android encourages component reuse through loosely coupled architecture:</p>
                 
@@ -248,9 +317,9 @@
                 
                 <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Notifications</h3>
                 <p class="text-lg text-gray-700 mb-6">User notification framework for background services</p>
-            </div>
+            </section>
 
-            <div class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+            <section id="android-libraries" class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
                 <h2 class="text-primary-600 text-3xl font-light mb-6">Android Libraries</h2>
                 <p class="text-lg text-gray-700 mb-6">Android provides comprehensive APIs for application development:</p>
                 
@@ -267,9 +336,9 @@ com.google.android.maps - Native map controls<br>
 android.app - Application model APIs<br>
 android.provider - Access to native databases
                 </div>
-            </div>
+            </section>
 
-            <div class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+            <section id="advanced-libraries" class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
                 <h2 class="text-primary-600 text-3xl font-light mb-6">Advanced Android Libraries</h2>
                 <p class="text-lg text-gray-700 mb-6">Additional APIs for advanced functionality:</p>
                 <ul class="text-lg text-gray-700 space-y-3">
@@ -279,9 +348,9 @@ android.provider - Access to native databases
                     <li><strong class="text-primary-700">Hardware APIs</strong> - Camera, accelerometer, compass sensors</li>
                     <li><strong class="text-primary-700">Communication APIs</strong> - Bluetooth, Wi-Fi, telephony</li>
                 </ul>
-            </div>
+            </section>
 
-            <div class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+            <section id="why-develop" class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
                 <h2 class="text-primary-600 text-3xl font-light mb-6">Why Develop for Android?</h2>
                 <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
                     <p class="text-lg text-gray-700">Android offers developers the opportunity to create innovative software applications for mobile devices without the restrictions generally associated with existing proprietary mobile development frameworks.</p>
@@ -296,90 +365,94 @@ android.provider - Access to native databases
                     <li><strong class="text-primary-700">Thriving community</strong> - Active developer community and support</li>
                     <li><strong class="text-primary-700">No licensing fees</strong> - Free development and distribution</li>
                 </ul>
-            </div>
+            </section>
 
-            <div class="bg-blue-50 border border-blue-200 rounded-xl p-8 my-12">
-                <h4 class="text-blue-800 text-xl font-semibold mb-4">Practice Exercise: Setting Up Your Development Environment</h4>
-                <ol class="text-blue-700 space-y-2">
-                    <li>Download the Android SDK from the official Android website</li>
-                    <li>Install Java Development Kit (JDK) version 5 or 6</li>
-                    <li>Download and install Eclipse IDE</li>
-                    <li>Install the Android Development Tools (ADT) plug-in for Eclipse</li>
-                    <li>Configure the ADT plug-in with your SDK location</li>
-                    <li>Create your first Android project using the New Project Wizard</li>
-                    <li>Run the Hello World application on the Android emulator</li>
-                </ol>
-            </div>
+            <section id="practice-exercise" class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-8 my-12">
+                    <h4 class="text-blue-800 text-xl font-semibold mb-4">Practice Exercise: Setting Up Your Development Environment</h4>
+                    <ol class="text-blue-700 space-y-2">
+                        <li>Download the Android SDK from the official Android website</li>
+                        <li>Install Java Development Kit (JDK) version 5 or 6</li>
+                        <li>Download and install Eclipse IDE</li>
+                        <li>Install the Android Development Tools (ADT) plug-in for Eclipse</li>
+                        <li>Configure the ADT plug-in with your SDK location</li>
+                        <li>Create your first Android project using the New Project Wizard</li>
+                        <li>Run the Hello World application on the Android emulator</li>
+                    </ol>
+                </div>
+            </section>
 
-            <div class="hero-gradient text-white p-8 rounded-2xl my-12">
-                <h3 class="text-2xl font-light mb-8">Chapter Quiz</h3>
-                
-                <div class="mb-8">
-                    <h4 class="text-xl font-medium mb-4">1. What is Android?</h4>
-                    <div class="ml-6 space-y-2">
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="q1" class="mr-3">
-                            <span>A Java ME implementation</span>
-                        </label>
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="q1" class="mr-3">
-                            <span>An open source software stack for mobile devices</span>
-                        </label>
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="q1" class="mr-3">
-                            <span>A proprietary operating system</span>
-                        </label>
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="q1" class="mr-3">
-                            <span>A single mobile handset</span>
-                        </label>
+            <section id="chapter-quiz" class="mb-16 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                <div class="hero-gradient text-white p-8 rounded-2xl my-12">
+                    <h3 class="text-2xl font-light mb-8">Chapter Quiz</h3>
+                    
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium mb-4">1. What is Android?</h4>
+                        <div class="ml-6 space-y-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="q1" class="mr-3">
+                                <span>A Java ME implementation</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="q1" class="mr-3">
+                                <span>An open source software stack for mobile devices</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="q1" class="mr-3">
+                                <span>A proprietary operating system</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="q1" class="mr-3">
+                                <span>A single mobile handset</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium mb-4">2. Which of the following is NOT a component of Android's software stack?</h4>
+                        <div class="ml-6 space-y-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="q2" class="mr-3">
+                                <span>Linux Kernel</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="q2" class="mr-3">
+                                <span>Dalvik Virtual Machine</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="q2" class="mr-3">
+                                <span>Windows Operating System</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="q2" class="mr-3">
+                                <span>Application Framework</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <h4 class="text-xl font-medium mb-4">3. What is the primary advantage of Android's open platform approach?</h4>
+                        <div class="ml-6 space-y-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="q3" class="mr-3">
+                                <span>Lower development costs</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="q3" class="mr-3">
+                                <span>Freedom to create innovative applications without artificial barriers</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="q3" class="mr-3">
+                                <span>Exclusive access to Google services</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="q3" class="mr-3">
+                                <span>Guaranteed market dominance</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="mb-8">
-                    <h4 class="text-xl font-medium mb-4">2. Which of the following is NOT a component of Android's software stack?</h4>
-                    <div class="ml-6 space-y-2">
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="q2" class="mr-3">
-                            <span>Linux Kernel</span>
-                        </label>
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="q2" class="mr-3">
-                            <span>Dalvik Virtual Machine</span>
-                        </label>
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="q2" class="mr-3">
-                            <span>Windows Operating System</span>
-                        </label>
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="q2" class="mr-3">
-                            <span>Application Framework</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="mb-8">
-                    <h4 class="text-xl font-medium mb-4">3. What is the primary advantage of Android's open platform approach?</h4>
-                    <div class="ml-6 space-y-2">
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="q3" class="mr-3">
-                            <span>Lower development costs</span>
-                        </label>
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="q3" class="mr-3">
-                            <span>Freedom to create innovative applications without artificial barriers</span>
-                        </label>
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="q3" class="mr-3">
-                            <span>Exclusive access to Google services</span>
-                        </label>
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="q3" class="mr-3">
-                            <span>Guaranteed market dominance</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
+            </section>
         </div>
 
         <div class="bg-white rounded-2xl shadow-xl p-6 mt-12">
@@ -390,7 +463,260 @@ android.provider - Access to native databases
         </div>
     </div>
 
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script>
+        // TTS Controller
+        class TTSController {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.currentUtterance = null;
+                this.isPlaying = false;
+                this.currentSection = null;
+                this.rate = parseFloat(localStorage.getItem('ttsRate')) || 1;
+                this.pitch = parseFloat(localStorage.getItem('ttsPitch')) || 1;
+                this.voice = null;
+                this.initialize();
+            }
+
+            async initialize() {
+                // Wait for voices to load
+                if (this.synth.getVoices().length === 0) {
+                    await new Promise(resolve => {
+                        this.synth.onvoiceschanged = resolve;
+                        setTimeout(resolve, 1000); // Fallback timeout
+                    });
+                }
+
+                const voices = this.synth.getVoices();
+                // Prefer English voices
+                this.voice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+
+                this.updateControls();
+            }
+
+            updateControls() {
+                const rateInput = document.getElementById('tts-rate');
+                const pitchInput = document.getElementById('tts-pitch');
+                const rateValue = document.getElementById('rate-value');
+                const pitchValue = document.getElementById('pitch-value');
+
+                if (rateInput) rateInput.value = this.rate;
+                if (pitchInput) pitchInput.value = this.pitch;
+                if (rateValue) rateValue.textContent = this.rate.toFixed(1) + 'x';
+                if (pitchValue) pitchValue.textContent = this.pitch.toString();
+            }
+
+            speak(text, element = null) {
+                if (this.isPlaying) {
+                    this.stop();
+                }
+
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.voice = this.voice;
+                this.currentUtterance.rate = this.rate;
+                this.currentUtterance.pitch = this.pitch;
+
+                if (element) {
+                    this.currentUtterance.onboundary = (event) => {
+                        if (event.name === 'word') {
+                            this.highlightWord(element, event.charIndex);
+                        }
+                    };
+                }
+
+                this.currentUtterance.onend = () => {
+                    this.isPlaying = false;
+                    this.updatePlayButton();
+                    if (element) {
+                        element.classList.remove('tts-highlight');
+                    }
+                };
+
+                this.synth.speak(this.currentUtterance);
+                this.isPlaying = true;
+                this.updatePlayButton();
+            }
+
+            highlightWord(element, charIndex) {
+                // Simple highlighting - could be enhanced
+                element.classList.add('tts-highlight');
+            }
+
+            stop() {
+                if (this.synth.speaking) {
+                    this.synth.cancel();
+                }
+                this.isPlaying = false;
+                this.currentUtterance = null;
+                this.updatePlayButton();
+            }
+
+            setRate(rate) {
+                this.rate = rate;
+                localStorage.setItem('ttsRate', rate);
+                if (this.currentUtterance) {
+                    this.currentUtterance.rate = rate;
+                }
+            }
+
+            setPitch(pitch) {
+                this.pitch = pitch;
+                localStorage.setItem('ttsPitch', pitch);
+                if (this.currentUtterance) {
+                    this.currentUtterance.pitch = pitch;
+                }
+            }
+
+            updatePlayButton() {
+                const btn = document.getElementById('play-pause-btn');
+                const icon = btn.querySelector('i');
+                const span = btn.querySelector('span');
+
+                if (this.isPlaying) {
+                    icon.className = 'fas fa-pause';
+                    span.textContent = 'Pause';
+                } else {
+                    icon.className = 'fas fa-play';
+                    span.textContent = 'Play';
+                }
+            }
+        }
+
+        // Chapter Progress Tracker
+        class ChapterTracker {
+            constructor() {
+                this.totalSections = 12;
+                this.completedSections = new Set(
+                    JSON.parse(localStorage.getItem('android1Progress') || '[]')
+                );
+                this.initialize();
+            }
+
+            initialize() {
+                this.updateProgress();
+                this.setupSectionTracking();
+            }
+
+            setupSectionTracking() {
+                const sections = document.querySelectorAll('section[id]');
+                sections.forEach(section => {
+                    const sectionId = section.id;
+
+                    // Check if section is in viewport
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                this.markSectionComplete(sectionId);
+                            }
+                        });
+                    }, { threshold: 0.5 });
+
+                    observer.observe(section);
+                });
+            }
+
+            markSectionComplete(sectionId) {
+                if (!this.completedSections.has(sectionId)) {
+                    this.completedSections.add(sectionId);
+                    this.saveProgress();
+                    this.updateProgress();
+                }
+            }
+
+            saveProgress() {
+                localStorage.setItem('android1Progress', JSON.stringify([...this.completedSections]));
+            }
+
+            updateProgress() {
+                const progress = (this.completedSections.size / this.totalSections) * 100;
+                const progressBar = document.getElementById('chapter-progress');
+                const progressText = document.getElementById('progress-text');
+
+                if (progressBar) {
+                    progressBar.style.width = progress + '%';
+                }
+                if (progressText) {
+                    progressText.textContent = `${this.completedSections.size}/${this.totalSections} sections completed`;
+                }
+            }
+
+            getCompletedCount() {
+                return this.completedSections.size;
+            }
+        }
+
+        // Initialize when DOM is loaded
+        let ttsController;
+        let chapterTracker;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            ttsController = new TTSController();
+            chapterTracker = new ChapterTracker();
+
+            // Setup TTS controls
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const stopBtn = document.getElementById('stop-btn');
+            const rateInput = document.getElementById('tts-rate');
+            const pitchInput = document.getElementById('tts-pitch');
+
+            if (playPauseBtn) {
+                playPauseBtn.addEventListener('click', () => {
+                    if (ttsController.isPlaying) {
+                        ttsController.stop();
+                    } else {
+                        const currentSection = document.querySelector('section[id]');
+                        if (currentSection) {
+                            const text = currentSection.textContent.replace(/\s+/g, ' ').trim();
+                            ttsController.speak(text, currentSection);
+                        }
+                    }
+                });
+            }
+
+            if (stopBtn) {
+                stopBtn.addEventListener('click', () => {
+                    ttsController.stop();
+                });
+            }
+
+            if (rateInput) {
+                rateInput.addEventListener('input', (e) => {
+                    ttsController.setRate(parseFloat(e.target.value));
+                });
+            }
+
+            if (pitchInput) {
+                pitchInput.addEventListener('input', (e) => {
+                    ttsController.setPitch(parseFloat(e.target.value));
+                });
+            }
+
+            // Setup section reading
+            document.querySelectorAll('section[id]').forEach(section => {
+                const readBtn = document.createElement('button');
+                readBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                readBtn.className = 'ml-2 px-2 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors';
+                readBtn.title = 'Read this section';
+
+                readBtn.addEventListener('click', () => {
+                    const text = section.textContent.replace(/\s+/g, ' ').trim();
+                    ttsController.speak(text, section);
+                });
+
+                const header = section.querySelector('h2');
+                if (header) {
+                    header.appendChild(readBtn);
+                }
+            });
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (ttsController) {
+                ttsController.stop();
+            }
+        });
+
         // Simple quiz functionality
         const quizQuestions = document.querySelectorAll('.quiz-question');
         

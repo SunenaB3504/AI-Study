@@ -4,74 +4,323 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Full-Stack Web Development: Chapter 3 - CSS Fundamentals</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
-</head>
-<body>
-    <header>
-        <nav>
-            <div class="nav-container">
-                <h1>Full-Stack Web Development Study Guide</h1>
-                <ul class="nav-menu">
-                    <li><a href="fullstack1.html">Chapter 1</a></li>
-                    <li><a href="fullstack2.html">Chapter 2</a></li>
-                    <li><a href="fullstack3.html" class="active">Chapter 3</a></li>
-                    <li><a href="fullstack4.html">Chapter 4</a></li>
-                </ul>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom JavaScript for TTS and Progress Tracking -->
+    <script>
+        // Text-to-Speech functionality
+        class TTSController {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.isPlaying = false;
+                this.currentUtterance = null;
+                this.voice = null;
+                this.rate = 1;
+                this.pitch = 1;
+                this.initializeVoice();
+            }
+
+            initializeVoice() {
+                const voices = this.synth.getVoices();
+                // Prefer English voices
+                this.voice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+            }
+
+            speak(text, element) {
+                if (this.isPlaying) {
+                    this.stop();
+                    return;
+                }
+
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.voice = this.voice;
+                this.currentUtterance.rate = this.rate;
+                this.currentUtterance.pitch = this.pitch;
+
+                this.currentUtterance.onstart = () => {
+                    this.isPlaying = true;
+                    element.classList.add('bg-blue-500', 'text-white');
+                    element.innerHTML = '<i class="fas fa-stop mr-2"></i>Stop TTS';
+                };
+
+                this.currentUtterance.onend = () => {
+                    this.isPlaying = false;
+                    element.classList.remove('bg-blue-500', 'text-white');
+                    element.classList.add('bg-green-500', 'hover:bg-green-600');
+                    element.innerHTML = '<i class="fas fa-play mr-2"></i>Read Aloud';
+                };
+
+                this.synth.speak(this.currentUtterance);
+            }
+
+            stop() {
+                if (this.synth.speaking) {
+                    this.synth.cancel();
+                }
+                this.isPlaying = false;
+                this.currentUtterance = null;
+            }
+
+            setRate(rate) {
+                this.rate = rate;
+                if (this.currentUtterance) {
+                    this.currentUtterance.rate = rate;
+                }
+            }
+
+            setPitch(pitch) {
+                this.pitch = pitch;
+                if (this.currentUtterance) {
+                    this.currentUtterance.pitch = pitch;
+                }
+            }
+        }
+
+        // Progress tracking
+        class ProgressTracker {
+            constructor() {
+                this.chapterId = 'fullstack3';
+                this.sections = [
+                    'introduction', 'syntax', 'selectors', 'box-model',
+                    'colors-units', 'typography', 'layout', 'responsive',
+                    'flexbox', 'css-grid', 'animations', 'best-practices', 'summary'
+                ];
+                this.progress = this.loadProgress();
+            }
+
+            loadProgress() {
+                const saved = localStorage.getItem(`progress_${this.chapterId}`);
+                return saved ? JSON.parse(saved) : {};
+            }
+
+            saveProgress() {
+                localStorage.setItem(`progress_${this.chapterId}`, JSON.stringify(this.progress));
+            }
+
+            markSectionComplete(sectionId) {
+                this.progress[sectionId] = true;
+                this.saveProgress();
+                this.updateProgressBar();
+            }
+
+            isSectionComplete(sectionId) {
+                return this.progress[sectionId] || false;
+            }
+
+            getCompletedSectionsCount() {
+                return Object.values(this.progress).filter(Boolean).length;
+            }
+
+            getTotalSectionsCount() {
+                return this.sections.length;
+            }
+
+            updateProgressBar() {
+                const completed = this.getCompletedSectionsCount();
+                const total = this.getTotalSectionsCount();
+                const percentage = (completed / total) * 100;
+
+                const progressBar = document.getElementById('chapter-progress');
+                const progressText = document.getElementById('progress-text');
+
+                if (progressBar && progressText) {
+                    progressBar.style.width = `${percentage}%`;
+                    progressText.textContent = `${completed}/${total} sections completed`;
+                }
+            }
+        }
+
+        // Initialize controllers
+        let ttsController;
+        let progressTracker;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            ttsController = new TTSController();
+            progressTracker = new ProgressTracker();
+
+            // Initialize progress bar
+            progressTracker.updateProgressBar();
+
+            // Add TTS buttons to sections
+            const sections = document.querySelectorAll('section[id]');
+            sections.forEach(section => {
+                const header = section.querySelector('h3');
+                if (header) {
+                    const ttsButton = document.createElement('button');
+                    ttsButton.className = 'tts-button ml-4 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2';
+                    ttsButton.innerHTML = '<i class="fas fa-play"></i> Read Aloud';
+
+                    ttsButton.onclick = function() {
+                        const sectionText = section.textContent.replace(/Read Aloud/g, '').trim();
+                        ttsController.speak(sectionText, this);
+                    };
+
+                    header.appendChild(ttsButton);
+                }
+            });
+
+            // Add intersection observer for progress tracking
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const sectionId = entry.target.id;
+                        if (sectionId && !progressTracker.isSectionComplete(sectionId)) {
+                            progressTracker.markSectionComplete(sectionId);
+                        }
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            // Observe all sections
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // TTS controls
+            const rateSlider = document.getElementById('tts-rate');
+            const pitchSlider = document.getElementById('tts-pitch');
+
+            if (rateSlider) {
+                rateSlider.addEventListener('input', function() {
+                    ttsController.setRate(parseFloat(this.value));
+                    document.getElementById('rate-value').textContent = this.value;
+                });
+            }
+
+            if (pitchSlider) {
+                pitchSlider.addEventListener('input', function() {
+                    ttsController.setPitch(parseFloat(this.value));
+                    document.getElementById('pitch-value').textContent = this.value;
+                });
+            }
+        });
+
+        // Stop TTS when page unloads
+        window.addEventListener('beforeunload', function() {
+            if (ttsController) {
+                ttsController.stop();
+            }
+        });
+    </script>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Header with Navigation -->
+    <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                <div class="mb-4 lg:mb-0">
+                    <h1 class="text-3xl font-bold mb-2">📚 Full Stack Web Development Study Guide</h1>
+                    <p class="text-blue-100">Master modern web development from frontend to backend</p>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="flex flex-wrap gap-2" aria-label="Chapter navigation">
+                    <a href="fullstack1.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors">Chapter 1</a>
+                    <a href="fullstack2.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors">Chapter 2</a>
+                    <a href="fullstack3.html" class="bg-white/30 px-4 py-2 rounded-lg text-sm font-medium">📖 Chapter 3</a>
+                    <a href="fullstack4.html" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm transition-colors">Chapter 4</a>
+                </nav>
             </div>
-        </nav>
+        </div>
     </header>
 
-    <main>
-        <article class="chapter-content">
-            <header class="chapter-header">
-                <h1>Chapter 3: CSS Fundamentals</h1>
-                <p class="chapter-subtitle">Styling Web Pages with Cascading Style Sheets</p>
-                <div class="progress-container">
-                    <div class="progress-bar" id="progressBar"></div>
+    <!-- Progress Bar -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600">Chapter Progress:</span>
+                <span id="progress-text" class="font-medium text-gray-800">0/13 sections completed</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
+                <div id="chapter-progress" class="bg-green-500 h-3 rounded-full transition-all duration-300 w-0"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TTS Controls -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <button id="play-pause-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                        <i class="fas fa-play"></i>
+                        <span>Play</span>
+                    </button>
+                    <button id="stop-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
                 </div>
-            </header>
 
-            <section id="introduction">
-                <h2>3.1 Introduction to CSS</h2>
-                <p>CSS (Cascading Style Sheets) is a style sheet language used to describe the presentation and formatting of HTML documents. CSS controls the visual appearance of web pages, including layout, colors, fonts, and animations.</p>
-
-                <div class="key-concept">
-                    <h3>Key Concept: Separation of Concerns</h3>
-                    <p>CSS separates content (HTML) from presentation (styling), making websites more maintainable, accessible, and flexible.</p>
+                <div class="flex items-center gap-2">
+                    <label for="tts-rate" class="text-sm font-medium text-gray-700">Speed:</label>
+                    <input type="range" id="tts-rate" min="0.5" max="2" step="0.1" value="1" class="w-20">
+                    <span id="rate-value" class="text-sm font-medium text-gray-700 w-8">1.0x</span>
                 </div>
 
-                <h3>CSS Evolution</h3>
-                <ul>
-                    <li><strong>CSS1 (1996)</strong> - Basic styling capabilities</li>
-                    <li><strong>CSS2 (1998)</strong> - Positioning, media types, aural styles</li>
-                    <li><strong>CSS2.1 (2004)</strong> - Bug fixes and clarifications</li>
-                    <li><strong>CSS3 (2011+)</strong> - Modules, animations, flexbox, grid</li>
+                <div class="flex items-center gap-2">
+                    <label for="tts-pitch" class="text-sm font-medium text-gray-700">Pitch:</label>
+                    <input type="range" id="tts-pitch" min="0.5" max="2" step="0.1" value="1" class="w-20">
+                    <span id="pitch-value" class="text-sm font-medium text-gray-700 w-8">1.0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <article>
+
+            <section id="introduction" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">3.1 Introduction to CSS</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">CSS (Cascading Style Sheets) is a style sheet language used to describe the presentation and formatting of HTML documents. CSS controls the visual appearance of web pages, including layout, colors, fonts, and animations.</p>
+
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-6 mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">Key Concept: Separation of Concerns</h3>
+                    <p class="text-blue-700">CSS separates content (HTML) from presentation (styling), making websites more maintainable, accessible, and flexible.</p>
+                </div>
+
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">CSS Evolution</h3>
+                <ul class="space-y-2 mb-6">
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">CSS1 (1996)</span>
+                        <span class="text-gray-700">Basic styling capabilities</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">CSS2 (1998)</span>
+                        <span class="text-gray-700">Positioning, media types, aural styles</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">CSS2.1 (2004)</span>
+                        <span class="text-gray-700">Bug fixes and clarifications</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">CSS3 (2011+)</span>
+                        <span class="text-gray-700">Modules, animations, flexbox, grid</span>
+                    </li>
                 </ul>
 
-                <h3>How CSS Works</h3>
-                <p>CSS uses a cascade system where multiple style rules can apply to the same element. The cascade determines which styles take precedence based on:</p>
-                <ol>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">How CSS Works</h3>
+                <p class="text-lg text-gray-700 mb-4">CSS uses a cascade system where multiple style rules can apply to the same element. The cascade determines which styles take precedence based on:</p>
+                <ol class="list-decimal list-inside space-y-2 text-gray-700">
                     <li>Importance (normal vs !important)</li>
                     <li>Specificity (how specific the selector is)</li>
                     <li>Source order (later rules override earlier ones)</li>
                 </ol>
             </section>
 
-            <section id="syntax">
-                <h2>3.2 CSS Syntax and Structure</h2>
-                <p>CSS rules consist of selectors and declarations that define how elements should be styled.</p>
+            <section id="syntax" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">3.2 CSS Syntax and Structure</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">CSS rules consist of selectors and declarations that define how elements should be styled.</p>
 
-                <h3>Basic CSS Rule Structure</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Basic CSS Rule Structure</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>selector {
     property: value;
     property: value;
 }</code></pre>
                 </div>
 
-                <h3>CSS Comments</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">CSS Comments</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>/* This is a single-line comment */
 
 /*
@@ -80,19 +329,19 @@ that spans several lines
 */</code></pre>
                 </div>
 
-                <h3>Adding CSS to HTML</h3>
-                <p>There are three ways to add CSS to HTML documents:</p>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Adding CSS to HTML</h3>
+                <p class="text-lg text-gray-700 mb-4">There are three ways to add CSS to HTML documents:</p>
 
-                <h4>1. External Stylesheet (Recommended)</h4>
-                <div class="code-example">
+                <h4 class="text-xl font-semibold text-gray-800 mb-3">1. External Stylesheet (Recommended)</h4>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
                     <pre><code>&lt;!-- HTML file --&gt;
 &lt;head&gt;
     &lt;link rel="stylesheet" href="styles.css"&gt;
 &lt;/head&gt;</code></pre>
                 </div>
 
-                <h4>2. Internal Stylesheet</h4>
-                <div class="code-example">
+                <h4 class="text-xl font-semibold text-gray-800 mb-3">2. Internal Stylesheet</h4>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
                     <pre><code>&lt;!-- HTML file --&gt;
 &lt;head&gt;
     &lt;style&gt;
@@ -101,85 +350,89 @@ that spans several lines
 &lt;/head&gt;</code></pre>
                 </div>
 
-                <h4>3. Inline Styles</h4>
-                <div class="code-example">
+                <h4 class="text-xl font-semibold text-gray-800 mb-3">3. Inline Styles</h4>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
                     <pre><code>&lt;!-- HTML file --&gt;
 &lt;p style="color: red; font-size: 20px;"&gt;This is red text&lt;/p&gt;</code></pre>
                 </div>
             </section>
 
-            <section id="selectors">
-                <h2>3.3 CSS Selectors</h2>
-                <p>Selectors target HTML elements to apply styles. CSS provides various types of selectors for different targeting needs.</p>
+            <section id="selectors" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">3.3 CSS Selectors</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">Selectors target HTML elements to apply styles. CSS provides various types of selectors for different targeting needs.</p>
 
-                <h3>Basic Selectors</h3>
-                <table class="selector-table">
-                    <thead>
-                        <tr>
-                            <th>Selector</th>
-                            <th>Example</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Element</td>
-                            <td><code>p { }</code></td>
-                            <td>Selects all paragraph elements</td>
-                        </tr>
-                        <tr>
-                            <td>Class</td>
-                            <td><code>.classname { }</code></td>
-                            <td>Selects elements with class="classname"</td>
-                        </tr>
-                        <tr>
-                            <td>ID</td>
-                            <td><code>#idname { }</code></td>
-                            <td>Selects element with id="idname"</td>
-                        </tr>
-                        <tr>
-                            <td>Universal</td>
-                            <td><code>* { }</code></td>
-                            <td>Selects all elements</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Basic Selectors</h3>
+                <div class="overflow-x-auto mb-6">
+                    <table class="w-full border-collapse border border-gray-300 rounded-lg">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Selector</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Example</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium">Element</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100"><code>p { }</code></td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Selects all paragraph elements</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium">Class</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100"><code>.classname { }</code></td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Selects elements with class="classname"</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium">ID</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100"><code>#idname { }</code></td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Selects element with id="idname"</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium">Universal</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100"><code>* { }</code></td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Selects all elements</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                <h3>Combinator Selectors</h3>
-                <table class="selector-table">
-                    <thead>
-                        <tr>
-                            <th>Selector</th>
-                            <th>Example</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Descendant</td>
-                            <td><code>div p { }</code></td>
-                            <td>Paragraphs inside div elements</td>
-                        </tr>
-                        <tr>
-                            <td>Child</td>
-                            <td><code>div > p { }</code></td>
-                            <td>Direct child paragraphs of div</td>
-                        </tr>
-                        <tr>
-                            <td>Adjacent Sibling</td>
-                            <td><code>h1 + p { }</code></td>
-                            <td>Paragraphs immediately after h1</td>
-                        </tr>
-                        <tr>
-                            <td>General Sibling</td>
-                            <td><code>h1 ~ p { }</code></td>
-                            <td>All paragraphs after h1</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Combinator Selectors</h3>
+                <div class="overflow-x-auto mb-6">
+                    <table class="w-full border-collapse border border-gray-300 rounded-lg">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Selector</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Example</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium">Descendant</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100"><code>div p { }</code></td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Paragraphs inside div elements</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium">Child</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100"><code>div > p { }</code></td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Direct child paragraphs of div</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium">Adjacent Sibling</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100"><code>h1 + p { }</code></td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Paragraphs immediately after h1</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium">General Sibling</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100"><code>h1 ~ p { }</code></td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">All paragraphs after h1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                <h3>Attribute Selectors</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Attribute Selectors</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>/* Selects all input elements with type="text" */
 input[type="text"] { }
 
@@ -196,8 +449,8 @@ a[href$=".pdf"] { }
 a[href*="example"] { }</code></pre>
                 </div>
 
-                <h3>Pseudo-Classes and Pseudo-Elements</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Pseudo-Classes and Pseudo-Elements</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
                     <pre><code>/* Pseudo-classes */
 a:hover { color: red; }
 input:focus { border: 2px solid blue; }
@@ -212,24 +465,51 @@ p::after { content: " ←"; }</code></pre>
                 </div>
             </section>
 
-            <section id="box-model">
-                <h2>3.4 The CSS Box Model</h2>
-                <p>Every HTML element is treated as a rectangular box with content, padding, border, and margin.</p>
+            <section id="box-model" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">3.4 The CSS Box Model</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">Every HTML element is treated as a rectangular box with content, padding, border, and margin.</p>
 
-                <div class="box-model-diagram">
-                    <div class="box-model-explanation">
-                        <h3>Box Model Components</h3>
-                        <ul>
-                            <li><strong>Content</strong> - The actual content (text, images, etc.)</li>
-                            <li><strong>Padding</strong> - Space between content and border</li>
-                            <li><strong>Border</strong> - Line around the padding</li>
-                            <li><strong>Margin</strong> - Space outside the border</li>
-                        </ul>
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-4">Box Model Components</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-blue-500 rounded mr-3"></div>
+                                <span class="font-medium text-gray-800">Content</span>
+                                <span class="text-gray-600 ml-2">- The actual content (text, images, etc.)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-green-500 rounded mr-3"></div>
+                                <span class="font-medium text-gray-800">Padding</span>
+                                <span class="text-gray-600 ml-2">- Space between content and border</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-yellow-500 rounded mr-3"></div>
+                                <span class="font-medium text-gray-800">Border</span>
+                                <span class="text-gray-600 ml-2">- Line around the padding</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-red-500 rounded mr-3"></div>
+                                <span class="font-medium text-gray-800">Margin</span>
+                                <span class="text-gray-600 ml-2">- Space outside the border</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <div class="relative w-32 h-32 border-4 border-red-500 bg-white">
+                                <div class="absolute inset-1 border-4 border-yellow-500 bg-white">
+                                    <div class="absolute inset-1 border-4 border-green-500 bg-white">
+                                        <div class="absolute inset-1 bg-blue-500 flex items-center justify-center">
+                                            <span class="text-white font-bold text-xs">Content</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <h3>Box Model Properties</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Box Model Properties</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
                     <pre><code>.box {
     /* Content dimensions */
     width: 200px;
@@ -258,12 +538,12 @@ p::after { content: " ←"; }</code></pre>
                 </div>
             </section>
 
-            <section id="colors-units">
-                <h2>3.5 Colors and Units</h2>
+            <section id="colors-units" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">3.5 Colors and Units</h2>
 
-                <h3>Color Values</h3>
-                <p>CSS supports various ways to specify colors:</p>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Color Values</h3>
+                <p class="text-lg text-gray-700 mb-4">CSS supports various ways to specify colors:</p>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>/* Named colors */
 color: red;
 color: blue;
@@ -290,64 +570,66 @@ color: hsl(120, 100%, 50%);   /* Green */
 color: hsl(240, 100%, 50%);   /* Blue */</code></pre>
                 </div>
 
-                <h3>CSS Units</h3>
-                <table class="units-table">
-                    <thead>
-                        <tr>
-                            <th>Unit Type</th>
-                            <th>Unit</th>
-                            <th>Description</th>
-                            <th>Example</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td rowspan="3">Absolute</td>
-                            <td>px</td>
-                            <td>Pixels</td>
-                            <td>width: 200px;</td>
-                        </tr>
-                        <tr>
-                            <td>pt</td>
-                            <td>Points (1/72 inch)</td>
-                            <td>font-size: 12pt;</td>
-                        </tr>
-                        <tr>
-                            <td>cm</td>
-                            <td>Centimeters</td>
-                            <td>width: 10cm;</td>
-                        </tr>
-                        <tr>
-                            <td rowspan="4">Relative</td>
-                            <td>%</td>
-                            <td>Percentage</td>
-                            <td>width: 50%;</td>
-                        </tr>
-                        <tr>
-                            <td>em</td>
-                            <td>Relative to font-size</td>
-                            <td>font-size: 1.2em;</td>
-                        </tr>
-                        <tr>
-                            <td>rem</td>
-                            <td>Relative to root font-size</td>
-                            <td>font-size: 1.2rem;</td>
-                        </tr>
-                        <tr>
-                            <td>vw/vh</td>
-                            <td>Viewport width/height</td>
-                            <td>width: 50vw;</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">CSS Units</h3>
+                <div class="overflow-x-auto mb-4">
+                    <table class="w-full border-collapse border border-gray-300 rounded-lg">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Unit Type</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Unit</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Description</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium" rowspan="3">Absolute</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100">px</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Pixels</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100">width: 200px;</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100">pt</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Points (1/72 inch)</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100">font-size: 12pt;</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100">cm</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Centimeters</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100">width: 10cm;</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium" rowspan="4">Relative</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100">%</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Percentage</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100">width: 50%;</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100">em</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Relative to font-size</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100">font-size: 1.2em;</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100">rem</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Relative to root font-size</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100">font-size: 1.2rem;</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100">vw/vh</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Viewport width/height</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm bg-gray-100">width: 50vw;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </section>
 
-            <section id="typography">
-                <h2>3.6 Typography</h2>
-                <p>CSS provides extensive control over text appearance and formatting.</p>
+            <section id="typography" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">3.6 Typography</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">CSS provides extensive control over text appearance and formatting.</p>
 
-                <h3>Font Properties</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Font Properties</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>.text-example {
     /* Font family */
     font-family: 'Arial', sans-serif;
@@ -378,9 +660,9 @@ color: hsl(240, 100%, 50%);   /* Blue */</code></pre>
 }</code></pre>
                 </div>
 
-                <h3>Web Fonts</h3>
-                <p>Use Google Fonts or custom fonts with @font-face:</p>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Web Fonts</h3>
+                <p class="text-lg text-gray-700 mb-4">Use Google Fonts or custom fonts with @font-face:</p>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
                     <pre><code>/* Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
@@ -397,11 +679,11 @@ body {
                 </div>
             </section>
 
-            <section id="layout">
-                <h2>3.7 Layout and Positioning</h2>
+            <section id="layout" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">3.7 Layout and Positioning</h2>
 
-                <h3>Display Property</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Display Property</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>/* Block elements */
 div { display: block; }
 
@@ -415,8 +697,8 @@ span { display: inline; }
 .hidden { display: none; }</code></pre>
                 </div>
 
-                <h3>Position Property</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Position Property</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>/* Static (default) */
 .static { position: static; }
 
@@ -448,8 +730,8 @@ span { display: inline; }
 }</code></pre>
                 </div>
 
-                <h3>Float and Clear</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Float and Clear</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
                     <pre><code>/* Float elements */
 .left-float { float: left; }
 .right-float { float: right; }
@@ -463,12 +745,12 @@ span { display: inline; }
                 </div>
             </section>
 
-            <section id="responsive">
-                <h2>3.8 Responsive Design</h2>
-                <p>Create websites that work on all devices using media queries and flexible layouts.</p>
+            <section id="responsive" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">3.8 Responsive Design</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">Create websites that work on all devices using media queries and flexible layouts.</p>
 
-                <h3>Media Queries</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Media Queries</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>/* Mobile first approach */
 .container {
     width: 100%;
@@ -496,8 +778,8 @@ span { display: inline; }
 }</code></pre>
                 </div>
 
-                <h3>Flexible Images</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Flexible Images</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
                     <pre><code>img {
     max-width: 100%;
     height: auto;
@@ -511,12 +793,12 @@ span { display: inline; }
                 </div>
             </section>
 
-            <section id="flexbox">
-                <h2>3.9 Flexbox Layout</h2>
-                <p>Flexbox provides a modern way to create flexible layouts that adapt to different screen sizes.</p>
+            <section id="flexbox" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">3.9 Flexbox Layout</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">Flexbox provides a modern way to create flexible layouts that adapt to different screen sizes.</p>
 
-                <h3>Flex Container Properties</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Flex Container Properties</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>.flex-container {
     display: flex;
 
@@ -536,8 +818,8 @@ span { display: inline; }
 }</code></pre>
                 </div>
 
-                <h3>Flex Item Properties</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Flex Item Properties</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
                     <pre><code>.flex-item {
     /* Growth */
     flex-grow: 1; /* How much it grows */
@@ -557,12 +839,12 @@ span { display: inline; }
                 </div>
             </section>
 
-            <section id="css-grid">
-                <h2>3.10 CSS Grid Layout</h2>
-                <p>CSS Grid provides two-dimensional layout capabilities for complex web layouts.</p>
+            <section id="css-grid" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">3.10 CSS Grid Layout</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">CSS Grid provides two-dimensional layout capabilities for complex web layouts.</p>
 
-                <h3>Grid Container</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Grid Container</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>.grid-container {
     display: grid;
 
@@ -581,8 +863,8 @@ span { display: inline; }
 }</code></pre>
                 </div>
 
-                <h3>Grid Items</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Grid Items</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
                     <pre><code>.grid-item {
     /* Position items */
     grid-column: 1 / 3; /* Start at line 1, end at line 3 */
@@ -594,12 +876,12 @@ span { display: inline; }
                 </div>
             </section>
 
-            <section id="animations">
-                <h2>3.11 CSS Animations and Transitions</h2>
-                <p>Add smooth transitions and animations to enhance user experience.</p>
+            <section id="animations" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">3.11 CSS Animations and Transitions</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">Add smooth transitions and animations to enhance user experience.</p>
 
-                <h3>CSS Transitions</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">CSS Transitions</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>.button {
     background-color: blue;
     transition: background-color 0.3s ease;
@@ -615,8 +897,8 @@ span { display: inline; }
 }</code></pre>
                 </div>
 
-                <h3>CSS Animations</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">CSS Animations</h3>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
                     <pre><code>@keyframes slideIn {
     from {
         transform: translateX(-100%);
@@ -647,58 +929,127 @@ span { display: inline; }
                 </div>
             </section>
 
-            <section id="best-practices">
-                <h2>3.12 CSS Best Practices</h2>
+            <section id="best-practices" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">3.12 CSS Best Practices</h2>
 
-                <h3>Organization and Maintainability</h3>
-                <ul>
-                    <li>Use consistent naming conventions (BEM, SMACSS)</li>
-                    <li>Organize CSS into logical sections</li>
-                    <li>Use CSS variables for reusable values</li>
-                    <li>Avoid !important when possible</li>
-                    <li>Comment your CSS code</li>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Organization and Maintainability</h3>
+                <ul class="space-y-2 mb-6">
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">✓</span>
+                        <span class="text-gray-700">Use consistent naming conventions (BEM, SMACSS)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">✓</span>
+                        <span class="text-gray-700">Organize CSS into logical sections</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">✓</span>
+                        <span class="text-gray-700">Use CSS variables for reusable values</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">✓</span>
+                        <span class="text-gray-700">Avoid !important when possible</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">✓</span>
+                        <span class="text-gray-700">Comment your CSS code</span>
+                    </li>
                 </ul>
 
-                <h3>Performance</h3>
-                <ul>
-                    <li>Minimize CSS file size</li>
-                    <li>Use CSS sprites for small images</li>
-                    <li>Avoid expensive selectors</li>
-                    <li>Use hardware acceleration when possible</li>
-                    <li>Load critical CSS first</li>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Performance</h3>
+                <ul class="space-y-2 mb-6">
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">⚡</span>
+                        <span class="text-gray-700">Minimize CSS file size</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">⚡</span>
+                        <span class="text-gray-700">Use CSS sprites for small images</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">⚡</span>
+                        <span class="text-gray-700">Avoid expensive selectors</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">⚡</span>
+                        <span class="text-gray-700">Use hardware acceleration when possible</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">⚡</span>
+                        <span class="text-gray-700">Load critical CSS first</span>
+                    </li>
                 </ul>
 
-                <h3>Accessibility</h3>
-                <ul>
-                    <li>Ensure sufficient color contrast</li>
-                    <li>Don't rely on color alone for information</li>
-                    <li>Respect user's motion preferences</li>
-                    <li>Provide focus indicators</li>
-                    <li>Test with screen readers</li>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Accessibility</h3>
+                <ul class="space-y-2 mb-4">
+                    <li class="flex items-start">
+                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm font-medium mr-3">♿</span>
+                        <span class="text-gray-700">Ensure sufficient color contrast</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm font-medium mr-3">♿</span>
+                        <span class="text-gray-700">Don't rely on color alone for information</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm font-medium mr-3">♿</span>
+                        <span class="text-gray-700">Respect user's motion preferences</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm font-medium mr-3">♿</span>
+                        <span class="text-gray-700">Provide focus indicators</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm font-medium mr-3">♿</span>
+                        <span class="text-gray-700">Test with screen readers</span>
+                    </li>
                 </ul>
             </section>
 
-            <section id="summary">
-                <h2>3.13 Summary</h2>
-                <p>CSS is essential for creating visually appealing and responsive web pages:</p>
+            <section id="summary" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">3.13 Summary</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">CSS is essential for creating visually appealing and responsive web pages:</p>
 
-                <div class="key-takeaways">
-                    <h3>Key Takeaways</h3>
-                    <ul>
-                        <li>CSS separates presentation from content</li>
-                        <li>The cascade determines which styles apply</li>
-                        <li>The box model controls element dimensions</li>
-                        <li>Selectors target specific HTML elements</li>
-                        <li>Flexbox and Grid provide modern layout options</li>
-                        <li>Media queries enable responsive design</li>
-                        <li>Animations enhance user experience</li>
-                        <li>Best practices ensure maintainable and performant CSS</li>
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6 mb-6">
+                    <h3 class="text-xl font-semibold text-green-800 mb-4">Key Takeaways</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">📋</span>
+                            <span class="text-gray-700">CSS separates presentation from content</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">📋</span>
+                            <span class="text-gray-700">The cascade determines which styles apply</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">📋</span>
+                            <span class="text-gray-700">The box model controls element dimensions</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">📋</span>
+                            <span class="text-gray-700">Selectors target specific HTML elements</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">📋</span>
+                            <span class="text-gray-700">Flexbox and Grid provide modern layout options</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">📋</span>
+                            <span class="text-gray-700">Media queries enable responsive design</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">📋</span>
+                            <span class="text-gray-700">Animations enhance user experience</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">📋</span>
+                            <span class="text-gray-700">Best practices ensure maintainable and performant CSS</span>
+                        </li>
                     </ul>
                 </div>
 
-                <div class="practice-exercises">
-                    <h3>Practice Exercises</h3>
-                    <ol>
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 mb-4">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-4">Practice Exercises</h3>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700">
                         <li>Create a responsive navigation menu</li>
                         <li>Build a card layout using Flexbox</li>
                         <li>Design a complex grid layout</li>
@@ -710,12 +1061,18 @@ span { display: inline; }
         </article>
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2025 Full-Stack Web Development Study Guide</p>
-            <div class="footer-links">
-                <a href="fullstack2.html">Previous: Chapter 2</a>
-                <a href="fullstack4.html">Next: Chapter 4</a>
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <p class="text-gray-300 mb-4 md:mb-0">© 2025 Full-Stack Web Development Study Guide</p>
+                <div class="flex flex-wrap gap-6">
+                    <a href="fullstack2.html" class="text-gray-300 hover:text-white transition-colors flex items-center">
+                        <i class="fas fa-arrow-left mr-2"></i> Previous: Chapter 2
+                    </a>
+                    <a href="fullstack4.html" class="text-gray-300 hover:text-white transition-colors flex items-center">
+                        Next: Chapter 4 <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </footer>

@@ -3,50 +3,333 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full-Stack Web Development: Chapter 2 - HTML Fundamentals</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <title>Full Stack Study Guide - Chapter 2: HTML Fundamentals</title>
+        <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom JavaScript for TTS and Progress Tracking -->
+    <script>
+        // Text-to-Speech functionality
+        class TTSController {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.isPlaying = false;
+                this.currentUtterance = null;
+                this.voice = null;
+                this.rate = 1;
+                this.pitch = 1;
+                this.initializeVoice();
+            }
+
+            initializeVoice() {
+                const voices = this.synth.getVoices();
+                // Prefer English voices
+                this.voice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+            }
+
+            speak(text, element) {
+                if (this.isPlaying) {
+                    this.stop();
+                    return;
+                }
+
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.voice = this.voice;
+                this.currentUtterance.rate = this.rate;
+                this.currentUtterance.pitch = this.pitch;
+
+                this.currentUtterance.onstart = () => {
+                    this.isPlaying = true;
+                    element.classList.add('bg-blue-500', 'text-white');
+                    element.innerHTML = '<i class="fas fa-stop mr-2"></i>Stop TTS';
+                };
+
+                this.currentUtterance.onend = () => {
+                    this.isPlaying = false;
+                    element.classList.remove('bg-blue-500', 'text-white');
+                    element.classList.add('bg-green-500', 'hover:bg-green-600');
+                    element.innerHTML = '<i class="fas fa-play mr-2"></i>Read Aloud';
+                };
+
+                this.synth.speak(this.currentUtterance);
+            }
+
+            stop() {
+                if (this.synth.speaking) {
+                    this.synth.cancel();
+                }
+                this.isPlaying = false;
+                this.currentUtterance = null;
+            }
+
+            setRate(rate) {
+                this.rate = rate;
+                if (this.currentUtterance) {
+                    this.currentUtterance.rate = rate;
+                }
+            }
+
+            setPitch(pitch) {
+                this.pitch = pitch;
+                if (this.currentUtterance) {
+                    this.currentUtterance.pitch = pitch;
+                }
+            }
+        }
+
+        // Progress tracking
+        class ProgressTracker {
+            constructor() {
+                this.chapterId = 'fullstack2';
+                this.sections = [
+                    'introduction', 'document-structure', 'text-elements',
+                    'links-images', 'lists', 'tables', 'forms',
+                    'attributes', 'best-practices', 'summary'
+                ];
+                this.progress = this.loadProgress();
+            }
+
+            loadProgress() {
+                const saved = localStorage.getItem(`progress_${this.chapterId}`);
+                return saved ? JSON.parse(saved) : {};
+            }
+
+            saveProgress() {
+                localStorage.setItem(`progress_${this.chapterId}`, JSON.stringify(this.progress));
+            }
+
+            markSectionComplete(sectionId) {
+                this.progress[sectionId] = true;
+                this.saveProgress();
+                this.updateProgressBar();
+            }
+
+            isSectionComplete(sectionId) {
+                return this.progress[sectionId] || false;
+            }
+
+            getCompletedSectionsCount() {
+                return Object.values(this.progress).filter(Boolean).length;
+            }
+
+            getTotalSectionsCount() {
+                return this.sections.length;
+            }
+
+            updateProgressBar() {
+                const completed = this.getCompletedSectionsCount();
+                const total = this.getTotalSectionsCount();
+                const percentage = (completed / total) * 100;
+
+                const progressBar = document.getElementById('chapter-progress');
+                const progressText = document.getElementById('progress-text');
+
+                if (progressBar && progressText) {
+                    progressBar.style.width = `${percentage}%`;
+                    progressText.textContent = `${completed}/${total} sections completed`;
+                }
+            }
+        }
+
+        // Initialize controllers
+        let ttsController;
+        let progressTracker;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            ttsController = new TTSController();
+            progressTracker = new ProgressTracker();
+
+            // Initialize progress bar
+            progressTracker.updateProgressBar();
+
+            // Add TTS buttons to sections
+            const sections = document.querySelectorAll('section[id]');
+            sections.forEach(section => {
+                const header = section.querySelector('h3');
+                if (header) {
+                    const ttsButton = document.createElement('button');
+                    ttsButton.className = 'tts-button ml-4 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2';
+                    ttsButton.innerHTML = '<i class="fas fa-play"></i> Read Aloud';
+
+                    ttsButton.onclick = function() {
+                        const sectionText = section.textContent.replace(/Read Aloud/g, '').trim();
+                        ttsController.speak(sectionText, this);
+                    };
+
+                    header.appendChild(ttsButton);
+                }
+            });
+
+            // Add intersection observer for progress tracking
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const sectionId = entry.target.id;
+                        if (sectionId && !progressTracker.isSectionComplete(sectionId)) {
+                            progressTracker.markSectionComplete(sectionId);
+                        }
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            // Observe all sections
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // TTS controls
+            const rateSlider = document.getElementById('tts-rate');
+            const pitchSlider = document.getElementById('tts-pitch');
+
+            if (rateSlider) {
+                rateSlider.addEventListener('input', function() {
+                    ttsController.setRate(parseFloat(this.value));
+                    document.getElementById('rate-value').textContent = this.value;
+                });
+            }
+
+            if (pitchSlider) {
+                pitchSlider.addEventListener('input', function() {
+                    ttsController.setPitch(parseFloat(this.value));
+                    document.getElementById('pitch-value').textContent = this.value;
+                });
+            }
+        });
+
+        // Stop TTS when page unloads
+        window.addEventListener('beforeunload', function() {
+            if (ttsController) {
+                ttsController.stop();
+            }
+        });
+    </script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#61dafb',
+                        secondary: '#21a3c4',
+                        accent: '#4caf50'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e 0%, #f59e0b 60%, #6b7280 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+    </style>
 </head>
-<body>
-    <header>
-        <nav>
-            <div class="nav-container">
-                <h1>Full-Stack Web Development Study Guide</h1>
-                <ul class="nav-menu">
-                    <li><a href="fullstack1.html">Chapter 1</a></li>
-                    <li><a href="fullstack2.html" class="active">Chapter 2</a></li>
-                    <li><a href="fullstack3.html">Chapter 3</a></li>
-                    <li><a href="fullstack4.html">Chapter 4</a></li>
-                </ul>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Header with Navigation -->
+    <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                <div class="mb-4 lg:mb-0">
+                    <h1 class="text-3xl font-bold mb-2">📚 Full Stack Web Development Study Guide</h1>
+                    <p class="text-blue-100">Master modern web development from frontend to backend</p>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="flex flex-wrap gap-2" aria-label="Chapter navigation">
+                    <a href="fullstack1.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors">Chapter 1</a>
+                    <a href="fullstack2.html" class="bg-white/30 px-4 py-2 rounded-lg text-sm font-medium">📖 Chapter 2</a>
+                    <a href="fullstack3.html" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm transition-colors">Chapter 3</a>
+                    <a href="fullstack4.html" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm transition-colors">Chapter 4</a>
+                </nav>
             </div>
-        </nav>
+        </div>
     </header>
 
-    <main>
-        <article class="chapter-content">
-            <header class="chapter-header">
-                <h1>Chapter 2: HTML Fundamentals</h1>
-                <p class="chapter-subtitle">Building the Structure of Web Pages</p>
-                <div class="progress-container">
-                    <div class="progress-bar" id="progressBar"></div>
+    <!-- Progress Bar -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600">Chapter Progress:</span>
+                <span id="progress-text" class="font-medium text-gray-800">0/10 sections completed</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
+                <div id="chapter-progress" class="bg-green-500 h-3 rounded-full transition-all duration-300 w-0"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TTS Controls -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <button id="play-pause-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                        <i class="fas fa-play"></i>
+                        <span>Play</span>
+                    </button>
+                    <button id="stop-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <label for="tts-rate" class="text-sm font-medium text-gray-700">Speed:</label>
+                    <input type="range" id="tts-rate" min="0.5" max="2" step="0.1" value="1" class="w-20">
+                    <span id="rate-value" class="text-sm font-medium text-gray-700 w-8">1.0x</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <label for="tts-pitch" class="text-sm font-medium text-gray-700">Pitch:</label>
+                    <input type="range" id="tts-pitch" min="0.5" max="2" step="0.1" value="1" class="w-20">
+                    <span id="pitch-value" class="text-sm font-medium text-gray-700 w-8">1.0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <article>
+            <!-- Chapter Header -->
+            <header class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Chapter 2: HTML Fundamentals</h2>
+                <p class="text-xl text-gray-600 mb-6">Building the Structure of Web Pages</p>
+                <div class="flex flex-wrap gap-4 text-sm text-gray-500">
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">📅 Last Updated: September 2025</span>
+                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full">📖 Based on "Full Stack Web Development: The Comprehensive Guide"</span>
                 </div>
             </header>
 
-            <section id="introduction">
-                <h2>2.1 Introduction to HTML</h2>
-                <p>HTML (HyperText Markup Language) is the backbone of every web page. As a markup language, HTML defines the structure and semantics of web content using elements that tell browsers how to display information.</p>
+            <!-- Introduction Section -->
+            <section id="introduction" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                    Introduction to HTML
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">HTML (HyperText Markup Language) is the backbone of every web page. As a markup language, HTML defines the structure and semantics of web content using elements that tell browsers how to display information.</p>
 
-                <div class="key-concept">
-                    <h3>Key Concept: Markup Language</h3>
-                    <p>HTML is not a programming language but a markup language that uses tags to annotate text, images, and other content for display in web browsers.</p>
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        🔑 Key Concept: Markup Language
+                    </h4>
+                    <p class="text-gray-700">HTML is not a programming language but a markup language that uses tags to annotate text, images, and other content for display in web browsers.</p>
                 </div>
 
-                <h3>HTML5: The Modern Standard</h3>
-                <p>HTML5, released in 2014 and continuously evolving, introduced semantic elements, multimedia support, and enhanced APIs for modern web development.</p>
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">HTML5: The Modern Standard</h4>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">HTML5, released in 2014 and continuously evolving, introduced semantic elements, multimedia support, and enhanced APIs for modern web development.</p>
 
-                <div class="code-example">
-                    <h4>Basic HTML5 Document Structure</h4>
-                    <pre><code>&lt;!DOCTYPE html&gt;
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg font-mono text-sm">
+                    <h5 class="text-white font-semibold mb-4 flex items-center gap-2">
+                        📄 Basic HTML5 Document Structure
+                    </h5>
+                    <pre class="overflow-x-auto"><code>&lt;!DOCTYPE html&gt;
 &lt;html lang="en"&gt;
 &lt;head&gt;
     &lt;meta charset="UTF-8"&gt;
@@ -61,44 +344,101 @@
                 </div>
             </section>
 
-            <section id="document-structure">
-                <h2>2.2 HTML Document Structure</h2>
-                <p>Every HTML document follows a standard structure with required and optional elements.</p>
+            <!-- Document Structure Section -->
+            <section id="document-structure" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-green-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                    HTML Document Structure
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">Every HTML document follows a standard structure with required and optional elements.</p>
 
-                <h3>Essential Elements</h3>
-                <ul>
-                    <li><code>&lt;!DOCTYPE html&gt;</code> - Document type declaration</li>
-                    <li><code>&lt;html&gt;</code> - Root element</li>
-                    <li><code>&lt;head&gt;</code> - Document metadata</li>
-                    <li><code>&lt;body&gt;</code> - Document content</li>
-                </ul>
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Essential Elements</h4>
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-start gap-3">
+                            <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">•</span>
+                            <div>
+                                <strong class="text-blue-600">&lt;!DOCTYPE html&gt;</strong>
+                                <span class="text-gray-700 block">Document type declaration</span>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">•</span>
+                            <div>
+                                <strong class="text-green-600">&lt;html&gt;</strong>
+                                <span class="text-gray-700 block">Root element</span>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="bg-purple-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">•</span>
+                            <div>
+                                <strong class="text-purple-600">&lt;head&gt;</strong>
+                                <span class="text-gray-700 block">Document metadata</span>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">•</span>
+                            <div>
+                                <strong class="text-red-600">&lt;body&gt;</strong>
+                                <span class="text-gray-700 block">Document content</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                <h3>Semantic HTML5 Elements</h3>
-                <p>HTML5 introduced semantic elements that provide meaning to content:</p>
-                <div class="semantic-elements">
-                    <div class="element-group">
-                        <h4>Document Structure</h4>
-                        <ul>
-                            <li><code>&lt;header&gt;</code> - Page or section header</li>
-                            <li><code>&lt;nav&gt;</code> - Navigation links</li>
-                            <li><code>&lt;main&gt;</code> - Main content</li>
-                            <li><code>&lt;article&gt;</code> - Self-contained content</li>
-                            <li><code>&lt;section&gt;</code> - Thematic grouping</li>
-                            <li><code>&lt;aside&gt;</code> - Sidebar content</li>
-                            <li><code>&lt;footer&gt;</code> - Page or section footer</li>
-                        </ul>
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Semantic HTML5 Elements</h4>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">HTML5 introduced semantic elements that provide meaning to content:</p>
+
+                <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6">
+                    <h5 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                        🏗️ Document Structure Elements
+                    </h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
+                            <strong class="text-blue-600">&lt;header&gt;</strong>
+                            <span class="text-gray-700 block text-sm">Page or section header</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
+                            <strong class="text-green-600">&lt;nav&gt;</strong>
+                            <span class="text-gray-700 block text-sm">Navigation links</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
+                            <strong class="text-purple-600">&lt;main&gt;</strong>
+                            <span class="text-gray-700 block text-sm">Main content</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-red-500">
+                            <strong class="text-red-600">&lt;article&gt;</strong>
+                            <span class="text-gray-700 block text-sm">Self-contained content</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-500">
+                            <strong class="text-orange-600">&lt;section&gt;</strong>
+                            <span class="text-gray-700 block text-sm">Thematic grouping</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-teal-500">
+                            <strong class="text-teal-600">&lt;aside&gt;</strong>
+                            <span class="text-gray-700 block text-sm">Sidebar content</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-pink-500">
+                            <strong class="text-pink-600">&lt;footer&gt;</strong>
+                            <span class="text-gray-700 block text-sm">Page or section footer</span>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section id="text-elements">
-                <h2>2.3 Text Formatting Elements</h2>
-                <p>HTML provides various elements for structuring and formatting text content.</p>
+            <!-- Text Elements Section -->
+            <section id="text-elements" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-purple-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                    Text Formatting Elements
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">HTML provides various elements for structuring and formatting text content.</p>
 
-                <h3>Headings</h3>
-                <p>HTML provides six levels of headings, from most important (h1) to least important (h6):</p>
-                <div class="code-example">
-                    <pre><code>&lt;h1&gt;Main Heading (Page Title)&lt;/h1&gt;
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Headings</h4>
+                <p class="text-gray-700 text-lg leading-relaxed mb-6">HTML provides six levels of headings, from most important (h1) to least important (h6):</p>
+
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg font-mono text-sm mb-8">
+                    <pre class="overflow-x-auto"><code>&lt;h1&gt;Main Heading (Page Title)&lt;/h1&gt;
 &lt;h2&gt;Section Heading&lt;/h2&gt;
 &lt;h3&gt;Subsection Heading&lt;/h3&gt;
 &lt;h4&gt;Sub-subsection Heading&lt;/h4&gt;
@@ -106,9 +446,9 @@
 &lt;h6&gt;Least Important Heading&lt;/h6&gt;</code></pre>
                 </div>
 
-                <h3>Paragraphs and Text Structure</h3>
-                <div class="code-example">
-                    <pre><code>&lt;p&gt;This is a paragraph of text.&lt;/p&gt;
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Paragraphs and Text Structure</h4>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg font-mono text-sm mb-8">
+                    <pre class="overflow-x-auto"><code>&lt;p&gt;This is a paragraph of text.&lt;/p&gt;
 
 &lt;p&gt;You can create &lt;strong&gt;bold text&lt;/strong&gt; and &lt;em&gt;emphasized text&lt;/em&gt;.&lt;/p&gt;
 
@@ -117,52 +457,60 @@
 &lt;/blockquote&gt;</code></pre>
                 </div>
 
-                <h3>Text-Level Semantics</h3>
-                <table class="element-table">
-                    <thead>
-                        <tr>
-                            <th>Element</th>
-                            <th>Purpose</th>
-                            <th>Example</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>&lt;strong&gt;</code></td>
-                            <td>Strong importance</td>
-                            <td><strong>Bold text</strong></td>
-                        </tr>
-                        <tr>
-                            <td><code>&lt;em&gt;</code></td>
-                            <td>Emphasis</td>
-                            <td><em>Italic text</em></td>
-                        </tr>
-                        <tr>
-                            <td><code>&lt;mark&gt;</code></td>
-                            <td>Highlighted text</td>
-                            <td><mark>Marked text</mark></td>
-                        </tr>
-                        <tr>
-                            <td><code>&lt;small&gt;</code></td>
-                            <td>Small print</td>
-                            <td><small>Fine print</small></td>
-                        </tr>
-                        <tr>
-                            <td><code>&lt;cite&gt;</code></td>
-                            <td>Title of work</td>
-                            <td><cite>Book Title</cite></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Text-Level Semantics</h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse bg-white rounded-lg shadow-md">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Element</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Purpose</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">&lt;strong&gt;</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Strong importance</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700"><strong>Bold text</strong></td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">&lt;em&gt;</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Emphasis</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700"><em>Italic text</em></td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">&lt;mark&gt;</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Highlighted text</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700"><mark>Marked text</mark></td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">&lt;small&gt;</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Small print</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700"><small>Fine print</small></td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">&lt;cite&gt;</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Title of work</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700"><cite>Book Title</cite></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </section>
 
-            <section id="links-images">
-                <h2>2.4 Links and Images</h2>
+            <!-- Links and Images Section -->
+            <section id="links-images" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                    Links and Images
+                </h3>
 
-                <h3>Hyperlinks</h3>
-                <p>Links connect web pages and resources. The <code>&lt;a&gt;</code> element creates hyperlinks:</p>
-                <div class="code-example">
-                    <pre><code>&lt;!-- External link --&gt;
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Hyperlinks</h4>
+                <p class="text-gray-700 text-lg leading-relaxed mb-6">Links connect web pages and resources. The <code class="bg-gray-100 px-2 py-1 rounded text-sm">&lt;a&gt;</code> element creates hyperlinks:</p>
+
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg font-mono text-sm mb-8">
+                    <h5 class="text-white font-semibold mb-4">Link Examples</h5>
+                    <pre class="overflow-x-auto"><code>&lt;!-- External link --&gt;
 &lt;a href="https://www.example.com"&gt;Visit Example&lt;/a&gt;
 
 &lt;!-- Internal link --&gt;
@@ -175,10 +523,12 @@
 &lt;a href="mailto:contact@example.com"&gt;Email Us&lt;/a&gt;</code></pre>
                 </div>
 
-                <h3>Images</h3>
-                <p>The <code>&lt;img&gt;</code> element embeds images. Always include alt text for accessibility:</p>
-                <div class="code-example">
-                    <pre><code>&lt;!-- Basic image --&gt;
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Images</h4>
+                <p class="text-gray-700 text-lg leading-relaxed mb-6">The <code class="bg-gray-100 px-2 py-1 rounded text-sm">&lt;img&gt;</code> element embeds images. Always include alt text for accessibility:</p>
+
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg font-mono text-sm mb-8">
+                    <h5 class="text-white font-semibold mb-4">Image Examples</h5>
+                    <pre class="overflow-x-auto"><code>&lt;!-- Basic image --&gt;
 &lt;img src="image.jpg" alt="Description of image"&gt;
 
 &lt;!-- Image with dimensions --&gt;
@@ -188,55 +538,73 @@
 &lt;img src="responsive.jpg" alt="Responsive design" style="max-width: 100%;"&gt;</code></pre>
                 </div>
 
-                <div class="accessibility-note">
-                    <h4>Accessibility Best Practice</h4>
-                    <p>Always provide meaningful alt text for images. For decorative images, use <code>alt=""</code> or CSS background images instead.</p>
+                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 border-l-4 border-yellow-500">
+                    <h5 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        ♿ Accessibility Best Practice
+                    </h5>
+                    <p class="text-gray-700">Always provide meaningful alt text for images. For decorative images, use <code class="bg-gray-100 px-2 py-1 rounded text-sm">alt=""</code> or CSS background images instead.</p>
                 </div>
             </section>
 
-            <section id="lists">
-                <h2>2.5 Lists</h2>
-                <p>HTML provides three types of lists for organizing content.</p>
+            <!-- Lists Section -->
+            <section id="lists" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-orange-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">5</span>
+                    Lists
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">HTML provides three types of lists for organizing content.</p>
 
-                <h3>Unordered Lists</h3>
-                <p>Use <code>&lt;ul&gt;</code> for lists where order doesn't matter:</p>
-                <div class="code-example">
-                    <pre><code>&lt;ul&gt;
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6">
+                        <h4 class="text-xl font-semibold text-blue-800 mb-4">Unordered Lists</h4>
+                        <p class="text-gray-700 text-sm mb-4">Use <code class="bg-gray-100 px-2 py-1 rounded text-sm">&lt;ul&gt;</code> for lists where order doesn't matter:</p>
+                        <div class="bg-gray-900 text-green-400 p-4 rounded font-mono text-sm">
+                            <pre><code>&lt;ul&gt;
     &lt;li&gt;HTML&lt;/li&gt;
     &lt;li&gt;CSS&lt;/li&gt;
     &lt;li&gt;JavaScript&lt;/li&gt;
 &lt;/ul&gt;</code></pre>
-                </div>
+                        </div>
+                    </div>
 
-                <h3>Ordered Lists</h3>
-                <p>Use <code>&lt;ol&gt;</code> for numbered lists where order matters:</p>
-                <div class="code-example">
-                    <pre><code>&lt;ol&gt;
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6">
+                        <h4 class="text-xl font-semibold text-green-800 mb-4">Ordered Lists</h4>
+                        <p class="text-gray-700 text-sm mb-4">Use <code class="bg-gray-100 px-2 py-1 rounded text-sm">&lt;ol&gt;</code> for numbered lists where order matters:</p>
+                        <div class="bg-gray-900 text-green-400 p-4 rounded font-mono text-sm">
+                            <pre><code>&lt;ol&gt;
     &lt;li&gt;First step&lt;/li&gt;
     &lt;li&gt;Second step&lt;/li&gt;
     &lt;li&gt;Third step&lt;/li&gt;
 &lt;/ol&gt;</code></pre>
-                </div>
+                        </div>
+                    </div>
 
-                <h3>Description Lists</h3>
-                <p>Use <code>&lt;dl&gt;</code> for term-definition pairs:</p>
-                <div class="code-example">
-                    <pre><code>&lt;dl&gt;
+                    <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6">
+                        <h4 class="text-xl font-semibold text-purple-800 mb-4">Description Lists</h4>
+                        <p class="text-gray-700 text-sm mb-4">Use <code class="bg-gray-100 px-2 py-1 rounded text-sm">&lt;dl&gt;</code> for term-definition pairs:</p>
+                        <div class="bg-gray-900 text-green-400 p-4 rounded font-mono text-sm">
+                            <pre><code>&lt;dl&gt;
     &lt;dt&gt;HTML&lt;/dt&gt;
-    &lt;dd&gt;HyperText Markup Language&lt;/dd&gt;
+    &lt;dd&gt;HyperText Markup&lt;/dd&gt;
     &lt;dt&gt;CSS&lt;/dt&gt;
-    &lt;dd&gt;Cascading Style Sheets&lt;/dd&gt;
+    &lt;dd&gt;Cascading Style&lt;/dd&gt;
 &lt;/dl&gt;</code></pre>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            <section id="tables">
-                <h2>2.6 Tables</h2>
-                <p>Tables organize data into rows and columns. Use semantic markup for proper accessibility.</p>
+            <!-- Tables Section -->
+            <section id="tables" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-teal-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">6</span>
+                    Tables
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">Tables organize data into rows and columns. Use semantic markup for proper accessibility.</p>
 
-                <h3>Basic Table Structure</h3>
-                <div class="code-example">
-                    <pre><code>&lt;table&gt;
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Basic Table Structure</h4>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg font-mono text-sm mb-8">
+                    <pre class="overflow-x-auto"><code>&lt;table&gt;
     &lt;caption&gt;Web Development Technologies&lt;/caption&gt;
     &lt;thead&gt;
         &lt;tr&gt;
@@ -265,26 +633,46 @@
 &lt;/table&gt;</code></pre>
                 </div>
 
-                <h3>Table Elements</h3>
-                <ul>
-                    <li><code>&lt;table&gt;</code> - Table container</li>
-                    <li><code>&lt;caption&gt;</code> - Table title</li>
-                    <li><code>&lt;thead&gt;</code> - Table header</li>
-                    <li><code>&lt;tbody&gt;</code> - Table body</li>
-                    <li><code>&lt;tfoot&gt;</code> - Table footer</li>
-                    <li><code>&lt;tr&gt;</code> - Table row</li>
-                    <li><code>&lt;th&gt;</code> - Header cell</li>
-                    <li><code>&lt;td&gt;</code> - Data cell</li>
-                </ul>
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Table Elements</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
+                        <strong class="text-blue-600">&lt;table&gt;</strong>
+                        <span class="text-gray-700 block text-sm">Table container</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
+                        <strong class="text-green-600">&lt;caption&gt;</strong>
+                        <span class="text-gray-700 block text-sm">Table title</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
+                        <strong class="text-purple-600">&lt;thead&gt;</strong>
+                        <span class="text-gray-700 block text-sm">Table header</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-red-500">
+                        <strong class="text-red-600">&lt;tbody&gt;</strong>
+                        <span class="text-gray-700 block text-sm">Table body</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-500">
+                        <strong class="text-orange-600">&lt;tfoot&gt;</strong>
+                        <span class="text-gray-700 block text-sm">Table footer</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-teal-500">
+                        <strong class="text-teal-600">&lt;tr&gt;, &lt;th&gt;, &lt;td&gt;</strong>
+                        <span class="text-gray-700 block text-sm">Rows and cells</span>
+                    </div>
+                </div>
             </section>
 
-            <section id="forms">
-                <h2>2.7 Forms</h2>
-                <p>Forms collect user input and send it to servers for processing.</p>
+            <!-- Forms Section -->
+            <section id="forms" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-pink-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">7</span>
+                    Forms
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">Forms collect user input and send it to servers for processing.</p>
 
-                <h3>Basic Form Structure</h3>
-                <div class="code-example">
-                    <pre><code>&lt;form action="/submit" method="post"&gt;
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Basic Form Structure</h4>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg font-mono text-sm mb-8">
+                    <pre class="overflow-x-auto"><code>&lt;form action="/submit" method="post"&gt;
     &lt;label for="name"&gt;Name:&lt;/label&gt;
     &lt;input type="text" id="name" name="name" required&gt;
 
@@ -295,145 +683,271 @@
 &lt;/form&gt;</code></pre>
                 </div>
 
-                <h3>Common Input Types</h3>
-                <table class="element-table">
-                    <thead>
-                        <tr>
-                            <th>Input Type</th>
-                            <th>Description</th>
-                            <th>Example</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>text</code></td>
-                            <td>Single line text</td>
-                            <td><code>&lt;input type="text"&gt;</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>email</code></td>
-                            <td>Email address</td>
-                            <td><code>&lt;input type="email"&gt;</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>password</code></td>
-                            <td>Password field</td>
-                            <td><code>&lt;input type="password"&gt;</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>number</code></td>
-                            <td>Numeric input</td>
-                            <td><code>&lt;input type="number"&gt;</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>date</code></td>
-                            <td>Date picker</td>
-                            <td><code>&lt;input type="date"&gt;</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>checkbox</code></td>
-                            <td>Multiple choice</td>
-                            <td><code>&lt;input type="checkbox"&gt;</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>radio</code></td>
-                            <td>Single choice</td>
-                            <td><code>&lt;input type="radio"&gt;</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>submit</code></td>
-                            <td>Form submission</td>
-                            <td><code>&lt;input type="submit"&gt;</code></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Common Input Types</h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse bg-white rounded-lg shadow-md">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Input Type</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Description</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">text</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Single line text</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700"><code>&lt;input type="text"&gt;</code></td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">email</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Email address</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700"><code>&lt;input type="email"&gt;</code></td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">password</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Password field</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700"><code>&lt;input type="password"&gt;</code></td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">number</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Numeric input</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700"><code>&lt;input type="number"&gt;</code></td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">date</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Date picker</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700"><code>&lt;input type="date"&gt;</code></td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">checkbox</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Multiple choice</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700"><code>&lt;input type="checkbox"&gt;</code></td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">radio</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Single choice</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700"><code>&lt;input type="radio"&gt;</code></td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-medium text-gray-800">submit</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Form submission</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700"><code>&lt;input type="submit"&gt;</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </section>
 
-            <section id="attributes">
-                <h2>2.8 HTML Attributes</h2>
-                <p>Attributes provide additional information about HTML elements.</p>
+            <!-- Attributes Section -->
+            <section id="attributes" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">8</span>
+                    HTML Attributes
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">Attributes provide additional information about HTML elements.</p>
 
-                <h3>Common Attributes</h3>
-                <ul>
-                    <li><code>id</code> - Unique identifier for an element</li>
-                    <li><code>class</code> - Class name for styling and JavaScript</li>
-                    <li><code>style</code> - Inline CSS styles</li>
-                    <li><code>title</code> - Tooltip text</li>
-                    <li><code>lang</code> - Language of the element</li>
-                    <li><code>dir</code> - Text direction (ltr/rtl)</li>
-                </ul>
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Common Attributes</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500">
+                        <strong class="text-blue-600">id</strong>
+                        <span class="text-gray-700 block">Unique identifier for an element</span>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500">
+                        <strong class="text-green-600">class</strong>
+                        <span class="text-gray-700 block">Class name for styling and JavaScript</span>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-purple-500">
+                        <strong class="text-purple-600">style</strong>
+                        <span class="text-gray-700 block">Inline CSS styles</span>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500">
+                        <strong class="text-red-600">title</strong>
+                        <span class="text-gray-700 block">Tooltip text</span>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-orange-500">
+                        <strong class="text-orange-600">lang</strong>
+                        <span class="text-gray-700 block">Language of the element</span>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-teal-500">
+                        <strong class="text-teal-600">dir</strong>
+                        <span class="text-gray-700 block">Text direction (ltr/rtl)</span>
+                    </div>
+                </div>
 
-                <div class="code-example">
-                    <pre><code>&lt;div id="main-content" class="container" lang="en"&gt;
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg font-mono text-sm">
+                    <h5 class="text-white font-semibold mb-4">Attribute Examples</h5>
+                    <pre class="overflow-x-auto"><code>&lt;div id="main-content" class="container" lang="en"&gt;
     &lt;h1 title="Welcome Message"&gt;Hello World&lt;/h1&gt;
     &lt;p class="introduction"&gt;This is a sample paragraph.&lt;/p&gt;
 &lt;/div&gt;</code></pre>
                 </div>
             </section>
 
-            <section id="best-practices">
-                <h2>2.9 Best Practices</h2>
+            <!-- Best Practices Section -->
+            <section id="best-practices" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-emerald-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">9</span>
+                    Best Practices
+                </h3>
+                <p class="text-gray-700 text-lg leading-relaxed mb-8">Follow these guidelines to write clean, maintainable, and accessible HTML.</p>
 
-                <h3>Semantic HTML</h3>
-                <p>Use semantic elements to provide meaning and improve accessibility:</p>
-                <div class="best-practice">
-                    <h4>❌ Avoid:</h4>
-                    <pre><code>&lt;div class="header"&gt;...&lt;/div&gt;
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Semantic HTML</h4>
+                <p class="text-gray-700 text-lg leading-relaxed mb-6">Use semantic elements to provide meaning and improve accessibility:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
+                        <h5 class="text-red-800 font-semibold mb-3">❌ Avoid:</h5>
+                        <div class="bg-gray-900 text-green-400 p-4 rounded font-mono text-sm">
+                            <pre class="overflow-x-auto"><code>&lt;div class="header"&gt;...&lt;/div&gt;
 &lt;div class="nav"&gt;...&lt;/div&gt;
 &lt;div class="main"&gt;...&lt;/div&gt;</code></pre>
-                </div>
+                        </div>
+                    </div>
 
-                <div class="best-practice">
-                    <h4>✅ Use:</h4>
-                    <pre><code>&lt;header&gt;...&lt;/header&gt;
+                    <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-lg">
+                        <h5 class="text-green-800 font-semibold mb-3">✅ Use:</h5>
+                        <div class="bg-gray-900 text-green-400 p-4 rounded font-mono text-sm">
+                            <pre class="overflow-x-auto"><code>&lt;header&gt;...&lt;/header&gt;
 &lt;nav&gt;...&lt;/nav&gt;
 &lt;main&gt;...&lt;/main&gt;</code></pre>
+                        </div>
+                    </div>
                 </div>
 
-                <h3>Accessibility</h3>
-                <ul>
-                    <li>Always use alt text for images</li>
-                    <li>Provide labels for form inputs</li>
-                    <li>Use semantic headings (h1-h6)</li>
-                    <li>Ensure sufficient color contrast</li>
-                    <li>Make interactive elements keyboard accessible</li>
-                </ul>
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Accessibility</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                        <strong class="text-blue-600">Images:</strong>
+                        <span class="text-gray-700 block">Always use alt text for images</span>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                        <strong class="text-green-600">Forms:</strong>
+                        <span class="text-gray-700 block">Provide labels for form inputs</span>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+                        <strong class="text-purple-600">Headings:</strong>
+                        <span class="text-gray-700 block">Use semantic headings (h1-h6)</span>
+                    </div>
+                    <div class="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+                        <strong class="text-orange-600">Contrast:</strong>
+                        <span class="text-gray-700 block">Ensure sufficient color contrast</span>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                        <strong class="text-red-600">Keyboard:</strong>
+                        <span class="text-gray-700 block">Make interactive elements keyboard accessible</span>
+                    </div>
+                    <div class="bg-teal-50 p-4 rounded-lg border-l-4 border-teal-500">
+                        <strong class="text-teal-600">Focus:</strong>
+                        <span class="text-gray-700 block">Provide visible focus indicators</span>
+                    </div>
+                </div>
 
-                <h3>Performance</h3>
-                <ul>
-                    <li>Use appropriate image formats and compression</li>
-                    <li>Specify image dimensions</li>
-                    <li>Minimize DOM depth</li>
-                    <li>Use semantic HTML for better SEO</li>
-                </ul>
-            </section>
-
-            <section id="summary">
-                <h2>2.10 Summary</h2>
-                <p>In this chapter, we covered the fundamentals of HTML:</p>
-
-                <div class="key-takeaways">
-                    <h3>Key Takeaways</h3>
-                    <ul>
-                        <li>HTML provides the structure and semantics of web pages</li>
-                        <li>HTML5 introduced semantic elements and enhanced multimedia support</li>
-                        <li>Proper document structure is essential for accessibility and SEO</li>
-                        <li>Semantic HTML improves code maintainability and accessibility</li>
-                        <li>Forms collect user input with various input types</li>
-                        <li>Attributes provide additional information about elements</li>
-                        <li>Best practices ensure accessible, performant, and maintainable code</li>
+                <h4 class="text-2xl font-semibold text-gray-800 mb-6">Performance</h4>
+                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-lg border-l-4 border-orange-500">
+                    <ul class="space-y-3 text-gray-700">
+                        <li class="flex items-start gap-3">
+                            <span class="bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</span>
+                            <span>Use appropriate image formats and compression</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">2</span>
+                            <span>Specify image dimensions</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">3</span>
+                            <span>Minimize DOM depth</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">4</span>
+                            <span>Use semantic HTML for better SEO</span>
+                        </li>
                     </ul>
                 </div>
+            </section>
 
-                <div class="practice-exercises">
-                    <h3>Practice Exercises</h3>
-                    <ol>
-                        <li>Create a complete HTML5 document with proper structure</li>
-                        <li>Build a navigation menu using semantic HTML</li>
-                        <li>Create a contact form with various input types</li>
-                        <li>Design a data table with proper semantic markup</li>
-                        <li>Implement an image gallery with accessibility features</li>
-                    </ol>
+            <!-- Summary Section -->
+            <section id="summary" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl p-8 mb-8">
+                <h3 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                    <span class="bg-white text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">10</span>
+                    Summary
+                </h3>
+                <p class="text-xl leading-relaxed mb-8">In this chapter, we covered the fundamentals of HTML structure and elements.</p>
+
+                <div class="bg-white/10 backdrop-blur-sm p-6 rounded-lg mb-8">
+                    <h4 class="text-2xl font-semibold mb-6">Key Takeaways</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white/10 p-4 rounded-lg">
+                            <ul class="space-y-3 text-indigo-100">
+                                <li class="flex items-start gap-3">
+                                    <span class="bg-indigo-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">•</span>
+                                    <span>HTML provides the structure and semantics of web pages</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="bg-indigo-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">•</span>
+                                    <span>HTML5 introduced semantic elements and enhanced multimedia support</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="bg-indigo-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">•</span>
+                                    <span>Proper document structure is essential for accessibility and SEO</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="bg-indigo-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">•</span>
+                                    <span>Semantic HTML improves code maintainability and accessibility</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-white/10 p-4 rounded-lg">
+                            <ul class="space-y-3 text-indigo-100">
+                                <li class="flex items-start gap-3">
+                                    <span class="bg-purple-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">•</span>
+                                    <span>Forms collect user input with various input types</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="bg-purple-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">•</span>
+                                    <span>Attributes provide additional information about elements</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="bg-purple-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">•</span>
+                                    <span>Best practices ensure accessible, performant, and maintainable code</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="bg-purple-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">•</span>
+                                    <span>Tables organize data with proper semantic markup</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
+                    <h4 class="text-2xl font-semibold mb-6">Practice Exercises</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="bg-white/20 p-4 rounded-lg">
+                            <h5 class="font-semibold mb-2 text-indigo-200">Exercise 1</h5>
+                            <p class="text-indigo-100 text-sm">Create a complete HTML5 document with proper structure</p>
+                        </div>
+                        <div class="bg-white/20 p-4 rounded-lg">
+                            <h5 class="font-semibold mb-2 text-indigo-200">Exercise 2</h5>
+                            <p class="text-indigo-100 text-sm">Build a navigation menu using semantic HTML</p>
+                        </div>
+                        <div class="bg-white/20 p-4 rounded-lg">
+                            <h5 class="font-semibold mb-2 text-indigo-200">Exercise 3</h5>
+                            <p class="text-indigo-100 text-sm">Create a contact form with various input types</p>
+                        </div>
+                        <div class="bg-white/20 p-4 rounded-lg">
+                            <h5 class="font-semibold mb-2 text-indigo-200">Exercise 4</h5>
+                            <p class="text-indigo-100 text-sm">Design a data table with proper semantic markup</p>
+                        </div>
+                        <div class="bg-white/20 p-4 rounded-lg">
+                            <h5 class="font-semibold mb-2 text-indigo-200">Exercise 5</h5>
+                            <p class="text-indigo-100 text-sm">Implement an image gallery with accessibility features</p>
+                        </div>
+                        <div class="bg-white/20 p-4 rounded-lg">
+                            <h5 class="font-semibold mb-2 text-indigo-200">Exercise 6</h5>
+                            <p class="text-indigo-100 text-sm">Build a responsive layout using semantic elements</p>
+                        </div>
+                    </div>
                 </div>
             </section>
         </article>

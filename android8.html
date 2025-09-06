@@ -53,7 +53,165 @@
             transform: translateY(-2px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+        .progress-bar-fill {
+            width: 0%;
+            transition: width 0.3s ease;
+        }
     </style>
+
+    <!-- TTS Controller -->
+    <script>
+        class TTSController {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.voices = [];
+                this.currentVoice = null;
+                this.isPlaying = false;
+                this.currentUtterance = null;
+
+                this.init();
+            }
+
+            init() {
+                this.loadVoices();
+                if (speechSynthesis.onvoiceschanged !== undefined) {
+                    speechSynthesis.onvoiceschanged = () => this.loadVoices();
+                }
+            }
+
+            loadVoices() {
+                this.voices = this.synth.getVoices();
+                this.currentVoice = this.voices.find(voice => voice.lang.startsWith('en')) || this.voices[0];
+            }
+
+            speak(text, button) {
+                if (this.isPlaying) {
+                    this.stop();
+                    return;
+                }
+
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.voice = this.currentVoice;
+                this.currentUtterance.rate = 0.9;
+                this.currentUtterance.pitch = 1;
+
+                this.currentUtterance.onstart = () => {
+                    this.isPlaying = true;
+                    button.innerHTML = '⏸️ Stop';
+                    button.classList.add('playing');
+                };
+
+                this.currentUtterance.onend = () => {
+                    this.isPlaying = false;
+                    button.innerHTML = '🔊 Read Aloud';
+                    button.classList.remove('playing');
+                };
+
+                this.currentUtterance.onerror = () => {
+                    this.isPlaying = false;
+                    button.innerHTML = '🔊 Read Aloud';
+                    button.classList.remove('playing');
+                };
+
+                this.synth.speak(this.currentUtterance);
+            }
+
+            stop() {
+                if (this.synth.speaking) {
+                    this.synth.cancel();
+                }
+                this.isPlaying = false;
+                document.querySelectorAll('.tts-button.playing').forEach(btn => {
+                    btn.innerHTML = '🔊 Read Aloud';
+                    btn.classList.remove('playing');
+                });
+            }
+        }
+
+        // Chapter Progress Tracker
+        class ChapterProgressTracker {
+            constructor(chapterId) {
+                this.chapterId = chapterId;
+                this.progressKey = `progress_${chapterId}`;
+                this.loadProgress();
+            }
+
+            loadProgress() {
+                const saved = localStorage.getItem(this.progressKey);
+                if (saved) {
+                    const progress = JSON.parse(saved);
+                    Object.keys(progress).forEach(sectionId => {
+                        const checkbox = document.getElementById(sectionId);
+                        if (checkbox) {
+                            checkbox.checked = progress[sectionId];
+                        }
+                    });
+                }
+            }
+
+            saveProgress() {
+                const progress = {};
+                document.querySelectorAll('.progress-checkbox').forEach(checkbox => {
+                    progress[checkbox.id] = checkbox.checked;
+                });
+                localStorage.setItem(this.progressKey, JSON.stringify(progress));
+            }
+
+            updateOverallProgress() {
+                const checkboxes = document.querySelectorAll('.progress-checkbox');
+                const completed = document.querySelectorAll('.progress-checkbox:checked').length;
+                const total = checkboxes.length;
+                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                // Update progress display if it exists
+                const progressDisplay = document.getElementById('chapter-progress');
+                if (progressDisplay) {
+                    progressDisplay.textContent = `${completed}/${total} sections completed (${percentage}%)`;
+                }
+
+                // Update progress bar
+                const progressBar = document.querySelector('.progress-bar-fill');
+                if (progressBar) {
+                    progressBar.style.width = `${percentage}%`;
+                }
+            }
+        }
+
+        // Global instances
+        let ttsController;
+        let progressTracker;
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            ttsController = new TTSController();
+            progressTracker = new ChapterProgressTracker('android8');
+
+            // Update progress on checkbox changes
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('progress-checkbox')) {
+                    progressTracker.saveProgress();
+                    progressTracker.updateOverallProgress();
+                }
+            });
+
+            // Initial progress update
+            progressTracker.updateOverallProgress();
+        });
+
+        // Global functions for HTML onclick handlers
+        function toggleTTS(button) {
+            const section = button.closest('section');
+            const text = section ? section.textContent.replace('Read Aloud', '').replace('Mark as Complete', '').trim() : '';
+            ttsController.speak(text, button);
+        }
+
+        function updateProgress() {
+            if (progressTracker) {
+                progressTracker.saveProgress();
+                progressTracker.updateOverallProgress();
+            }
+        }
+    </script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
     <header class="hero-gradient text-white py-16 px-6 text-center mb-12">
@@ -64,20 +222,92 @@
     </header>
 
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
-            <h2 class="text-primary-600 text-3xl font-light mb-6">Understanding Android Services</h2>
+        <!-- Progress Display -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-semibold text-gray-800">Chapter Progress</h2>
+                <div id="chapter-progress" class="text-lg font-medium text-primary-600">0/6 sections completed (0%)</div>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 mt-4">
+                <div class="bg-primary-600 h-3 rounded-full progress-bar-fill"></div>
+            </div>
+        </div>
+
+        <!-- Section 1: Understanding Android Services -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 1: Understanding Android Services</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section1" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
                 <p class="text-lg text-gray-700">Services are Android components that run in the background to perform long-running operations without a user interface.</p>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Types of Services</h3>
-            <ul class="list-disc list-inside text-gray-700 space-y-2 mb-8">
-                <li><strong class="text-secondary-700">Foreground Service:</strong> Performs operations that are noticeable to the user</li>
-                <li><strong class="text-secondary-700">Background Service:</strong> Performs operations that are not directly noticed by the user</li>
-                <li><strong class="text-secondary-700">Bound Service:</strong> Allows other components to bind to it and interact with it</li>
-            </ul>
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg">
+                <h3 class="text-blue-800 font-semibold mb-2">Key Characteristics:</h3>
+                <ul class="text-blue-700 space-y-2">
+                    <li>• No user interface - runs in background</li>
+                    <li>• Can continue running even when app is not visible</li>
+                    <li>• Can be started and stopped by other components</li>
+                    <li>• Can perform long-running operations</li>
+                </ul>
+            </div>
+        </section>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Creating a Service</h3>
+        <!-- Section 2: Types of Services -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 2: Types of Services</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section2" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-r-lg">
+                    <h3 class="text-green-800 font-semibold mb-3">Foreground Service</h3>
+                    <p class="text-green-700 text-sm">Performs operations that are noticeable to the user. Requires a persistent notification.</p>
+                </div>
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-lg">
+                    <h3 class="text-yellow-800 font-semibold mb-3">Background Service</h3>
+                    <p class="text-yellow-700 text-sm">Performs operations that are not directly noticed by the user. Limited in modern Android.</p>
+                </div>
+                <div class="bg-purple-50 border-l-4 border-purple-500 p-6 rounded-r-lg">
+                    <h3 class="text-purple-800 font-semibold mb-3">Bound Service</h3>
+                    <p class="text-purple-700 text-sm">Allows other components to bind to it and interact with it through IPC.</p>
+                </div>
+            </div>
+
+            <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg">
+                <h3 class="text-red-800 font-semibold mb-2">⚠️ Android 8.0+ Background Restrictions:</h3>
+                <p class="text-red-700">Background services are heavily restricted. Use WorkManager or foreground services for most background work.</p>
+            </div>
+        </section>
+
+        <!-- Section 3: Creating a Service -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 3: Creating a Service</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section3" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 public class MyService extends Service {<br>
     private static final String TAG = "MyService";<br>
@@ -125,7 +355,30 @@ public class MyService extends Service {<br>
 }
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Foreground Service (Android 8.0+)</h3>
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-lg">
+                <h3 class="text-yellow-800 font-semibold mb-2">Lifecycle Methods:</h3>
+                <ul class="text-yellow-700 space-y-1">
+                    <li><strong>onCreate():</strong> Called when service is first created</li>
+                    <li><strong>onStartCommand():</strong> Called when service is started</li>
+                    <li><strong>onBind():</strong> Called when component binds to service</li>
+                    <li><strong>onDestroy():</strong> Called when service is destroyed</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 4: Foreground Service -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 4: Foreground Service (Android 8.0+)</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section4" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 public class ForegroundService extends Service {<br>
     private static final int NOTIFICATION_ID = 1;<br>
@@ -173,7 +426,30 @@ public class ForegroundService extends Service {<br>
 }
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Bound Service</h3>
+            <div class="bg-indigo-50 border-l-4 border-indigo-500 p-6 rounded-r-lg">
+                <h3 class="text-indigo-800 font-semibold mb-2">Foreground Service Requirements:</h3>
+                <ul class="text-indigo-700 space-y-1">
+                    <li>• Must display a persistent notification</li>
+                    <li>• Requires notification channel (Android 8.0+)</li>
+                    <li>• Call startForeground() within 5 seconds</li>
+                    <li>• Higher priority - less likely to be killed</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 5: Bound Service -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 5: Bound Service</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section5" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 public class BoundService extends Service {<br>
     private final IBinder binder = new LocalBinder();<br>
@@ -215,44 +491,33 @@ private ServiceConnection connection = new ServiceConnection() {<br>
 <br>
 // Bind to service<br>
 Intent intent = new Intent(this, BoundService.class);<br>
-bindService(intent, connection, Context.BIND_AUTO_CREATE);<br>
-<br>
-// Use bound service<br>
-if (isBound) {<br>
-    int counter = boundService.getCounter();<br>
-}<br>
-<br>
-// Unbind from service<br>
-if (isBound) {<br>
-    unbindService(connection);<br>
-    isBound = false;<br>
-}
+bindService(intent, connection, Context.BIND_AUTO_CREATE);
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">IntentService (Deprecated but still useful)</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-public class MyIntentService extends IntentService {<br>
-    public MyIntentService() {<br>
-        super("MyIntentService");<br>
-    }<br>
-<br>
-    @Override<br>
-    protected void onHandleIntent(@Nullable Intent intent) {<br>
-        // Handle the intent on a background thread<br>
-        String action = intent.getAction();<br>
-        if ("ACTION_PROCESS".equals(action)) {<br>
-            processData();<br>
-        }<br>
-    }<br>
-<br>
-    private void processData() {<br>
-        // Your background processing here<br>
-        // IntentService automatically stops when work is done<br>
-    }<br>
-}
+            <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-r-lg">
+                <h3 class="text-green-800 font-semibold mb-2">Bound Service Benefits:</h3>
+                <ul class="text-green-700 space-y-1">
+                    <li>• Direct communication with service</li>
+                    <li>• Service lifecycle tied to bound components</li>
+                    <li>• Can call service methods directly</li>
+                    <li>• Supports inter-process communication (IPC)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 6: WorkManager & Best Practices -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 6: WorkManager & Best Practices</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section6" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">WorkManager (Recommended for Background Tasks)</h3>
             <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 // Define work<br>
 public class MyWorker extends Worker {<br>
@@ -280,37 +545,30 @@ WorkRequest workRequest = new OneTimeWorkRequest.Builder(MyWorker.class)<br>
                 .build())<br>
         .build();<br>
 <br>
-WorkManager.getInstance(context).enqueue(workRequest);<br>
-<br>
-// Periodic work<br>
-PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(<br>
-        MyWorker.class, 15, TimeUnit.MINUTES)<br>
-        .build();<br>
-<br>
-WorkManager.getInstance(context).enqueueUniquePeriodicWork(<br>
-        "unique_work_name",<br>
-        ExistingPeriodicWorkPolicy.KEEP,<br>
-        periodicWork);
+WorkManager.getInstance(context).enqueue(workRequest);
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Service Lifecycle</h3>
-            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
-                <p class="text-lg text-gray-700">Services have a well-defined lifecycle: onCreate() → onStartCommand()/onBind() → onDestroy()</p>
+            <div class="bg-purple-50 border-l-4 border-purple-500 p-6 rounded-r-lg">
+                <h3 class="text-purple-800 font-semibold mb-2">WorkManager Advantages:</h3>
+                <ul class="text-purple-700 space-y-1">
+                    <li>• Handles background restrictions automatically</li>
+                    <li>• Survives device restarts and app updates</li>
+                    <li>• Supports complex scheduling and constraints</li>
+                    <li>• Backward compatible to API 14</li>
+                </ul>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Manifest Declaration</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-&lt;!-- AndroidManifest.xml --&gt;<br>
-&lt;manifest&gt;<br>
-    &lt;application&gt;<br>
-        &lt;service<br>
-            android:name=".MyService"<br>
-            android:enabled="true"<br>
-            android:exported="false" /&gt;<br>
-    &lt;/application&gt;<br>
-&lt;/manifest&gt;
+            <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg mt-6">
+                <h3 class="text-red-800 font-semibold mb-2">Best Practices:</h3>
+                <ul class="text-red-700 space-y-1">
+                    <li>• Use WorkManager for deferrable background work</li>
+                    <li>• Use foreground services for user-visible operations</li>
+                    <li>• Avoid long-running background services on modern Android</li>
+                    <li>• Always show notifications for foreground services</li>
+                    <li>• Handle service lifecycle properly</li>
+                </ul>
             </div>
-        </div>
+        </section>
 
         <div class="bg-white rounded-2xl shadow-xl p-6 mt-12">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">

@@ -53,7 +53,165 @@
             transform: translateY(-2px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+        .progress-bar-fill {
+            width: 0%;
+            transition: width 0.3s ease;
+        }
     </style>
+
+    <!-- TTS Controller -->
+    <script>
+        class TTSController {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.voices = [];
+                this.currentVoice = null;
+                this.isPlaying = false;
+                this.currentUtterance = null;
+
+                this.init();
+            }
+
+            init() {
+                this.loadVoices();
+                if (speechSynthesis.onvoiceschanged !== undefined) {
+                    speechSynthesis.onvoiceschanged = () => this.loadVoices();
+                }
+            }
+
+            loadVoices() {
+                this.voices = this.synth.getVoices();
+                this.currentVoice = this.voices.find(voice => voice.lang.startsWith('en')) || this.voices[0];
+            }
+
+            speak(text, button) {
+                if (this.isPlaying) {
+                    this.stop();
+                    return;
+                }
+
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.voice = this.currentVoice;
+                this.currentUtterance.rate = 0.9;
+                this.currentUtterance.pitch = 1;
+
+                this.currentUtterance.onstart = () => {
+                    this.isPlaying = true;
+                    button.innerHTML = '⏸️ Stop';
+                    button.classList.add('playing');
+                };
+
+                this.currentUtterance.onend = () => {
+                    this.isPlaying = false;
+                    button.innerHTML = '🔊 Read Aloud';
+                    button.classList.remove('playing');
+                };
+
+                this.currentUtterance.onerror = () => {
+                    this.isPlaying = false;
+                    button.innerHTML = '🔊 Read Aloud';
+                    button.classList.remove('playing');
+                };
+
+                this.synth.speak(this.currentUtterance);
+            }
+
+            stop() {
+                if (this.synth.speaking) {
+                    this.synth.cancel();
+                }
+                this.isPlaying = false;
+                document.querySelectorAll('.tts-button.playing').forEach(btn => {
+                    btn.innerHTML = '🔊 Read Aloud';
+                    btn.classList.remove('playing');
+                });
+            }
+        }
+
+        // Chapter Progress Tracker
+        class ChapterProgressTracker {
+            constructor(chapterId) {
+                this.chapterId = chapterId;
+                this.progressKey = `progress_${chapterId}`;
+                this.loadProgress();
+            }
+
+            loadProgress() {
+                const saved = localStorage.getItem(this.progressKey);
+                if (saved) {
+                    const progress = JSON.parse(saved);
+                    Object.keys(progress).forEach(sectionId => {
+                        const checkbox = document.getElementById(sectionId);
+                        if (checkbox) {
+                            checkbox.checked = progress[sectionId];
+                        }
+                    });
+                }
+            }
+
+            saveProgress() {
+                const progress = {};
+                document.querySelectorAll('.progress-checkbox').forEach(checkbox => {
+                    progress[checkbox.id] = checkbox.checked;
+                });
+                localStorage.setItem(this.progressKey, JSON.stringify(progress));
+            }
+
+            updateOverallProgress() {
+                const checkboxes = document.querySelectorAll('.progress-checkbox');
+                const completed = document.querySelectorAll('.progress-checkbox:checked').length;
+                const total = checkboxes.length;
+                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                // Update progress display if it exists
+                const progressDisplay = document.getElementById('chapter-progress');
+                if (progressDisplay) {
+                    progressDisplay.textContent = `${completed}/${total} sections completed (${percentage}%)`;
+                }
+
+                // Update progress bar
+                const progressBar = document.querySelector('.progress-bar-fill');
+                if (progressBar) {
+                    progressBar.style.width = `${percentage}%`;
+                }
+            }
+        }
+
+        // Global instances
+        let ttsController;
+        let progressTracker;
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            ttsController = new TTSController();
+            progressTracker = new ChapterProgressTracker('android9');
+
+            // Update progress on checkbox changes
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('progress-checkbox')) {
+                    progressTracker.saveProgress();
+                    progressTracker.updateOverallProgress();
+                }
+            });
+
+            // Initial progress update
+            progressTracker.updateOverallProgress();
+        });
+
+        // Global functions for HTML onclick handlers
+        function toggleTTS(button) {
+            const section = button.closest('section');
+            const text = section ? section.textContent.replace('Read Aloud', '').replace('Mark as Complete', '').trim() : '';
+            ttsController.speak(text, button);
+        }
+
+        function updateProgress() {
+            if (progressTracker) {
+                progressTracker.saveProgress();
+                progressTracker.updateOverallProgress();
+            }
+        }
+    </script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-inter leading-relaxed">
     <header class="hero-gradient text-white py-16 px-6 text-center mb-12">
@@ -64,13 +222,63 @@
     </header>
 
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
-            <h2 class="text-primary-600 text-3xl font-light mb-6">Android Networking Fundamentals</h2>
+        <!-- Progress Display -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-semibold text-gray-800">Chapter Progress</h2>
+                <div id="chapter-progress" class="text-lg font-medium text-primary-600">0/6 sections completed (0%)</div>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 mt-4">
+                <div class="bg-primary-600 h-3 rounded-full progress-bar-fill"></div>
+            </div>
+        </div>
+
+        <!-- Section 1: Android Networking Fundamentals -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 1: Android Networking Fundamentals</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section1" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
                 <p class="text-lg text-gray-700">Android provides several ways to handle network operations: HttpURLConnection, Volley, Retrofit, and OkHttp. Always perform network operations on background threads to avoid blocking the UI.</p>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Network Permissions</h3>
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg">
+                <h3 class="text-blue-800 font-semibold mb-2">Available Networking Libraries:</h3>
+                <ul class="text-blue-700 space-y-2">
+                    <li>• <strong>HttpURLConnection:</strong> Built-in Android networking</li>
+                    <li>• <strong>Volley:</strong> Google's lightweight networking library</li>
+                    <li>• <strong>Retrofit:</strong> Type-safe HTTP client (most popular)</li>
+                    <li>• <strong>OkHttp:</strong> HTTP client with advanced features</li>
+                </ul>
+            </div>
+
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-lg">
+                <h3 class="text-yellow-800 font-semibold mb-2">⚠️ Important Note:</h3>
+                <p class="text-yellow-700">Network operations must never be performed on the main UI thread. Always use background threads or AsyncTask alternatives to prevent ANR (Application Not Responding) errors.</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Network Permissions & Setup -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 2: Network Permissions & Setup</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section2" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 &lt;!-- AndroidManifest.xml --&gt;<br>
 &lt;manifest&gt;<br>
@@ -84,7 +292,39 @@
 &lt;/manifest&gt;
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Basic HTTP Request with HttpURLConnection</h3>
+            <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-r-lg">
+                <h3 class="text-green-800 font-semibold mb-2">Required Permissions:</h3>
+                <ul class="text-green-700 space-y-1">
+                    <li><strong>INTERNET:</strong> Allows app to access the internet</li>
+                    <li><strong>ACCESS_NETWORK_STATE:</strong> Check network connectivity status</li>
+                    <li><strong>usesCleartextTraffic:</strong> Allow HTTP traffic (Android 9+)</li>
+                </ul>
+            </div>
+
+            <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg mt-6">
+                <h3 class="text-red-800 font-semibold mb-2">Security Considerations:</h3>
+                <ul class="text-red-700 space-y-1">
+                    <li>• Always use HTTPS in production</li>
+                    <li>• Avoid cleartext traffic in production apps</li>
+                    <li>• Implement proper SSL certificate validation</li>
+                    <li>• Use network security configuration for advanced security</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 3: HTTP Requests with HttpURLConnection -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 3: HTTP Requests with HttpURLConnection</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section3" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 public class NetworkUtils {<br>
     public static String makeHttpRequest(URL url) throws IOException {<br>
@@ -129,54 +369,38 @@ public class NetworkUtils {<br>
         }<br>
         return output.toString();<br>
     }<br>
-}<br>
-<br>
-// Usage in AsyncTask (deprecated, use other methods)<br>
-private class NetworkTask extends AsyncTask&lt;String, Void, String&gt; {<br>
-    @Override<br>
-    protected String doInBackground(String... urls) {<br>
-        try {<br>
-            URL url = new URL(urls[0]);<br>
-            return NetworkUtils.makeHttpRequest(url);<br>
-        } catch (IOException e) {<br>
-            e.printStackTrace();<br>
-            return null;<br>
-        }<br>
-    }<br>
-<br>
-    @Override<br>
-    protected void onPostExecute(String result) {<br>
-        if (result != null) {<br>
-            // Handle the result<br>
-        }<br>
-    }<br>
 }
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Volley Library (Google's Networking Library)</h3>
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-lg">
+                <h3 class="text-yellow-800 font-semibold mb-2">HttpURLConnection Best Practices:</h3>
+                <ul class="text-yellow-700 space-y-1">
+                    <li>• Always set connection and read timeouts</li>
+                    <li>• Properly close streams and connections</li>
+                    <li>• Handle HTTP error codes appropriately</li>
+                    <li>• Use try-with-resources for automatic cleanup</li>
+                    <li>• Check network availability before making requests</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 4: Volley Library -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 4: Volley Library</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section4" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 // Add to build.gradle<br>
 dependencies {<br>
     implementation 'com.android.volley:volley:1.2.1'<br>
-}<br>
-<br>
-// Initialize Volley<br>
-public class MyApplication extends Application {<br>
-    private static MyApplication instance;<br>
-<br>
-    @Override<br>
-    public void onCreate() {<br>
-        super.onCreate();<br>
-        instance = this;<br>
-    }<br>
-<br>
-    public static synchronized MyApplication getInstance() {<br>
-        return instance;<br>
-    }<br>
-<br>
-    public RequestQueue getRequestQueue() {<br>
-        return Volley.newRequestQueue(getApplicationContext());<br>
-    }<br>
 }<br>
 <br>
 // Simple GET request<br>
@@ -197,32 +421,52 @@ StringRequest stringRequest = new StringRequest(Request.Method.GET, url,<br>
         });<br>
 <br>
 // Add request to queue<br>
-MyApplication.getInstance().getRequestQueue().add(stringRequest);<br>
-<br>
-// JSON Object Request<br>
-JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,<br>
-        new Response.Listener&lt;JSONObject&gt;() {<br>
-            @Override<br>
-            public void onResponse(JSONObject response) {<br>
-                try {<br>
-                    String name = response.getString("name");<br>
-                    // Process JSON response<br>
-                } catch (JSONException e) {<br>
-                    e.printStackTrace();<br>
-                }<br>
-            }<br>
-        },<br>
-        new Response.ErrorListener() {<br>
-            @Override<br>
-            public void onErrorResponse(VolleyError error) {<br>
-                Log.e("Error", error.toString());<br>
-            }<br>
-        });<br>
-<br>
-MyApplication.getInstance().getRequestQueue().add(jsonObjectRequest);
+Volley.newRequestQueue(this).add(stringRequest);
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Retrofit Library (Most Popular)</h3>
+            <div class="bg-purple-50 border-l-4 border-purple-500 p-6 rounded-r-lg">
+                <h3 class="text-purple-800 font-semibold mb-2">Volley Features:</h3>
+                <ul class="text-purple-700 space-y-1">
+                    <li>• Automatic request queuing and prioritization</li>
+                    <li>• Built-in JSON parsing support</li>
+                    <li>• Request caching and retry mechanisms</li>
+                    <li>• Image loading and caching</li>
+                    <li>• Easy request cancellation</li>
+                </ul>
+            </div>
+
+            <div class="bg-indigo-50 border-l-4 border-indigo-500 p-6 rounded-r-lg mt-6">
+                <h3 class="text-indigo-800 font-semibold mb-2">JSON Request Example:</h3>
+                <div class="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, null,<br>
+        response -&gt; {<br>
+            try {<br>
+                String name = response.getString("name");<br>
+                // Process JSON response<br>
+            } catch (JSONException e) {<br>
+                e.printStackTrace();<br>
+            }<br>
+        },<br>
+        error -&gt; Log.e("Error", error.toString()));<br>
+<br>
+Volley.newRequestQueue(this).add(jsonRequest);
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Retrofit Library & JSON Parsing -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 5: Retrofit Library & JSON Parsing</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section5" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
 // Add to build.gradle<br>
 dependencies {<br>
@@ -240,163 +484,84 @@ public interface ApiService {<br>
 <br>
     @POST("users")<br>
     Call&lt;User&gt; createUser(@Body User user);<br>
-<br>
-    @PUT("users/{id}")<br>
-    Call&lt;User&gt; updateUser(@Path("id") int id, @Body User user);<br>
-<br>
-    @DELETE("users/{id}")<br>
-    Call&lt;Void&gt; deleteUser(@Path("id") int id);<br>
-}<br>
-<br>
-// User model<br>
-public class User {<br>
-    private int id;<br>
-    private String name;<br>
-    private String email;<br>
-<br>
-    // Getters and setters<br>
-}<br>
-<br>
-// Create Retrofit instance<br>
-public class ApiClient {<br>
-    private static final String BASE_URL = "https://jsonplaceholder.typicode.com/";<br>
-    private static Retrofit retrofit = null;<br>
-<br>
-    public static Retrofit getClient() {<br>
-        if (retrofit == null) {<br>
-            retrofit = new Retrofit.Builder()<br>
-                    .baseUrl(BASE_URL)<br>
-                    .addConverterFactory(GsonConverterFactory.create())<br>
-                    .build();<br>
-        }<br>
-        return retrofit;<br>
-    }<br>
-}<br>
-<br>
-// Usage<br>
-ApiService apiService = ApiClient.getClient().create(ApiService.class);<br>
-<br>
-// GET request<br>
-Call&lt;User&gt; call = apiService.getUser("1");<br>
-call.enqueue(new Callback&lt;User&gt;() {<br>
-    @Override<br>
-    public void onResponse(Call&lt;User&gt; call, Response&lt;User&gt; response) {<br>
-        if (response.isSuccessful()) {<br>
-            User user = response.body();<br>
-            // Handle success<br>
-        }<br>
-    }<br>
-<br>
-    @Override<br>
-    public void onFailure(Call&lt;User&gt; call, Throwable t) {<br>
-        // Handle failure<br>
-        Log.e("Error", t.getMessage());<br>
-    }<br>
-});
+}
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">JSON Parsing with Gson</h3>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-// Add to build.gradle<br>
-dependencies {<br>
-    implementation 'com.google.code.gson:gson:2.8.9'<br>
-}<br>
-<br>
-// Parse JSON string to object<br>
+            <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-r-lg">
+                <h3 class="text-green-800 font-semibold mb-2">Retrofit Advantages:</h3>
+                <ul class="text-green-700 space-y-1">
+                    <li>• Type-safe API calls with annotations</li>
+                    <li>• Automatic JSON serialization/deserialization</li>
+                    <li>• Built-in support for different HTTP methods</li>
+                    <li>• Easy request/response interceptors</li>
+                    <li>• RxJava integration support</li>
+                </ul>
+            </div>
+
+            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8 mt-6">
+// JSON Parsing with Gson<br>
 Gson gson = new Gson();<br>
 String jsonString = "{\"name\":\"John\",\"age\":30}";<br>
 Person person = gson.fromJson(jsonString, Person.class);<br>
 <br>
-// Convert object to JSON string<br>
+// Convert object to JSON<br>
 Person person = new Person("John", 30);<br>
-String json = gson.toJson(person);<br>
-<br>
-// Parse JSON array<br>
-String jsonArray = "[{\"name\":\"John\"},{\"name\":\"Jane\"}]";<br>
-Type listType = new TypeToken&lt;List&lt;Person&gt;&gt;(){}.getType();<br>
-List&lt;Person&gt; persons = gson.fromJson(jsonArray, listType);
+String json = gson.toJson(person);
+            </div>
+        </section>
+
+        <!-- Section 6: Network Security & Best Practices -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-primary-600 text-3xl font-light">Section 6: Network Security & Best Practices</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTTS(this)" class="tts-button bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">🔊 Read Aloud</button>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="section6" class="progress-checkbox w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                        <span class="text-gray-700 font-medium">Mark as Complete</span>
+                    </label>
+                </div>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Network Security Best Practices</h3>
-            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
-                <p class="text-lg text-gray-700">Always use HTTPS in production, validate SSL certificates, and handle network errors gracefully.</p>
-            </div>
-            <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-// Custom OkHttpClient with SSL pinning (for security)<br>
-OkHttpClient.Builder builder = new OkHttpClient.Builder();<br>
-<br>
-// Add certificate pinning<br>
-CertificatePinner certificatePinner = new CertificatePinner.Builder()<br>
-        .add("api.example.com", "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")<br>
-        .build();<br>
-<br>
-builder.certificatePinner(certificatePinner);<br>
-<br>
-// Add interceptors for logging<br>
-HttpLoggingInterceptor logging = new HttpLoggingInterceptor();<br>
-logging.setLevel(HttpLoggingInterceptor.Level.BODY);<br>
-builder.addInterceptor(logging);<br>
-<br>
-// Add timeout<br>
-builder.connectTimeout(30, TimeUnit.SECONDS);<br>
-builder.readTimeout(30, TimeUnit.SECONDS);<br>
-<br>
-OkHttpClient client = builder.build();<br>
-<br>
-// Use with Retrofit<br>
-Retrofit retrofit = new Retrofit.Builder()<br>
-        .baseUrl(BASE_URL)<br>
-        .client(client)<br>
-        .addConverterFactory(GsonConverterFactory.create())<br>
-        .build();
+            <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg mb-8">
+                <h3 class="text-red-800 font-semibold mb-2">Security Best Practices:</h3>
+                <ul class="text-red-700 space-y-1">
+                    <li>• Always use HTTPS in production</li>
+                    <li>• Implement SSL certificate pinning</li>
+                    <li>• Validate all input data</li>
+                    <li>• Handle network errors gracefully</li>
+                    <li>• Use appropriate timeouts</li>
+                    <li>• Implement proper authentication</li>
+                </ul>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Handling Network State</h3>
             <div class="bg-gray-800 text-gray-100 p-6 rounded-xl font-mono text-sm overflow-x-auto mb-8">
-public class NetworkUtils {<br>
-    public static boolean isNetworkAvailable(Context context) {<br>
-        ConnectivityManager connectivityManager =<br>
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);<br>
-<br>
-        if (connectivityManager != null) {<br>
-            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();<br>
-            return activeNetworkInfo != null && activeNetworkInfo.isConnected();<br>
-        }<br>
-        return false;<br>
-    }<br>
-<br>
-    public static boolean isWifiConnected(Context context) {<br>
-        ConnectivityManager connectivityManager =<br>
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);<br>
-<br>
-        NetworkInfo wifiNetwork = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);<br>
-        return wifiNetwork != null && wifiNetwork.isConnected();<br>
-    }<br>
-}<br>
-<br>
-// Usage<br>
-if (NetworkUtils.isNetworkAvailable(this)) {<br>
-    // Perform network operation<br>
-} else {<br>
-    // Show no network message<br>
-    Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();<br>
+// Network state checking<br>
+public static boolean isNetworkAvailable(Context context) {<br>
+    ConnectivityManager cm = (ConnectivityManager) context<br>
+            .getSystemService(Context.CONNECTIVITY_SERVICE);<br>
+    NetworkInfo activeNetwork = cm.getActiveNetworkInfo();<br>
+    return activeNetwork != null && activeNetwork.isConnected();<br>
 }
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">AsyncTask vs Other Approaches</h3>
-            <div class="bg-gray-50 border-l-4 border-primary-500 p-6 my-8 rounded-r-lg">
-                <p class="text-lg text-gray-700">AsyncTask is deprecated. Use Volley, Retrofit, or Kotlin Coroutines for modern Android development.</p>
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-lg">
+                <h3 class="text-yellow-800 font-semibold mb-2">Threading Guidelines:</h3>
+                <ul class="text-yellow-700 space-y-1">
+                    <li>• Never perform network operations on main thread</li>
+                    <li>• Use background threads or modern alternatives</li>
+                    <li>• Handle configuration changes properly</li>
+                    <li>• Cancel requests when appropriate</li>
+                    <li>• Show loading indicators to users</li>
+                    <li>• AsyncTask is deprecated - use modern approaches</li>
+                </ul>
             </div>
 
-            <h3 class="text-secondary-600 text-2xl font-medium mb-4 mt-8">Network Threading Best Practices</h3>
-            <ul class="list-disc list-inside text-gray-700 space-y-2 mb-8">
-                <li>Never perform network operations on the main thread</li>
-                <li>Use background threads or AsyncTask alternatives</li>
-                <li>Handle configuration changes properly</li>
-                <li>Cancel network requests when appropriate</li>
-                <li>Show loading indicators to users</li>
-            </ul>
-        </div>
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg mt-6">
+                <h3 class="text-blue-800 font-semibold mb-2">Recommended Libraries:</h3>
+                <p class="text-blue-700">For modern Android development, prefer Retrofit with OkHttp for most networking needs. Use WorkManager for background tasks and consider Kotlin Coroutines for asynchronous programming.</p>
+            </div>
+        </section>
 
         <div class="bg-white rounded-2xl shadow-xl p-6 mt-12">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">

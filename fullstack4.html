@@ -4,62 +4,421 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Full-Stack Web Development: Chapter 4 - JavaScript Basics</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#61dafb',
+                        secondary: '#21a3c4'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .tts-highlight {
+            background-color: #fef3c7;
+            padding: 2px 4px;
+            border-radius: 3px;
+            animation: highlight 2s ease-out;
+        }
+
+        @keyframes highlight {
+            0% { background-color: #fef3c7; }
+            100% { background-color: transparent; }
+        }
+
+        .code-block {
+            position: relative;
+        }
+
+        .code-block:hover .copy-btn {
+            opacity: 1;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+    </style>
+    <script>
+        // TTS Controller
+        class TTSController {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.currentUtterance = null;
+                this.isPlaying = false;
+                this.currentSection = null;
+                this.rate = parseFloat(localStorage.getItem('ttsRate')) || 1;
+                this.pitch = parseFloat(localStorage.getItem('ttsPitch')) || 1;
+                this.voice = null;
+                this.initialize();
+            }
+
+            async initialize() {
+                // Wait for voices to load
+                if (this.synth.getVoices().length === 0) {
+                    await new Promise(resolve => {
+                        this.synth.onvoiceschanged = resolve;
+                        setTimeout(resolve, 1000); // Fallback timeout
+                    });
+                }
+
+                const voices = this.synth.getVoices();
+                // Prefer English voices
+                this.voice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+
+                this.updateControls();
+            }
+
+            updateControls() {
+                const rateInput = document.getElementById('tts-rate');
+                const pitchInput = document.getElementById('tts-pitch');
+                const rateValue = document.getElementById('rate-value');
+                const pitchValue = document.getElementById('pitch-value');
+
+                if (rateInput) rateInput.value = this.rate;
+                if (pitchInput) pitchInput.value = this.pitch;
+                if (rateValue) rateValue.textContent = this.rate.toFixed(1) + 'x';
+                if (pitchValue) pitchValue.textContent = this.pitch.toString();
+            }
+
+            speak(text, element = null) {
+                if (this.isPlaying) {
+                    this.stop();
+                }
+
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.voice = this.voice;
+                this.currentUtterance.rate = this.rate;
+                this.currentUtterance.pitch = this.pitch;
+
+                if (element) {
+                    this.currentUtterance.onboundary = (event) => {
+                        if (event.name === 'word') {
+                            this.highlightWord(element, event.charIndex);
+                        }
+                    };
+                }
+
+                this.currentUtterance.onend = () => {
+                    this.isPlaying = false;
+                    this.updatePlayButton();
+                    if (element) {
+                        element.classList.remove('tts-highlight');
+                    }
+                };
+
+                this.synth.speak(this.currentUtterance);
+                this.isPlaying = true;
+                this.updatePlayButton();
+            }
+
+            highlightWord(element, charIndex) {
+                // Simple highlighting - could be enhanced
+                element.classList.add('tts-highlight');
+            }
+
+            stop() {
+                if (this.synth.speaking) {
+                    this.synth.cancel();
+                }
+                this.isPlaying = false;
+                this.currentUtterance = null;
+                this.updatePlayButton();
+            }
+
+            setRate(rate) {
+                this.rate = rate;
+                localStorage.setItem('ttsRate', rate);
+                if (this.currentUtterance) {
+                    this.currentUtterance.rate = rate;
+                }
+            }
+
+            setPitch(pitch) {
+                this.pitch = pitch;
+                localStorage.setItem('ttsPitch', pitch);
+                if (this.currentUtterance) {
+                    this.currentUtterance.pitch = pitch;
+                }
+            }
+
+            updatePlayButton() {
+                const btn = document.getElementById('play-pause-btn');
+                const icon = btn.querySelector('i');
+                const span = btn.querySelector('span');
+
+                if (this.isPlaying) {
+                    icon.className = 'fas fa-pause';
+                    span.textContent = 'Pause';
+                } else {
+                    icon.className = 'fas fa-play';
+                    span.textContent = 'Play';
+                }
+            }
+        }
+
+        // Chapter Progress Tracker
+        class ChapterTracker {
+            constructor() {
+                this.totalSections = 12;
+                this.completedSections = new Set(
+                    JSON.parse(localStorage.getItem('chapter4Progress') || '[]')
+                );
+                this.initialize();
+            }
+
+            initialize() {
+                this.updateProgress();
+                this.setupSectionTracking();
+            }
+
+            setupSectionTracking() {
+                const sections = document.querySelectorAll('section[id]');
+                sections.forEach(section => {
+                    const sectionId = section.id;
+
+                    // Check if section is in viewport
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                this.markSectionComplete(sectionId);
+                            }
+                        });
+                    }, { threshold: 0.5 });
+
+                    observer.observe(section);
+                });
+            }
+
+            markSectionComplete(sectionId) {
+                if (!this.completedSections.has(sectionId)) {
+                    this.completedSections.add(sectionId);
+                    this.saveProgress();
+                    this.updateProgress();
+                }
+            }
+
+            saveProgress() {
+                localStorage.setItem('chapter4Progress', JSON.stringify([...this.completedSections]));
+            }
+
+            updateProgress() {
+                const progress = (this.completedSections.size / this.totalSections) * 100;
+                const progressBar = document.getElementById('chapter-progress');
+                const progressText = document.getElementById('progress-text');
+
+                if (progressBar) {
+                    progressBar.style.width = progress + '%';
+                }
+                if (progressText) {
+                    progressText.textContent = `${this.completedSections.size}/${this.totalSections} sections completed`;
+                }
+            }
+
+            getCompletedCount() {
+                return this.completedSections.size;
+            }
+        }
+
+        // Initialize when DOM is loaded
+        let ttsController;
+        let chapterTracker;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            ttsController = new TTSController();
+            chapterTracker = new ChapterTracker();
+
+            // Setup TTS controls
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const stopBtn = document.getElementById('stop-btn');
+            const rateInput = document.getElementById('tts-rate');
+            const pitchInput = document.getElementById('tts-pitch');
+
+            if (playPauseBtn) {
+                playPauseBtn.addEventListener('click', () => {
+                    if (ttsController.isPlaying) {
+                        ttsController.stop();
+                    } else {
+                        const currentSection = document.querySelector('section[id]');
+                        if (currentSection) {
+                            const text = currentSection.textContent.replace(/\s+/g, ' ').trim();
+                            ttsController.speak(text, currentSection);
+                        }
+                    }
+                });
+            }
+
+            if (stopBtn) {
+                stopBtn.addEventListener('click', () => {
+                    ttsController.stop();
+                });
+            }
+
+            if (rateInput) {
+                rateInput.addEventListener('input', (e) => {
+                    ttsController.setRate(parseFloat(e.target.value));
+                });
+            }
+
+            if (pitchInput) {
+                pitchInput.addEventListener('input', (e) => {
+                    ttsController.setPitch(parseFloat(e.target.value));
+                });
+            }
+
+            // Setup section reading
+            document.querySelectorAll('section[id]').forEach(section => {
+                const readBtn = document.createElement('button');
+                readBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                readBtn.className = 'ml-2 px-2 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors';
+                readBtn.title = 'Read this section';
+
+                readBtn.addEventListener('click', () => {
+                    const text = section.textContent.replace(/\s+/g, ' ').trim();
+                    ttsController.speak(text, section);
+                });
+
+                const header = section.querySelector('h2');
+                if (header) {
+                    header.appendChild(readBtn);
+                }
+            });
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (ttsController) {
+                ttsController.stop();
+            }
+        });
+    </script>
 </head>
-<body>
-    <header>
-        <nav>
-            <div class="nav-container">
-                <h1>Full-Stack Web Development Study Guide</h1>
-                <ul class="nav-menu">
-                    <li><a href="fullstack1.html">Chapter 1</a></li>
-                    <li><a href="fullstack2.html">Chapter 2</a></li>
-                    <li><a href="fullstack3.html">Chapter 3</a></li>
-                    <li><a href="fullstack4.html" class="active">Chapter 4</a></li>
-                </ul>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Header with Navigation -->
+    <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                <div class="mb-4 lg:mb-0">
+                    <h1 class="text-3xl font-bold mb-2">📚 Full Stack Web Development Study Guide</h1>
+                    <p class="text-blue-100">Master modern web development from frontend to backend</p>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="flex flex-wrap gap-2" aria-label="Chapter navigation">
+                    <a href="fullstack1.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors">Chapter 1</a>
+                    <a href="fullstack2.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors">Chapter 2</a>
+                    <a href="fullstack3.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors">Chapter 3</a>
+                    <a href="fullstack4.html" class="bg-white/30 px-4 py-2 rounded-lg text-sm font-medium">📖 Chapter 4</a>
+                </nav>
             </div>
-        </nav>
+        </div>
     </header>
 
-    <main>
-        <article class="chapter-content">
-            <header class="chapter-header">
-                <h1>Chapter 4: JavaScript Basics</h1>
-                <p class="chapter-subtitle">Programming Interactivity in Web Pages</p>
-                <div class="progress-container">
-                    <div class="progress-bar" id="progressBar"></div>
+    <!-- Progress Bar -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600">Chapter Progress:</span>
+                <span id="progress-text" class="font-medium text-gray-800">0/12 sections completed</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
+                <div id="chapter-progress" class="bg-green-500 h-3 rounded-full transition-all duration-300 w-0"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TTS Controls -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <button id="play-pause-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                        <i class="fas fa-play"></i>
+                        <span>Play</span>
+                    </button>
+                    <button id="stop-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <label for="tts-rate" class="text-sm font-medium text-gray-700">Speed:</label>
+                    <input type="range" id="tts-rate" min="0.5" max="2" step="0.1" value="1" class="w-20">
+                    <span id="rate-value" class="text-sm font-medium text-gray-700 w-8">1.0x</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <label for="tts-pitch" class="text-sm font-medium text-gray-700">Pitch:</label>
+                    <input type="range" id="tts-pitch" min="0.5" max="2" step="0.1" value="1" class="w-20">
+                    <span id="pitch-value" class="text-sm font-medium text-gray-700 w-8">1.0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <article>
+
+            <!-- Chapter Header -->
+            <header class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">Chapter 4: JavaScript Basics</h1>
+                <p class="text-xl text-gray-600 mb-6">Programming Interactivity in Web Pages</p>
+                <div class="flex flex-wrap gap-4 text-sm text-gray-500">
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">📅 Last Updated: September 2025</span>
+                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full">📖 Based on "Full Stack Web Development: The Comprehensive Guide"</span>
                 </div>
             </header>
 
-            <section id="introduction">
-                <h2>4.1 Introduction to JavaScript</h2>
-                <p>JavaScript is a high-level, interpreted programming language that enables interactive web pages. It runs in the browser and allows you to create dynamic content, control multimedia, animate images, and much more.</p>
+            <section id="introduction" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">4.1 Introduction to JavaScript</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">JavaScript is a high-level, interpreted programming language that enables interactive web pages. It runs in the browser and allows you to create dynamic content, control multimedia, animate images, and much more.</p>
 
-                <div class="key-concept">
-                    <h3>Key Concept: Client-Side Scripting</h3>
-                    <p>JavaScript executes in the user's browser, providing immediate feedback and reducing server requests.</p>
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-6 mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">Key Concept: Client-Side Scripting</h3>
+                    <p class="text-blue-700">JavaScript executes in the user's browser, providing immediate feedback and reducing server requests.</p>
                 </div>
 
-                <h3>JavaScript Evolution</h3>
-                <ul>
-                    <li><strong>1995</strong> - Created by Brendan Eich at Netscape</li>
-                    <li><strong>1997</strong> - ECMAScript 1 (ES1) standardization</li>
-                    <li><strong>2009</strong> - ECMAScript 5 (ES5) with major improvements</li>
-                    <li><strong>2015</strong> - ECMAScript 2015 (ES6) with modern features</li>
-                    <li><strong>2023</strong> - ECMAScript 2023 (ES14) latest features</li>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">JavaScript Evolution</h3>
+                <ul class="space-y-2 mb-6">
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">1995</span>
+                        <span class="text-gray-700">Created by Brendan Eich at Netscape</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">1997</span>
+                        <span class="text-gray-700">ECMAScript 1 (ES1) standardization</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">2009</span>
+                        <span class="text-gray-700">ECMAScript 5 (ES5) with major improvements</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">2015</span>
+                        <span class="text-gray-700">ECMAScript 2015 (ES6) with modern features</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">2023</span>
+                        <span class="text-gray-700">ECMAScript 2023 (ES14) latest features</span>
+                    </li>
                 </ul>
 
-                <h3>Adding JavaScript to HTML</h3>
-                <p>There are several ways to include JavaScript in HTML:</p>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Adding JavaScript to HTML</h3>
+                <p class="text-lg text-gray-700 mb-4">There are several ways to include JavaScript in HTML:</p>
 
-                <h4>1. Inline Scripts</h4>
-                <div class="code-example">
+                <h4 class="text-xl font-semibold text-gray-800 mb-3">1. Inline Scripts</h4>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
                     <pre><code>&lt;button onclick="alert('Hello!')"&gt;Click me&lt;/button&gt;</code></pre>
                 </div>
 
-                <h4>2. Internal Scripts</h4>
-                <div class="code-example">
+                <h4 class="text-xl font-semibold text-gray-800 mb-3">2. Internal Scripts</h4>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
                     <pre><code>&lt;script&gt;
     function greet() {
         alert('Hello from JavaScript!');
@@ -67,18 +426,18 @@
 &lt;/script&gt;</code></pre>
                 </div>
 
-                <h4>3. External Scripts (Recommended)</h4>
-                <div class="code-example">
+                <h4 class="text-xl font-semibold text-gray-800 mb-3">3. External Scripts (Recommended)</h4>
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
                     <pre><code>&lt;script src="script.js"&gt;&lt;/script&gt;</code></pre>
                 </div>
             </section>
 
-            <section id="variables">
-                <h2>4.2 Variables and Data Types</h2>
-                <p>JavaScript variables store data values that can be referenced and manipulated throughout your code.</p>
+            <section id="variables" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">4.2 Variables and Data Types</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">JavaScript variables store data values that can be referenced and manipulated throughout your code.</p>
 
-                <h3>Variable Declaration</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Variable Declaration</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>// Modern way (ES6+)
 let name = "John";
 const age = 25;
@@ -97,58 +456,60 @@ let _private = "convention"; // _ prefix for private
 // let let;         // Reserved keyword</code></pre>
                 </div>
 
-                <h3>Data Types</h3>
-                <p>JavaScript has dynamic typing - variables can hold different types of data:</p>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Data Types</h3>
+                <p class="text-lg text-gray-700 mb-6">JavaScript has dynamic typing - variables can hold different types of data:</p>
 
-                <table class="data-types-table">
-                    <thead>
-                        <tr>
-                            <th>Data Type</th>
-                            <th>Example</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>String</td>
-                            <td><code>"Hello"</code></td>
-                            <td>Text data</td>
-                        </tr>
-                        <tr>
-                            <td>Number</td>
-                            <td><code>42</code></td>
-                            <td>Integers and floats</td>
-                        </tr>
-                        <tr>
-                            <td>Boolean</td>
-                            <td><code>true</code></td>
-                            <td>true or false</td>
-                        </tr>
-                        <tr>
-                            <td>Undefined</td>
-                            <td><code>undefined</code></td>
-                            <td>Unassigned variable</td>
-                        </tr>
-                        <tr>
-                            <td>Null</td>
-                            <td><code>null</code></td>
-                            <td>Intentionally empty</td>
-                        </tr>
-                        <tr>
-                            <td>Object</td>
-                            <td><code>{}</code></td>
-                            <td>Complex data structures</td>
-                        </tr>
-                        <tr>
-                            <td>Array</td>
-                            <td><code>[]</code></td>
-                            <td>Ordered collections</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="overflow-x-auto mb-6">
+                    <table class="w-full border-collapse border border-gray-300 rounded-lg">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Data Type</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Example</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">String</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">"Hello"</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Text data</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">Number</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">42</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Integers and floats</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">Boolean</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">true</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">true or false</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">Undefined</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">undefined</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Unassigned variable</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">Null</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">null</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Intentionally empty</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">Object</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">{}</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Complex data structures</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">Array</td>
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">[]</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Ordered collections</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                <h3>Type Checking and Conversion</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Type Checking and Conversion</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>// Type checking
 typeof "Hello";        // "string"
 typeof 42;            // "number"
@@ -170,12 +531,12 @@ Boolean(0);           // false
                 </div>
             </section>
 
-            <section id="operators">
-                <h2>4.3 Operators</h2>
-                <p>Operators perform operations on variables and values.</p>
+            <section id="operators" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">4.3 Operators</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">Operators perform operations on variables and values.</p>
 
-                <h3>Arithmetic Operators</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Arithmetic Operators</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>let x = 10;
 let y = 3;
 
@@ -193,8 +554,8 @@ x--;     // x = x - 1
 --x;     // x = x - 1 (pre-decrement)</code></pre>
                 </div>
 
-                <h3>Comparison Operators</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Comparison Operators</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>let a = 5;
 let b = "5";
 
@@ -209,8 +570,8 @@ a >= b;   // true
 a <= b;   // true</code></pre>
                 </div>
 
-                <h3>Logical Operators</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Logical Operators</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>let x = true;
 let y = false;
 
@@ -227,12 +588,12 @@ false || console.log("This runs");     // Logs message</code></pre>
                 </div>
             </section>
 
-            <section id="control-flow">
-                <h2>4.4 Control Flow</h2>
-                <p>Control flow statements determine the execution path of your code.</p>
+            <section id="control-flow" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">4.4 Control Flow</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">Control flow statements determine the execution path of your code.</p>
 
-                <h3>Conditional Statements</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Conditional Statements</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>// if-else
 let age = 18;
 if (age >= 18) {
@@ -274,8 +635,8 @@ switch (day) {
 }</code></pre>
                 </div>
 
-                <h3>Loops</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Loops</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>// for loop
 for (let i = 0; i < 5; i++) {
     console.log(i); // 0, 1, 2, 3, 4
@@ -309,12 +670,12 @@ for (let key in person) {
                 </div>
             </section>
 
-            <section id="functions">
-                <h2>4.5 Functions</h2>
-                <p>Functions are reusable blocks of code that perform specific tasks.</p>
+            <section id="functions" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">4.5 Functions</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">Functions are reusable blocks of code that perform specific tasks.</p>
 
-                <h3>Function Declaration</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Function Declaration</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>// Function declaration
 function greet(name) {
     return "Hello, " + name + "!";
@@ -340,8 +701,8 @@ console.log(greetArrow("Bob"));    // "Hello, Bob!"
 console.log(greetShort("Alice"));  // "Hello, Alice!"</code></pre>
                 </div>
 
-                <h3>Parameters and Arguments</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Parameters and Arguments</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>// Default parameters
 function greet(name = "Guest") {
     return "Hello, " + name + "!";
@@ -371,12 +732,12 @@ console.log(operate(5, 3, multiply)); // 15</code></pre>
                 </div>
             </section>
 
-            <section id="arrays">
-                <h2>4.6 Arrays</h2>
-                <p>Arrays are ordered collections of values that can be of any type.</p>
+            <section id="arrays" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">4.6 Arrays</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">Arrays are ordered collections of values that can be of any type.</p>
 
-                <h3>Creating Arrays</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Creating Arrays</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>// Array literal
 let fruits = ["apple", "banana", "orange"];
 
@@ -390,8 +751,8 @@ let mixed = [1, "hello", true, null, {name: "John"}];
 let empty = [];</code></pre>
                 </div>
 
-                <h3>Array Methods</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Array Methods</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>let fruits = ["apple", "banana", "orange"];
 
 // Adding elements
@@ -418,12 +779,12 @@ let longFruits = fruits.filter(fruit => fruit.length > 5);</code></pre>
                 </div>
             </section>
 
-            <section id="objects">
-                <h2>4.7 Objects</h2>
-                <p>Objects are collections of key-value pairs that represent complex data structures.</p>
+            <section id="objects" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">4.7 Objects</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">Objects are collections of key-value pairs that represent complex data structures.</p>
 
-                <h3>Creating Objects</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Creating Objects</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>// Object literal
 let person = {
     name: "John Doe",
@@ -461,8 +822,8 @@ class Person {
 }</code></pre>
                 </div>
 
-                <h3>Working with Objects</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Working with Objects</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>// Accessing properties
 console.log(person.name);        // "John Doe"
 console.log(person["age"]);      // 30
@@ -487,12 +848,12 @@ let entries = Object.entries(person);</code></pre>
                 </div>
             </section>
 
-            <section id="dom">
-                <h2>4.8 DOM Manipulation</h2>
-                <p>The Document Object Model (DOM) represents the HTML document as a tree structure that JavaScript can manipulate.</p>
+            <section id="dom" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">4.8 DOM Manipulation</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">The Document Object Model (DOM) represents the HTML document as a tree structure that JavaScript can manipulate.</p>
 
-                <h3>Selecting Elements</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Selecting Elements</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>// By ID
 let header = document.getElementById("main-header");
 
@@ -507,8 +868,8 @@ let firstButton = document.querySelector(".btn");
 let allButtons = document.querySelectorAll(".btn");</code></pre>
                 </div>
 
-                <h3>Modifying Elements</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Modifying Elements</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>let element = document.getElementById("myElement");
 
 // Change text content
@@ -531,8 +892,8 @@ element.classList.remove("hidden");
 element.classList.toggle("visible");</code></pre>
                 </div>
 
-                <h3>Creating and Removing Elements</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Creating and Removing Elements</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>// Create element
 let newDiv = document.createElement("div");
 newDiv.textContent = "New element";
@@ -554,12 +915,12 @@ toRemove.remove();</code></pre>
                 </div>
             </section>
 
-            <section id="events">
-                <h2>4.9 Event Handling</h2>
-                <p>Events allow JavaScript to respond to user interactions and other occurrences.</p>
+            <section id="events" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">4.9 Event Handling</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">Events allow JavaScript to respond to user interactions and other occurrences.</p>
 
-                <h3>Event Listeners</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Event Listeners</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>let button = document.getElementById("myButton");
 
 // Traditional way
@@ -589,66 +950,68 @@ button.addEventListener("click", handleClick);
 button.removeEventListener("click", handleClick);</code></pre>
                 </div>
 
-                <h3>Common Events</h3>
-                <table class="events-table">
-                    <thead>
-                        <tr>
-                            <th>Event</th>
-                            <th>Description</th>
-                            <th>Example Use</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>click</td>
-                            <td>Mouse click</td>
-                            <td>Button interactions</td>
-                        </tr>
-                        <tr>
-                            <td>mouseover</td>
-                            <td>Mouse enters element</td>
-                            <td>Hover effects</td>
-                        </tr>
-                        <tr>
-                            <td>mouseout</td>
-                            <td>Mouse leaves element</td>
-                            <td>Hover effects</td>
-                        </tr>
-                        <tr>
-                            <td>keydown</td>
-                            <td>Key pressed down</td>
-                            <td>Keyboard input</td>
-                        </tr>
-                        <tr>
-                            <td>keyup</td>
-                            <td>Key released</td>
-                            <td>Keyboard input</td>
-                        </tr>
-                        <tr>
-                            <td>submit</td>
-                            <td>Form submitted</td>
-                            <td>Form validation</td>
-                        </tr>
-                        <tr>
-                            <td>load</td>
-                            <td>Page finished loading</td>
-                            <td>Initialize scripts</td>
-                        </tr>
-                        <tr>
-                            <td>scroll</td>
-                            <td>Page or element scrolled</td>
-                            <td>Infinite scroll</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Common Events</h3>
+                <div class="overflow-x-auto mb-6">
+                    <table class="w-full border-collapse border border-gray-300 rounded-lg">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Event</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Description</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Example Use</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">click</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Mouse click</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Button interactions</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">mouseover</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Mouse enters element</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Hover effects</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">mouseout</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Mouse leaves element</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Hover effects</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">keydown</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Key pressed down</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Keyboard input</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">keyup</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Key released</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Keyboard input</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">submit</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Form submitted</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Form validation</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">load</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Page finished loading</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Initialize scripts</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-3 font-mono text-sm">scroll</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Page or element scrolled</td>
+                                <td class="border border-gray-300 px-4 py-3 text-gray-700">Infinite scroll</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </section>
 
-            <section id="error-handling">
-                <h2>4.10 Error Handling</h2>
-                <p>JavaScript provides mechanisms to handle and recover from errors.</p>
+            <section id="error-handling" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">4.10 Error Handling</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">JavaScript provides mechanisms to handle and recover from errors.</p>
 
-                <h3>Try-Catch Blocks</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Try-Catch Blocks</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>try {
     // Code that might throw an error
     let result = riskyOperation();
@@ -662,8 +1025,8 @@ button.removeEventListener("click", handleClick);</code></pre>
 }</code></pre>
                 </div>
 
-                <h3>Throwing Errors</h3>
-                <div class="code-example">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Throwing Errors</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
                     <pre><code>function divide(a, b) {
     if (b === 0) {
         throw new Error("Division by zero!");
@@ -679,75 +1042,159 @@ try {
                 </div>
             </section>
 
-            <section id="best-practices">
-                <h2>4.11 Best Practices</h2>
+            <section id="best-practices" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">4.11 Best Practices</h2>
 
-                <h3>Code Quality</h3>
-                <ul>
-                    <li>Use <code>const</code> and <code>let</code> instead of <code>var</code></li>
-                    <li>Use meaningful variable and function names</li>
-                    <li>Add comments for complex logic</li>
-                    <li>Use consistent indentation and formatting</li>
-                    <li>Avoid global variables when possible</li>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Code Quality</h3>
+                <ul class="space-y-2 mb-6">
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">✓</span>
+                        <span class="text-gray-700">Use <code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">const</code> and <code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">let</code> instead of <code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">var</code></span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">✓</span>
+                        <span class="text-gray-700">Use meaningful variable and function names</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">✓</span>
+                        <span class="text-gray-700">Add comments for complex logic</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">✓</span>
+                        <span class="text-gray-700">Use consistent indentation and formatting</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">✓</span>
+                        <span class="text-gray-700">Avoid global variables when possible</span>
+                    </li>
                 </ul>
 
-                <h3>Performance</h3>
-                <ul>
-                    <li>Minimize DOM manipulations</li>
-                    <li>Use event delegation for dynamic elements</li>
-                    <li>Cache DOM queries</li>
-                    <li>Use efficient loops</li>
-                    <li>Avoid memory leaks</li>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Performance</h3>
+                <ul class="space-y-2 mb-6">
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">⚡</span>
+                        <span class="text-gray-700">Minimize DOM manipulations</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">⚡</span>
+                        <span class="text-gray-700">Use event delegation for dynamic elements</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">⚡</span>
+                        <span class="text-gray-700">Cache DOM queries</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">⚡</span>
+                        <span class="text-gray-700">Use efficient loops</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">⚡</span>
+                        <span class="text-gray-700">Avoid memory leaks</span>
+                    </li>
                 </ul>
 
-                <h3>Security</h3>
-                <ul>
-                    <li>Validate and sanitize user input</li>
-                    <li>Use HTTPS for sensitive data</li>
-                    <li>Avoid eval() and innerHTML with user input</li>
-                    <li>Implement proper error handling</li>
-                    <li>Use Content Security Policy (CSP)</li>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Security</h3>
+                <ul class="space-y-2 mb-6">
+                    <li class="flex items-start">
+                        <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-sm font-medium mr-3">🔒</span>
+                        <span class="text-gray-700">Validate and sanitize user input</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-sm font-medium mr-3">🔒</span>
+                        <span class="text-gray-700">Use HTTPS for sensitive data</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-sm font-medium mr-3">🔒</span>
+                        <span class="text-gray-700">Avoid eval() and innerHTML with user input</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-sm font-medium mr-3">🔒</span>
+                        <span class="text-gray-700">Implement proper error handling</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-sm font-medium mr-3">🔒</span>
+                        <span class="text-gray-700">Use Content Security Policy (CSP)</span>
+                    </li>
                 </ul>
             </section>
 
-            <section id="summary">
-                <h2>4.12 Summary</h2>
-                <p>JavaScript is the programming language that brings interactivity to web pages:</p>
+            <section id="summary" class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">4.12 Summary</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">JavaScript is the programming language that brings interactivity to web pages:</p>
 
-                <div class="key-takeaways">
-                    <h3>Key Takeaways</h3>
-                    <ul>
-                        <li>JavaScript enables dynamic web page behavior</li>
-                        <li>Variables store data and can change types dynamically</li>
-                        <li>Functions are reusable blocks of code</li>
-                        <li>Arrays and objects handle complex data structures</li>
-                        <li>DOM manipulation changes page content dynamically</li>
-                        <li>Event handling responds to user interactions</li>
-                        <li>Error handling prevents crashes and improves UX</li>
-                        <li>Best practices ensure maintainable and secure code</li>
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-6 mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-4">Key Takeaways</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">🎯</span>
+                            <span class="text-gray-700">JavaScript enables dynamic web page behavior</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">🎯</span>
+                            <span class="text-gray-700">Variables store data and can change types dynamically</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">🎯</span>
+                            <span class="text-gray-700">Functions are reusable blocks of code</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">🎯</span>
+                            <span class="text-gray-700">Arrays and objects handle complex data structures</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">🎯</span>
+                            <span class="text-gray-700">DOM manipulation changes page content dynamically</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">🎯</span>
+                            <span class="text-gray-700">Event handling responds to user interactions</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">🎯</span>
+                            <span class="text-gray-700">Error handling prevents crashes and improves UX</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium mr-3">🎯</span>
+                            <span class="text-gray-700">Best practices ensure maintainable and secure code</span>
+                        </li>
                     </ul>
                 </div>
 
-                <div class="practice-exercises">
-                    <h3>Practice Exercises</h3>
-                    <ol>
-                        <li>Create a simple calculator with DOM manipulation</li>
-                        <li>Build a to-do list with add/remove functionality</li>
-                        <li>Implement form validation with error handling</li>
-                        <li>Create an image gallery with event handling</li>
-                        <li>Build a countdown timer using setInterval</li>
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-6 mb-6">
+                    <h3 class="text-xl font-semibold text-green-800 mb-4">Practice Exercises</h3>
+                    <ol class="space-y-2">
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">1</span>
+                            <span class="text-gray-700">Create a simple calculator with DOM manipulation</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">2</span>
+                            <span class="text-gray-700">Build a to-do list with add/remove functionality</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">3</span>
+                            <span class="text-gray-700">Implement form validation with error handling</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">4</span>
+                            <span class="text-gray-700">Create an image gallery with event handling</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium mr-3">5</span>
+                            <span class="text-gray-700">Build a countdown timer using setInterval</span>
+                        </li>
                     </ol>
                 </div>
             </section>
         </article>
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2025 Full-Stack Web Development Study Guide</p>
-            <div class="footer-links">
-                <a href="fullstack3.html">Previous: Chapter 3</a>
-                <span>End of Part 1</span>
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-300 mb-4">&copy; 2025 Full-Stack Web Development Study Guide</p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="fullstack3.html" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg text-sm font-medium transition-colors">Previous: Chapter 3</a>
+                <span class="bg-gray-700 px-4 py-2 rounded-lg text-sm font-medium text-gray-400">End of Part 1</span>
             </div>
         </div>
     </footer>

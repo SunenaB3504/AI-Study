@@ -4,324 +4,164 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node.js Backend Development - Chapter 4: Authentication & Security</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#61dafb',
+                        secondary: '#21a3c4',
+                        accent: '#4caf50'
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 2.5em;
-            font-weight: 300;
-        }
-        .header .subtitle {
-            font-size: 1.2em;
-            opacity: 0.9;
-            margin-top: 10px;
-        }
-        .content {
-            padding: 40px;
-        }
-        .chapter-nav {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            border-left: 4px solid #4285f4;
-        }
-        .chapter-nav h3 {
-            margin: 0 0 15px 0;
-            color: #4285f4;
-        }
-        .nav-links {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        .nav-btn {
-            background: #4285f4;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 0.9em;
-            transition: background-color 0.3s ease;
-        }
-        .nav-btn:hover {
-            background: #3367d6;
-        }
-        .nav-btn.secondary {
-            background: #34a853;
-        }
-        .nav-btn.secondary:hover {
-            background: #2e7d32;
-        }
-        .section {
-            margin-bottom: 40px;
-        }
-        .section h2 {
-            color: #4285f4;
-            border-bottom: 2px solid #e9ecef;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .code-block {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            overflow-x: auto;
-        }
-        .code-header {
-            background: #e9ecef;
-            padding: 10px 15px;
-            margin: -20px -20px 15px -20px;
-            border-radius: 8px 8px 0 0;
-            font-weight: bold;
-            color: #495057;
-        }
-        .highlight {
-            background: #fff3cd;
-            padding: 2px 4px;
-            border-radius: 3px;
-        }
-        .important {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .important h4 {
-            color: #721c24;
-            margin: 0 0 10px 0;
-        }
-        .practice-exercise {
-            background: #d1ecf1;
-            border: 1px solid #bee5eb;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        .practice-exercise h4 {
-            color: #0c5460;
-            margin: 0 0 15px 0;
-        }
-        .practice-exercise ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .quiz {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        .quiz h4 {
-            color: #856404;
-            margin: 0 0 15px 0;
-        }
-        .quiz ol {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .quiz li {
-            margin-bottom: 10px;
-        }
-        .summary {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 12px;
-            padding: 25px;
-            margin: 30px 0;
-        }
-        .summary h3 {
-            color: #333;
-            margin: 0 0 15px 0;
-        }
-        .key-points {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .key-point {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #4285f4;
-        }
-        .key-point h5 {
-            color: #4285f4;
-            margin: 0 0 10px 0;
-        }
-        .next-chapter {
-            background: linear-gradient(135deg, #fff8e1 0%, #ffcc02 100%);
-            border: 2px solid #ff9800;
-            border-radius: 12px;
-            padding: 25px;
-            margin: 30px 0;
-            text-align: center;
-        }
-        .next-chapter h3 {
-            color: #e65100;
-            margin: 0 0 15px 0;
-        }
-        .next-btn {
-            background: #ff9800;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-block;
-            transition: background-color 0.3s ease;
-        }
-        .next-btn:hover {
-            background: #e65100;
-        }
-        .security-table {
+        .status-completed { color: #22c55e; font-weight: bold; }
+        .status-in-progress { color: #f59e0b; font-weight: bold; }
+        .status-pending { color: #6b7280; font-weight: bold; }
+        .progress-bar {
             width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background: white;
-            border-radius: 8px;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
             overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .security-table th,
-        .security-table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #e9ecef;
-        }
-        .security-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #333;
-        }
-        .security-table tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-        .security-table tr:hover {
-            background: #e3f2fd;
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e 0%, #f59e0b 60%, #6b7280 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🔐 Node.js Backend Development</h1>
-            <div class="subtitle">Chapter 4: Authentication & Security</div>
-        </div>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-primary to-secondary text-white p-8 text-center">
+                <h1 class="text-4xl font-bold mb-2">🔐 Node.js Backend Development</h1>
+                <div class="text-xl opacity-90 mb-4">Chapter 4: Authentication & Security</div>
 
-        <div class="content">
-            <div class="chapter-nav">
-                <h3>📚 Chapter Navigation</h3>
-                <div class="nav-links">
-                    <a href="study-guide-progress.html" class="nav-btn">📊 Progress Dashboard</a>
-                    <a href="nodejs1.html" class="nav-btn">📖 Chapter 1: Fundamentals</a>
-                    <a href="nodejs2.html" class="nav-btn">📖 Chapter 2: Express.js</a>
-                    <a href="nodejs3.html" class="nav-btn">📖 Chapter 3: Databases</a>
-                    <a href="nodejs4.html" class="nav-btn secondary">📖 Current: Chapter 4</a>
-                    <a href="nodejs5.html" class="nav-btn">📖 Chapter 5: API Development</a>
+                <!-- TTS Controls -->
+                <div class="flex justify-center space-x-4 mb-4">
+                    <button id="play-pause-btn" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors">
+                        <span id="play-icon">▶️</span>
+                        <span id="pause-icon" class="hidden">⏸️</span>
+                        Play
+                    </button>
+                    <button id="stop-btn" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors">
+                        ⏹️ Stop
+                    </button>
+                    <select id="voice-select" class="bg-white/20 text-white px-3 py-2 rounded-lg border-0">
+                        <option value="">Default Voice</option>
+                    </select>
+                    <input type="range" id="rate-slider" min="0.5" max="2" step="0.1" value="1"
+                           class="w-24 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
+                    <span id="rate-value" class="text-sm">1x</span>
+                </div>
+
+                <!-- Chapter Progress -->
+                <div class="max-w-2xl mx-auto">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span>Chapter Progress</span>
+                        <span id="chapter-progress">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill w-0"></div>
+                    </div>
                 </div>
             </div>
 
-            <div class="section">
-                <h2>🔐 Authentication vs Authorization</h2>
-                <p>Understanding the fundamental concepts of authentication and authorization is crucial for building secure applications.</p>
-
-                <table class="security-table">
-                    <thead>
-                        <tr>
-                            <th>Aspect</th>
-                            <th>Authentication</th>
-                            <th>Authorization</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Definition</strong></td>
-                            <td>Verifying who you are</td>
-                            <td>Verifying what you can do</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Purpose</strong></td>
-                            <td>Identity verification</td>
-                            <td>Access control</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Examples</strong></td>
-                            <td>Login, password verification</td>
-                            <td>Role-based permissions, resource access</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Common Methods</strong></td>
-                            <td>JWT, sessions, OAuth</td>
-                            <td>RBAC, ABAC, ACL</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Security Focus</strong></td>
-                            <td>Identity assurance</td>
-                            <td>Access management</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="important">
-                    <h4>🛡️ Security First Approach</h4>
-                    <ul>
-                        <li><strong>Defense in Depth:</strong> Multiple layers of security</li>
-                        <li><strong>Fail-Safe Defaults:</strong> Secure by default, explicit permissions</li>
-                        <li><strong>Principle of Least Privilege:</strong> Minimum required access</li>
-                        <li><strong>Zero Trust:</strong> Never trust, always verify</li>
-                        <li><strong>Security by Design:</strong> Security considerations from the start</li>
-                    </ul>
+            <!-- Content -->
+            <div class="p-8">
+                <div class="bg-gray-50 p-6 rounded-lg mb-8 border-l-4 border-blue-500">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-4">📚 Chapter Navigation</h3>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="study-guide-progress.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">📊 Progress Dashboard</a>
+                        <a href="nodejs1.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">📖 Chapter 1: Fundamentals</a>
+                        <a href="nodejs2.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">📖 Chapter 2: Express.js</a>
+                        <a href="nodejs3.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">📖 Chapter 3: Databases</a>
+                        <a href="nodejs4.html" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">📖 Current: Chapter 4</a>
+                        <a href="nodejs5.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">📖 Chapter 5: API Development</a>
+                    </div>
                 </div>
-            </div>
 
-            <div class="section">
-                <h2>🔑 Password Security</h2>
-                <p>Proper password handling is fundamental to application security. Never store passwords in plain text.</p>
+                <div class="mb-12">
+                    <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-gray-200 pb-3 mb-6">🔐 Authentication vs Authorization</h2>
+                    <p class="text-gray-700 mb-6">Understanding the fundamental concepts of authentication and authorization is crucial for building secure applications.</p>
 
-                <h3>Password Hashing with bcrypt</h3>
-                <div class="code-block">
-                    <div class="code-header">Installing bcrypt and Setting Up Password Hashing</div>
-# Install bcrypt
+                    <div class="overflow-x-auto bg-white rounded-lg shadow-md mb-6">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">Aspect</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">Authentication</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">Authorization</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium">Definition</td>
+                                    <td class="px-6 py-4">Verifying who you are</td>
+                                    <td class="px-6 py-4">Verifying what you can do</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 bg-gray-50">
+                                    <td class="px-6 py-4 font-medium">Purpose</td>
+                                    <td class="px-6 py-4">Identity verification</td>
+                                    <td class="px-6 py-4">Access control</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium">Examples</td>
+                                    <td class="px-6 py-4">Login, password verification</td>
+                                    <td class="px-6 py-4">Role-based permissions, resource access</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 bg-gray-50">
+                                    <td class="px-6 py-4 font-medium">Common Methods</td>
+                                    <td class="px-6 py-4">JWT, sessions, OAuth</td>
+                                    <td class="px-6 py-4">RBAC, ABAC, ACL</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium">Security Focus</td>
+                                    <td class="px-6 py-4">Identity assurance</td>
+                                    <td class="px-6 py-4">Access management</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg mb-6">
+                        <h4 class="text-red-700 font-semibold mb-3">🛡️ Security First Approach</h4>
+                        <ul class="text-red-700 space-y-1">
+                            <li><strong>Defense in Depth:</strong> Multiple layers of security</li>
+                            <li><strong>Fail-Safe Defaults:</strong> Secure by default, explicit permissions</li>
+                            <li><strong>Principle of Least Privilege:</strong> Minimum required access</li>
+                            <li><strong>Zero Trust:</strong> Never trust, always verify</li>
+                            <li><strong>Security by Design:</strong> Security considerations from the start</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mb-12">
+                    <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-gray-200 pb-3 mb-6">🔑 Password Security</h2>
+                    <p class="text-gray-700 mb-6">Proper password handling is fundamental to application security. Never store passwords in plain text.</p>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Password Hashing with bcrypt</h3>
+                    <div class="bg-gray-100 border border-gray-200 rounded-lg p-6 mb-6 font-mono text-sm overflow-x-auto">
+                        <div class="bg-gray-200 px-4 py-2 rounded-t-lg font-semibold text-gray-700 mb-3">Installing bcrypt and Setting Up Password Hashing</div>
+                        <pre class="text-gray-800"># Install bcrypt
 npm install bcrypt
 npm install --save-dev @types/bcrypt  # For TypeScript
 
 # Alternative: bcryptjs (pure JavaScript implementation)
-npm install bcryptjs
-                </div>
+npm install bcryptjs</pre>
+                    </div>
 
-                <div class="code-block">
-                    <div class="code-header">Password Hashing and Verification</div>
-const bcrypt = require('bcrypt');
+                    <div class="bg-gray-100 border border-gray-200 rounded-lg p-6 mb-6 font-mono text-sm overflow-x-auto">
+                        <div class="bg-gray-200 px-4 py-2 rounded-t-lg font-semibold text-gray-700 mb-3">Password Hashing and Verification</div>
+                        <pre class="text-gray-800">const bcrypt = require('bcrypt');
 const saltRounds = 12; // Recommended: 10-12 for production
 
 class PasswordService {
@@ -381,8 +221,8 @@ class PasswordService {
     }
 }
 
-module.exports = PasswordService;
-                </div>
+module.exports = PasswordService;</pre>
+                    </div>
 
                 <h3>User Registration with Secure Password Handling</h3>
                 <div class="code-block">
@@ -563,14 +403,14 @@ module.exports = app;
                 </div>
             </div>
 
-            <div class="section">
-                <h2>🎫 JSON Web Tokens (JWT)</h2>
-                <p>JWT is a compact, URL-safe means of representing claims to be transferred between two parties.</p>
+                <div class="mb-12">
+                    <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-gray-200 pb-3 mb-6">🎫 JSON Web Tokens (JWT)</h2>
+                    <p class="text-gray-700 mb-6">JWT is a compact, URL-safe means of representing claims to be transferred between two parties.</p>
 
-                <h3>JWT Structure and Components</h3>
-                <div class="code-block">
-                    <div class="code-header">JWT Components</div>
-// JWT Structure: header.payload.signature
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">JWT Structure and Components</h3>
+                    <div class="bg-gray-100 border border-gray-200 rounded-lg p-6 mb-6 font-mono text-sm overflow-x-auto">
+                        <div class="bg-gray-200 px-4 py-2 rounded-t-lg font-semibold text-gray-700 mb-3">JWT Components</div>
+                        <pre class="text-gray-800">// JWT Structure: header.payload.signature
 // Example JWT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
 
 // Header: Algorithm and token type
@@ -589,16 +429,16 @@ const payload = {
     "exp": 1516242622       // Expiration time
 };
 
-// Signature: Base64Url(header) + "." + Base64Url(payload) + secret
-                </div>
+// Signature: Base64Url(header) + "." + Base64Url(payload) + secret</pre>
+                    </div>
 
-                <h3>JWT Implementation</h3>
-                <div class="code-block">
-                    <div class="code-header">Installing and Setting Up JWT</div>
-# Install jsonwebtoken
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">JWT Implementation</h3>
+                    <div class="bg-gray-100 border border-gray-200 rounded-lg p-6 mb-6 font-mono text-sm overflow-x-auto">
+                        <div class="bg-gray-200 px-4 py-2 rounded-t-lg font-semibold text-gray-700 mb-3">Installing and Setting Up JWT</div>
+                        <pre class="text-gray-800"># Install jsonwebtoken
 npm install jsonwebtoken
-npm install --save-dev @types/jsonwebtoken  # For TypeScript
-                </div>
+npm install --save-dev @types/jsonwebtoken  # For TypeScript</pre>
+                    </div>
 
                 <div class="code-block">
                     <div class="code-header">JWT Service for Token Management</div>
@@ -1329,81 +1169,334 @@ module.exports = Config;
                 </div>
             </div>
 
-            <div class="practice-exercise">
-                <h4>🛠️ Practice Exercise: Complete Authentication System</h4>
-                <p>Build a complete authentication system with the following features:</p>
-                <ul>
-                    <li><strong>User Registration:</strong> Secure password hashing and validation</li>
-                    <li><strong>User Login:</strong> JWT token generation and account locking</li>
-                    <li><strong>Token Refresh:</strong> Automatic token renewal with refresh tokens</li>
-                    <li><strong>Password Reset:</strong> Secure password reset flow with email</li>
-                    <li><strong>Role-Based Access:</strong> Admin and user role permissions</li>
-                    <li><strong>Security Features:</strong> Rate limiting, input validation, CORS</li>
-                    <li><strong>Session Management:</strong> Proper logout and token blacklisting</li>
-                </ul>
-                <p><strong>Requirements:</strong></p>
-                <ul>
-                    <li>Use bcrypt for password hashing with salt rounds of 12</li>
-                    <li>Implement JWT with separate access and refresh tokens</li>
-                    <li>Add comprehensive input validation and sanitization</li>
-                    <li>Implement rate limiting for authentication endpoints</li>
-                    <li>Add proper error handling and logging</li>
-                    <li>Use environment variables for all sensitive data</li>
-                    <li>Implement account locking after failed login attempts</li>
-                    <li>Add password strength requirements and validation</li>
-                </ul>
-            </div>
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg mb-8">
+                    <h4 class="text-blue-700 font-semibold mb-4">🛠️ Practice Exercise: Complete Authentication System</h4>
+                    <p class="text-blue-700 mb-4">Build a complete authentication system with the following features:</p>
+                    <ul class="text-blue-700 space-y-2 mb-4">
+                        <li><strong>User Registration:</strong> Secure password hashing and validation</li>
+                        <li><strong>User Login:</strong> JWT token generation and account locking</li>
+                        <li><strong>Token Refresh:</strong> Automatic token renewal with refresh tokens</li>
+                        <li><strong>Password Reset:</strong> Secure password reset flow with email</li>
+                        <li><strong>Role-Based Access:</strong> Admin and user role permissions</li>
+                        <li><strong>Security Features:</strong> Rate limiting, input validation, CORS</li>
+                        <li><strong>Session Management:</strong> Proper logout and token blacklisting</li>
+                    </ul>
+                    <p class="text-blue-700 font-semibold mb-2">Requirements:</p>
+                    <ul class="text-blue-700 space-y-1 mb-4">
+                        <li>Use bcrypt for password hashing with salt rounds of 12</li>
+                        <li>Implement JWT with separate access and refresh tokens</li>
+                        <li>Add comprehensive input validation and sanitization</li>
+                        <li>Implement rate limiting for authentication endpoints</li>
+                        <li>Add proper error handling and logging</li>
+                        <li>Use environment variables for all sensitive data</li>
+                        <li>Implement account locking after failed login attempts</li>
+                        <li>Add password strength requirements and validation</li>
+                    </ul>
+                </div>
 
-            <div class="quiz">
-                <h4>📝 Knowledge Check</h4>
-                <ol>
-                    <li>What is the difference between authentication and authorization?</li>
-                    <li>Why should passwords never be stored in plain text?</li>
-                    <li>Explain the structure of a JWT token and its three main components.</li>
-                    <li>What is the purpose of refresh tokens in JWT authentication?</li>
-                    <li>How does bcrypt work to secure passwords?</li>
-                    <li>What are some common security vulnerabilities in web applications?</li>
-                    <li>Why is rate limiting important for authentication endpoints?</li>
-                    <li>How can you prevent SQL injection attacks in Node.js applications?</li>
-                </ol>
-            </div>
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-lg mb-8">
+                    <h4 class="text-yellow-700 font-semibold mb-4">📝 Knowledge Check</h4>
+                    <ol class="text-yellow-700 space-y-2">
+                        <li>What is the difference between authentication and authorization?</li>
+                        <li>Why should passwords never be stored in plain text?</li>
+                        <li>Explain the structure of a JWT token and its three main components.</li>
+                        <li>What is the purpose of refresh tokens in JWT authentication?</li>
+                        <li>How does bcrypt work to secure passwords?</li>
+                        <li>What are some common security vulnerabilities in web applications?</li>
+                        <li>Why is rate limiting important for authentication endpoints?</li>
+                        <li>How can you prevent SQL injection attacks in Node.js applications?</li>
+                    </ol>
+                </div>
 
-            <div class="summary">
-                <h3>📚 Chapter Summary</h3>
-                <div class="key-points">
-                    <div class="key-point">
-                        <h5>🔐 Authentication System</h5>
-                        <p>Complete user authentication with secure password hashing, JWT tokens, and session management for building secure web applications.</p>
-                    </div>
-                    <div class="key-point">
-                        <h5>🛡️ Security Best Practices</h5>
-                        <p>Input validation, rate limiting, CORS configuration, and security headers to protect applications from common vulnerabilities.</p>
-                    </div>
-                    <div class="key-point">
-                        <h5>🎫 JWT Implementation</h5>
-                        <p>JSON Web Token implementation with access and refresh tokens, proper token verification, and secure token storage.</p>
-                    </div>
-                    <div class="key-point">
-                        <h5>🔑 Password Security</h5>
-                        <p>Secure password handling with bcrypt hashing, password strength validation, and account protection mechanisms.</p>
-                    </div>
-                    <div class="key-point">
-                        <h5>🚨 Authorization & Access Control</h5>
-                        <p>Role-based access control, middleware for route protection, and permission management for different user types.</p>
-                    </div>
-                    <div class="key-point">
-                        <h5>⚙️ Production Security</h5>
-                        <p>Environment variable management, configuration validation, and production-ready security configurations.</p>
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8 mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">📚 Chapter Summary</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+                            <h5 class="text-blue-600 font-semibold mb-3">🔐 Authentication System</h5>
+                            <p class="text-gray-700">Complete user authentication with secure password hashing, JWT tokens, and session management for building secure web applications.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
+                            <h5 class="text-green-600 font-semibold mb-3">🛡️ Security Best Practices</h5>
+                            <p class="text-gray-700">Input validation, rate limiting, CORS configuration, and security headers to protect applications from common vulnerabilities.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
+                            <h5 class="text-purple-600 font-semibold mb-3">🎫 JWT Implementation</h5>
+                            <p class="text-gray-700">JSON Web Token implementation with access and refresh tokens, proper token verification, and secure token storage.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
+                            <h5 class="text-red-600 font-semibold mb-3">🔑 Password Security</h5>
+                            <p class="text-gray-700">Secure password handling with bcrypt hashing, password strength validation, and account protection mechanisms.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-orange-500">
+                            <h5 class="text-orange-600 font-semibold mb-3">🚨 Authorization & Access Control</h5>
+                            <p class="text-gray-700">Role-based access control, middleware for route protection, and permission management for different user types.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-teal-500">
+                            <h5 class="text-teal-600 font-semibold mb-3">⚙️ Production Security</h5>
+                            <p class="text-gray-700">Environment variable management, configuration validation, and production-ready security configurations.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="next-chapter">
-                <h3>🎯 Ready for Chapter 5?</h3>
-                <p>In the next chapter, we'll explore advanced API development covering RESTful APIs, GraphQL, API documentation, testing, and deployment strategies.</p>
-                <a href="nodejs5.html" class="next-btn">Continue to Chapter 5: API Development →</a>
+                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-orange-200 rounded-xl p-8 text-center mb-8">
+                    <h3 class="text-2xl font-bold text-orange-700 mb-4">🎯 Ready for Chapter 5?</h3>
+                    <p class="text-orange-700 mb-6">In the next chapter, we'll explore advanced API development covering RESTful APIs, GraphQL, API documentation, testing, and deployment strategies.</p>
+                    <a href="nodejs5.html" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors inline-block">Continue to Chapter 5: API Development →</a>
+                </div>
             </div>
         </div>
+
+        <!-- TTS and Chapter Tracking JavaScript -->
+        <script>
+            // Chapter tracking functionality
+            class ChapterTracker {
+                constructor() {
+                    this.chapterId = 'nodejs4';
+                    this.sections = document.querySelectorAll('.mb-12');
+                    this.progressFill = document.getElementById('progress-fill');
+                    this.progressText = document.getElementById('chapter-progress');
+                    this.init();
+                }
+
+                init() {
+                    this.loadProgress();
+                    this.setupScrollTracking();
+                    this.markChapterStarted();
+                }
+
+                loadProgress() {
+                    const progress = localStorage.getItem(`chapter_${this.chapterId}_progress`) || 0;
+                    this.updateProgress(progress);
+                }
+
+                setupScrollTracking() {
+                    let ticking = false;
+                    const updateProgress = () => {
+                        const scrolled = window.scrollY;
+                        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                        const progress = Math.min((scrolled / maxScroll) * 100, 100);
+
+                        this.updateProgress(progress);
+                        localStorage.setItem(`chapter_${this.chapterId}_progress`, progress);
+
+                        ticking = false;
+                    };
+
+                    window.addEventListener('scroll', () => {
+                        if (!ticking) {
+                            requestAnimationFrame(updateProgress);
+                            ticking = true;
+                        }
+                    });
+                }
+
+                updateProgress(progress) {
+                    if (this.progressFill) {
+                        this.progressFill.style.width = progress + '%';
+                    }
+                    if (this.progressText) {
+                        this.progressText.textContent = Math.round(progress) + '%';
+                    }
+                }
+
+                markChapterStarted() {
+                    localStorage.setItem(`chapter_${this.chapterId}_started`, Date.now());
+                }
+            }
+
+            // Text-to-Speech functionality
+            class TextToSpeech {
+                constructor() {
+                    this.synth = window.speechSynthesis;
+                    this.isPlaying = false;
+                    this.currentUtterance = null;
+                    this.voiceSelect = document.getElementById('voice-select');
+                    this.rateSlider = document.getElementById('rate-slider');
+                    this.rateValue = document.getElementById('rate-value');
+                    this.playPauseBtn = document.getElementById('play-pause-btn');
+                    this.stopBtn = document.getElementById('stop-btn');
+                    this.playIcon = document.getElementById('play-icon');
+                    this.pauseIcon = document.getElementById('pause-icon');
+
+                    this.init();
+                }
+
+                init() {
+                    this.loadVoices();
+                    this.setupEventListeners();
+                    this.setupRateControl();
+
+                    // Load saved preferences
+                    const savedRate = localStorage.getItem('tts_rate') || 1;
+                    this.rateSlider.value = savedRate;
+                    this.updateRateValue(savedRate);
+                }
+
+                loadVoices() {
+                    const voices = this.synth.getVoices();
+                    if (voices.length > 0) {
+                        this.populateVoiceSelect(voices);
+                    } else {
+                        // Some browsers load voices asynchronously
+                        this.synth.onvoiceschanged = () => {
+                            const voices = this.synth.getVoices();
+                            this.populateVoiceSelect(voices);
+                        };
+                    }
+                }
+
+                populateVoiceSelect(voices) {
+                    this.voiceSelect.innerHTML = '<option value="">Default Voice</option>';
+                    voices.forEach((voice, index) => {
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = `${voice.name} (${voice.lang})`;
+                        this.voiceSelect.appendChild(option);
+                    });
+                }
+
+                setupEventListeners() {
+                    this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+                    this.stopBtn.addEventListener('click', () => this.stop());
+
+                    this.voiceSelect.addEventListener('change', () => {
+                        localStorage.setItem('tts_voice', this.voiceSelect.value);
+                    });
+
+                    // Load saved voice preference
+                    const savedVoice = localStorage.getItem('tts_voice');
+                    if (savedVoice) {
+                        this.voiceSelect.value = savedVoice;
+                    }
+                }
+
+                setupRateControl() {
+                    this.rateSlider.addEventListener('input', (e) => {
+                        const rate = e.target.value;
+                        this.updateRateValue(rate);
+                        localStorage.setItem('tts_rate', rate);
+
+                        if (this.currentUtterance) {
+                            this.currentUtterance.rate = rate;
+                        }
+                    });
+                }
+
+                updateRateValue(rate) {
+                    this.rateValue.textContent = rate + 'x';
+                }
+
+                togglePlayPause() {
+                    if (this.isPlaying) {
+                        this.pause();
+                    } else {
+                        this.play();
+                    }
+                }
+
+                play() {
+                    if (this.synth.speaking) {
+                        this.synth.resume();
+                    } else {
+                        this.speakContent();
+                    }
+                    this.isPlaying = true;
+                    this.updatePlayButton();
+                }
+
+                pause() {
+                    this.synth.pause();
+                    this.isPlaying = false;
+                    this.updatePlayButton();
+                }
+
+                stop() {
+                    this.synth.cancel();
+                    this.isPlaying = false;
+                    this.currentUtterance = null;
+                    this.updatePlayButton();
+                }
+
+                speakContent() {
+                    const content = this.extractReadableContent();
+                    const utterances = this.createUtterances(content);
+
+                    utterances.forEach((utterance, index) => {
+                        utterance.rate = parseFloat(this.rateSlider.value);
+
+                        if (this.voiceSelect.value !== '') {
+                            const voices = this.synth.getVoices();
+                            const selectedVoice = voices[parseInt(this.voiceSelect.value)];
+                            if (selectedVoice) {
+                                utterance.voice = selectedVoice;
+                            }
+                        }
+
+                        utterance.onend = () => {
+                            if (index === utterances.length - 1) {
+                                this.isPlaying = false;
+                                this.updatePlayButton();
+                            }
+                        };
+
+                        utterance.onerror = () => {
+                            this.isPlaying = false;
+                            this.updatePlayButton();
+                        };
+
+                        this.synth.speak(utterance);
+                    });
+                }
+
+                extractReadableContent() {
+                    const elements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li');
+                    return Array.from(elements)
+                        .map(el => el.textContent.trim())
+                        .filter(text => text.length > 0)
+                        .slice(0, 50); // Limit to first 50 elements
+                }
+
+                createUtterances(content) {
+                    const utterances = [];
+                    let currentUtterance = '';
+
+                    content.forEach(text => {
+                        if ((currentUtterance + text).length > 200) {
+                            if (currentUtterance) {
+                                utterances.push(new SpeechSynthesisUtterance(currentUtterance));
+                            }
+                            currentUtterance = text;
+                        } else {
+                            currentUtterance += (currentUtterance ? '. ' : '') + text;
+                        }
+                    });
+
+                    if (currentUtterance) {
+                        utterances.push(new SpeechSynthesisUtterance(currentUtterance));
+                    }
+
+                    return utterances;
+                }
+
+                updatePlayButton() {
+                    if (this.isPlaying) {
+                        this.playIcon.classList.add('hidden');
+                        this.pauseIcon.classList.remove('hidden');
+                        this.playPauseBtn.title = 'Pause';
+                    } else {
+                        this.playIcon.classList.remove('hidden');
+                        this.pauseIcon.classList.add('hidden');
+                        this.playPauseBtn.title = 'Play';
+                    }
+                }
+            }
+
+            // Initialize when DOM is loaded
+            document.addEventListener('DOMContentLoaded', () => {
+                new ChapterTracker();
+                new TextToSpeech();
+            });
+        </script>
     </div>
 </body>
 </html>

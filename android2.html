@@ -42,9 +42,7 @@
             }
         }
     </script>
-    <script src="js/tts.js"></script>
-    <script src="js/progress-tracker.js"></script>
-    <script src="js/chapter.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
         .hero-gradient {
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
@@ -56,11 +54,32 @@
             transform: translateY(-2px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-        .progress-fill {
-            background: linear-gradient(90deg, #3b82f6 0%, #22c55e 100%);
+        .tts-highlight {
+            background-color: #fef3c7;
+            padding: 2px 4px;
+            border-radius: 3px;
+            animation: highlight 2s ease-out;
         }
-        .progress-fill {
-            width: 0%;
+
+        @keyframes highlight {
+            0% { background-color: #fef3c7; }
+            100% { background-color: transparent; }
+        }
+
+        .code-block {
+            position: relative;
+        }
+
+        .code-block:hover .copy-btn {
+            opacity: 1;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
         }
     </style>
 </head>
@@ -75,6 +94,48 @@
                 <span class="text-white text-sm font-medium" id="progressText">0% Complete</span>
             </div>
         </header>
+
+        <!-- Progress Bar -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 py-3">
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-600">Chapter Progress:</span>
+                    <span id="progress-text" class="font-medium text-gray-800">0/12 sections completed</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
+                    <div id="chapter-progress" class="bg-green-500 h-3 rounded-full transition-all duration-300 w-0"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TTS Controls -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 py-3">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <button id="play-pause-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                            <i class="fas fa-play"></i>
+                            <span>Play</span>
+                        </button>
+                        <button id="stop-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            <i class="fas fa-stop"></i> Stop
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <label for="tts-rate" class="text-sm font-medium text-gray-700">Speed:</label>
+                        <input type="range" id="tts-rate" min="0.5" max="2" step="0.1" value="1" class="w-20">
+                        <span id="rate-value" class="text-sm font-medium text-gray-700 w-8">1.0x</span>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <label for="tts-pitch" class="text-sm font-medium text-gray-700">Pitch:</label>
+                        <input type="range" id="tts-pitch" min="0.5" max="2" step="0.1" value="1" class="w-20">
+                        <span id="pitch-value" class="text-sm font-medium text-gray-700 w-8">1.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <main class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
             <section id="section-1" class="mb-12 pb-8 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
@@ -506,6 +567,258 @@ class MainActivity : AppCompatActivity() {
     </div>
 
     <script>
+        // TTS Controller
+        class TTSController {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.currentUtterance = null;
+                this.isPlaying = false;
+                this.currentSection = null;
+                this.rate = parseFloat(localStorage.getItem('ttsRate')) || 1;
+                this.pitch = parseFloat(localStorage.getItem('ttsPitch')) || 1;
+                this.voice = null;
+                this.initialize();
+            }
+
+            async initialize() {
+                // Wait for voices to load
+                if (this.synth.getVoices().length === 0) {
+                    await new Promise(resolve => {
+                        this.synth.onvoiceschanged = resolve;
+                        setTimeout(resolve, 1000); // Fallback timeout
+                    });
+                }
+
+                const voices = this.synth.getVoices();
+                // Prefer English voices
+                this.voice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+
+                this.updateControls();
+            }
+
+            updateControls() {
+                const rateInput = document.getElementById('tts-rate');
+                const pitchInput = document.getElementById('tts-pitch');
+                const rateValue = document.getElementById('rate-value');
+                const pitchValue = document.getElementById('pitch-value');
+
+                if (rateInput) rateInput.value = this.rate;
+                if (pitchInput) pitchInput.value = this.pitch;
+                if (rateValue) rateValue.textContent = this.rate.toFixed(1) + 'x';
+                if (pitchValue) pitchValue.textContent = this.pitch.toString();
+            }
+
+            speak(text, element = null) {
+                if (this.isPlaying) {
+                    this.stop();
+                }
+
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.voice = this.voice;
+                this.currentUtterance.rate = this.rate;
+                this.currentUtterance.pitch = this.pitch;
+
+                if (element) {
+                    this.currentUtterance.onboundary = (event) => {
+                        if (event.name === 'word') {
+                            this.highlightWord(element, event.charIndex);
+                        }
+                    };
+                }
+
+                this.currentUtterance.onend = () => {
+                    this.isPlaying = false;
+                    this.updatePlayButton();
+                    if (element) {
+                        element.classList.remove('tts-highlight');
+                    }
+                };
+
+                this.synth.speak(this.currentUtterance);
+                this.isPlaying = true;
+                this.updatePlayButton();
+            }
+
+            highlightWord(element, charIndex) {
+                // Simple highlighting - could be enhanced
+                element.classList.add('tts-highlight');
+            }
+
+            stop() {
+                if (this.synth.speaking) {
+                    this.synth.cancel();
+                }
+                this.isPlaying = false;
+                this.currentUtterance = null;
+                this.updatePlayButton();
+            }
+
+            setRate(rate) {
+                this.rate = rate;
+                localStorage.setItem('ttsRate', rate);
+                if (this.currentUtterance) {
+                    this.currentUtterance.rate = rate;
+                }
+            }
+
+            setPitch(pitch) {
+                this.pitch = pitch;
+                localStorage.setItem('ttsPitch', pitch);
+                if (this.currentUtterance) {
+                    this.currentUtterance.pitch = pitch;
+                }
+            }
+
+            updatePlayButton() {
+                const btn = document.getElementById('play-pause-btn');
+                const icon = btn.querySelector('i');
+                const span = btn.querySelector('span');
+
+                if (this.isPlaying) {
+                    icon.className = 'fas fa-pause';
+                    span.textContent = 'Pause';
+                } else {
+                    icon.className = 'fas fa-play';
+                    span.textContent = 'Play';
+                }
+            }
+        }
+
+        // Chapter Progress Tracker
+        class ChapterTracker {
+            constructor() {
+                this.totalSections = 12;
+                this.completedSections = new Set(
+                    JSON.parse(localStorage.getItem('android2Progress') || '[]')
+                );
+                this.initialize();
+            }
+
+            initialize() {
+                this.updateProgress();
+                this.setupSectionTracking();
+            }
+
+            setupSectionTracking() {
+                const sections = document.querySelectorAll('section[id]');
+                sections.forEach(section => {
+                    const sectionId = section.id;
+
+                    // Check if section is in viewport
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                this.markSectionComplete(sectionId);
+                            }
+                        });
+                    }, { threshold: 0.5 });
+
+                    observer.observe(section);
+                });
+            }
+
+            markSectionComplete(sectionId) {
+                if (!this.completedSections.has(sectionId)) {
+                    this.completedSections.add(sectionId);
+                    this.saveProgress();
+                    this.updateProgress();
+                }
+            }
+
+            saveProgress() {
+                localStorage.setItem('android2Progress', JSON.stringify([...this.completedSections]));
+            }
+
+            updateProgress() {
+                const progress = (this.completedSections.size / this.totalSections) * 100;
+                const progressBar = document.getElementById('chapter-progress');
+                const progressText = document.getElementById('progress-text');
+
+                if (progressBar) {
+                    progressBar.style.width = progress + '%';
+                }
+                if (progressText) {
+                    progressText.textContent = `${this.completedSections.size}/${this.totalSections} sections completed`;
+                }
+            }
+
+            getCompletedCount() {
+                return this.completedSections.size;
+            }
+        }
+
+        // Initialize when DOM is loaded
+        let ttsController;
+        let chapterTracker;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            ttsController = new TTSController();
+            chapterTracker = new ChapterTracker();
+
+            // Setup TTS controls
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const stopBtn = document.getElementById('stop-btn');
+            const rateInput = document.getElementById('tts-rate');
+            const pitchInput = document.getElementById('tts-pitch');
+
+            if (playPauseBtn) {
+                playPauseBtn.addEventListener('click', () => {
+                    if (ttsController.isPlaying) {
+                        ttsController.stop();
+                    } else {
+                        const currentSection = document.querySelector('section[id]');
+                        if (currentSection) {
+                            const text = currentSection.textContent.replace(/\s+/g, ' ').trim();
+                            ttsController.speak(text, currentSection);
+                        }
+                    }
+                });
+            }
+
+            if (stopBtn) {
+                stopBtn.addEventListener('click', () => {
+                    ttsController.stop();
+                });
+            }
+
+            if (rateInput) {
+                rateInput.addEventListener('input', (e) => {
+                    ttsController.setRate(parseFloat(e.target.value));
+                });
+            }
+
+            if (pitchInput) {
+                pitchInput.addEventListener('input', (e) => {
+                    ttsController.setPitch(parseFloat(e.target.value));
+                });
+            }
+
+            // Setup section reading
+            document.querySelectorAll('section[id]').forEach(section => {
+                const readBtn = document.createElement('button');
+                readBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                readBtn.className = 'ml-2 px-2 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors';
+                readBtn.title = 'Read this section';
+
+                readBtn.addEventListener('click', () => {
+                    const text = section.textContent.replace(/\s+/g, ' ').trim();
+                    ttsController.speak(text, section);
+                });
+
+                const header = section.querySelector('h2');
+                if (header) {
+                    header.appendChild(readBtn);
+                }
+            });
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (ttsController) {
+                ttsController.stop();
+            }
+        });
+
         // Initialize progress tracking for this chapter
         document.addEventListener('DOMContentLoaded', function() {
             initializeProgress('android2');
